@@ -41,74 +41,31 @@
 
     <!-- RESULTS -->
     <section id="results" class="post">
-      <header class="major">
-        <h2>Results</h2>
-      </header>
+      <header class="major"><h2>Results</h2></header>
       <div class="row gtr-200">
 
-        <!-- Level 1 Results -->
+        <!-- Level 1 -->
         <div class="col-6 col-12-medium">
           <h3>Level 1 (0–1.5)</h3>
           <h4>Top 3</h4>
-          <ul id="lvl1-podium">
-            <li><strong>1st 🏆:</strong> Find out this Sunday!</li>
-            <li><strong>2nd:</strong> Find out this Sunday!</li>
-            <li><strong>3rd:</strong> Find out this Sunday!</li>
+          <ul>
+            <li><strong>1st 🏆:</strong> ____________________</li>
+            <li><strong>2nd:</strong> ____________________</li>
+            <li><strong>3rd:</strong> ____________________</li>
           </ul>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Match</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td>Final (1st/2nd)</td>
-                  <td><input id="l1-final-a" placeholder="Team A"></td>
-                  <td><input id="l1-final-a-pts" type="number"></td>
-                  <td><input id="l1-final-b" placeholder="Team B"></td>
-                  <td><input id="l1-final-b-pts" type="number"></td>
-                </tr>
-                <tr>
-                  <td>Bronze (3rd/4th)</td>
-                  <td><input id="l1-bronze-a" placeholder="Team A"></td>
-                  <td><input id="l1-bronze-a-pts" type="number"></td>
-                  <td><input id="l1-bronze-b" placeholder="Team B"></td>
-                  <td><input id="l1-bronze-b-pts" type="number"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
 
-        <!-- Level 2 Results -->
+        <!-- Level 2 -->
         <div class="col-6 col-12-medium">
           <h3>Level 2 (1.6–2.5)</h3>
           <h4>Top 3</h4>
-          <ul id="lvl2-podium">
-            <li><strong>1st 🏆:</strong> Find out this Sunday!</li>
-            <li><strong>2nd:</strong> Find out this Sunday!</li>
-            <li><strong>3rd:</strong> Find out this Sunday!</li>
+          <ul>
+            <li><strong>1st 🏆:</strong> ____________________</li>
+            <li><strong>2nd:</strong> ____________________</li>
+            <li><strong>3rd:</strong> ____________________</li>
           </ul>
-          <div class="table-wrapper">
-            <table>
-              <thead><tr><th>Match</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th></tr></thead>
-              <tbody>
-                <tr>
-                  <td>Final (1st/2nd)</td>
-                  <td><input id="l2-final-a" placeholder="Team A"></td>
-                  <td><input id="l2-final-a-pts" type="number"></td>
-                  <td><input id="l2-final-b" placeholder="Team B"></td>
-                  <td><input id="l2-final-b-pts" type="number"></td>
-                </tr>
-                <tr>
-                  <td>Bronze (3rd/4th)</td>
-                  <td><input id="l2-bronze-a" placeholder="Team A"></td>
-                  <td><input id="l2-bronze-a-pts" type="number"></td>
-                  <td><input id="l2-bronze-b" placeholder="Team B"></td>
-                  <td><input id="l2-bronze-b-pts" type="number"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
         </div>
+
       </div>
     </section>
 
@@ -116,6 +73,7 @@
     <section id="teams" class="post">
       <header class="major"><h2>Teams</h2></header>
       <div class="row gtr-200">
+
         <div class="col-6 col-12-medium">
           <h3>Level 1: 0–1.5</h3>
           <ul class="alt">
@@ -130,6 +88,7 @@
             <li>Team 9 — Sophia Kasimatis (0.5), Fiona Clarke (1.5)</li>
           </ul>
         </div>
+
         <div class="col-6 col-12-medium">
           <h3>Level 2: 1.6–2.5</h3>
           <ul class="alt">
@@ -144,6 +103,7 @@
             <li>Team 9 — Eunita Du Preez (1.90), Mariette Meyer (2.07)</li>
           </ul>
         </div>
+
       </div>
     </section>
 
@@ -151,55 +111,103 @@
     <section id="breakdown" class="post">
       <header class="major"><h2>Match Breakdown</h2></header>
 
+      <!-- Group Stages -->
       <h3>Group Stages</h3>
-      <ul class="actions" style="margin-bottom:1rem;">
-        <li><a id="gen-stage1" class="button primary">Generate Stage 1</a></li>
-        <li><a id="compute-stage1" class="button">Seed Stage 2</a></li>
-        <li><a id="compute-stage2" class="button">Finalize Stage 2</a></li>
-      </ul>
-
       <div class="row gtr-200">
+
+        <!-- Level 1 Groups -->
         <div class="col-6 col-12-medium">
           <h4>Level 1 (Courts 1–3)</h4>
-          <div id="lvl1-groups"></div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Group A</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead>
+              <tbody>
+                <tr><td>R1</td><td>Team 1</td><td></td><td>Team 2</td><td></td><td>1</td></tr>
+                <tr><td>R2</td><td>Team 2</td><td></td><td>Team 3</td><td></td><td>1</td></tr>
+                <tr><td>R3</td><td>Team 1</td><td></td><td>Team 3</td><td></td><td>1</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Group B</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead>
+              <tbody>
+                <tr><td>R1</td><td>Team 4</td><td></td><td>Team 5</td><td></td><td>2</td></tr>
+                <tr><td>R2</td><td>Team 5</td><td></td><td>Team 6</td><td></td><td>2</td></tr>
+                <tr><td>R3</td><td>Team 4</td><td></td><td>Team 6</td><td></td><td>2</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Group C</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead>
+              <tbody>
+                <tr><td>R1</td><td>Team 7</td><td></td><td>Team 8</td><td></td><td>3</td></tr>
+                <tr><td>R2</td><td>Team 8</td><td></td><td>Team 9</td><td></td><td>3</td></tr>
+                <tr><td>R3</td><td>Team 7</td><td></td><td>Team 9</td><td></td><td>3</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
+        <!-- Level 2 Groups -->
         <div class="col-6 col-12-medium">
           <h4>Level 2 (Courts 4–6)</h4>
-          <div id="lvl2-groups"></div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Group A</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead>
+              <tbody>
+                <tr><td>R1</td><td>Team 1</td><td></td><td>Team 2</td><td></td><td>4</td></tr>
+                <tr><td>R2</td><td>Team 2</td><td></td><td>Team 3</td><td></td><td>4</td></tr>
+                <tr><td>R3</td><td>Team 1</td><td></td><td>Team 3</td><td></td><td>4</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Group B</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead>
+              <tbody>
+                <tr><td>R1</td><td>Team 4</td><td></td><td>Team 5</td><td></td><td>5</td></tr>
+                <tr><td>R2</td><td>Team 5</td><td></td><td>Team 6</td><td></td><td>5</td></tr>
+                <tr><td>R3</td><td>Team 4</td><td></td><td>Team 6</td><td></td><td>5</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Group C</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead>
+              <tbody>
+                <tr><td>R1</td><td>Team 7</td><td></td><td>Team 8</td><td></td><td>6</td></tr>
+                <tr><td>R2</td><td>Team 8</td><td></td><td>Team 9</td><td></td><td>6</td></tr>
+                <tr><td>R3</td><td>Team 7</td><td></td><td>Team 9</td><td></td><td>6</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
+
       </div>
 
-      <h3>Division Matches</h3>
+      <!-- Division Matches -->
+      <h3>Division Matches (Fill in manually)</h3>
       <div class="row gtr-200">
         <div class="col-6 col-12-medium">
           <h4>Level 1 – Divisions 1 / 2 / 3</h4>
-          <div id="lvl1-divisions"></div>
+          <div class="table-wrapper"><table><thead><tr><th>Division</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead><tbody></tbody></table></div>
         </div>
         <div class="col-6 col-12-medium">
           <h4>Level 2 – Divisions 1 / 2 / 3</h4>
-          <div id="lvl2-divisions"></div>
+          <div class="table-wrapper"><table><thead><tr><th>Division</th><th>Team A</th><th>Pts A</th><th>Team B</th><th>Pts B</th><th>Court</th></tr></thead><tbody></tbody></table></div>
         </div>
       </div>
+
     </section>
 
-  </div>
-
-  <!-- Footer -->
-  <footer id="footer">
-    <section>
-      <form method="post" action="#">
-        <div class="fields">
-          <div class="field"><label for="name">Name</label><input type="text" name="name" id="name" /></div>
-          <div class="field"><label for="email">Email</label><input type="text" name="email" id="email" /></div>
-          <div class="field"><label for="message">Message</label><textarea name="message" id="message" rows="3"></textarea></div>
-        </div>
-        <ul class="actions"><li><input type="submit" value="Send Message" /></li></ul>
-      </form>
-    </section>
-  </footer>
-
-  <div id="copyright">
-    <ul><li>&copy; Yeni Cup Tournament</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
   </div>
 
 </div>
@@ -211,11 +219,6 @@
 <script src="assets/js/breakpoints.min.js"></script>
 <script src="assets/js/util.js"></script>
 <script src="assets/js/main.js"></script>
-
-<!-- Tournament Logic -->
-<script>
-/* [The full JS logic from my previous message goes here unchanged] */
-</script>
 
 </body>
 </html>
