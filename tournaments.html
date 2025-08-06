@@ -90,17 +90,21 @@ container.innerHTML = tournaments.map(t => `
     display: flex;
     flex-direction: column;
   }
-  .tournament-card h3 {
+ .tournament-card h3 {
   font-size: 1.05rem;
-  margin: 0;
+  margin: 0.5rem auto;          /* centers it horizontally */
   padding: 0.5rem 1rem;
   background: rgba(255, 255, 255, 0.9);
   color: #000;
+  text-align: center;           /* centers the text itself */
+  width: fit-content;           /* shrink background to text width */
+  border-radius: 6px;           /* optional: slight rounding */
 }
-  .tournament-card .button {
-    margin: .75rem 1rem 1rem;
-    align-self: start;
-  }
+ .tournament-card .button {
+  margin: 0.75rem 1rem 1rem;  
+  text-align: center;         
+  display: block;             
+}
 
 
 .tournament-card .thumb {
@@ -202,6 +206,7 @@ container.innerHTML = tournaments.map(t => `
 	</body>
 
 </html>
+
 
 
 
