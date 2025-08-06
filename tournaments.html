@@ -90,38 +90,47 @@ container.innerHTML = tournaments.map(t => `
     display: flex;
     flex-direction: column;
   }
-  .tournament-card .thumb {
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-  }
-  .tournament-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
   .tournament-card h3 {
-    font-size: 1.05rem;
-    margin: .75rem 1rem 0;
-  }
-  .tournament-card .button {
-    margin: .75rem 1rem 1rem;
-    align-self: start;
-  }
+  font-size: 1.05rem;
+  margin: 0;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
 
-  /* Minimal button styles (use your site’s .button if it exists) */
-  .button.primary {
-    display: inline-block;
-    padding: .6rem 1rem;
-    border-radius: 8px;
-    text-decoration: none;
-    border: 1px solid #e11d48;   /* Gauteng red vibe */
-  }
-  .button.primary:hover { filter: brightness(0.95); }
+.tournament-card .button {
+  margin: 0.75rem auto 1rem;
+  text-align: center;
+  width: 80%;
+  display: block;
+}
 
-  @media (prefers-color-scheme: dark) {
-    .tournament-card { background: #111; border-color: rgba(255,255,255,.1); }
-  }
+.tournament-card .thumb {
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.tournament-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transform: translateY(5%);
+}
+
+/* Keep your button styling */
+.button.primary {
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 1px solid #e11d48;
+}
+.button.primary:hover { filter: brightness(0.95); }
+
+@media (prefers-color-scheme: dark) {
+  .tournament-card { background: #111; border-color: rgba(255,255,255,.1); }
+}
 </style>
 
  
@@ -195,6 +204,7 @@ container.innerHTML = tournaments.map(t => `
 	</body>
 
 </html>
+
 
 
 
