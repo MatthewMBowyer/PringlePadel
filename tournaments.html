@@ -53,7 +53,7 @@
   // Add your tournaments here
   const tournaments = [
     {
-      name: 'Yeni Cup – 10 Aug 2025',
+      name: '10 Aug 2025 - Venue: IPR',
       image: 'images/Yeni_cup_tournament_logo.jpg',
       url: '/tournaments/yeni-cup-2025/'
     }
@@ -67,7 +67,7 @@ container.innerHTML = tournaments.map(t => `
         <img src="${t.image}" alt="${t.name}">
       </div>
       <h3>${t.name}</h3>
-      <a class="button primary" href="${t.url}" aria-label="Open page for ${t.name}">
+	<a class="button" href="${t.url}" aria-label="Open page for ${t.name}">View results</a>
         View results
       </a>
     </article>
@@ -100,11 +100,27 @@ container.innerHTML = tournaments.map(t => `
   width: fit-content;           /* shrink background to text width */
   border-radius: 6px;           /* optional: slight rounding */
 }
- .tournament-card .button {
-  margin: 0.75rem 1rem 1rem;  
-  text-align: center;         
-  display: block;             
+.tournament-card .button {
+  margin: 0.75rem auto 1rem;      /* center the button horizontally */
+  text-align: center;             /* center text */
+  display: inline-block;          /* keeps its natural width */
+  background: #fff;               /* white background */
+  color: #000;                    /* black text */
+  border: 1px solid #000;         /* black border */
+  padding: 0.6rem 1.2rem;         /* button padding */
+  border-radius: 6px;             /* subtle rounded edges */
+  font-weight: bold;              /* make it stand out */
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
 }
+
+/* Hover effect – highlight gold */
+.tournament-card .button:hover {
+  background: #ffd700;            /* gold background */
+  color: #000;                    /* keep text black */
+  border-color: #ffd700;          /* gold border */
+}
+
 
 
 .tournament-card .thumb {
@@ -120,15 +136,6 @@ container.innerHTML = tournaments.map(t => `
   display: block;
   transform: translateY(5%);
 }
-
-/* Keep your button styling */
-.button.primary {
-  padding: .6rem 1rem;
-  border-radius: 8px;
-  text-decoration: none;
-  border: 1px solid #e11d48;
-}
-.button.primary:hover { filter: brightness(0.95); }
 
 @media (prefers-color-scheme: dark) {
   .tournament-card { background: #111; border-color: rgba(255,255,255,.1); }
@@ -206,6 +213,7 @@ container.innerHTML = tournaments.map(t => `
 	</body>
 
 </html>
+
 
 
 
