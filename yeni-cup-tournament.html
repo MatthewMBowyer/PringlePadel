@@ -95,12 +95,17 @@ const SHOW_ROWS  = 9;        // show Top 9
 
 /* ── HELPERS ─────────────────────────────────────── */
 async function fetchCSV(gid) {
-  const url = `${SHEET_BASE}/pub?gid=${gid}&single=true&output=csv`;
+  /* 1️⃣  give every request a unique ts=… suffix */
+  const url =
+    `${SHEET_BASE}/pub?gid=${gid}&single=true&output=csv&ts=${Date.now()}`;
+
   try {
-    const csv = await fetch(url).then(r => r.text());
+    /* 2️⃣  tell the browser not to cache the response */
+    const csv = await fetch(url, { cache: 'no-store' }).then(r => r.text());
+
     const rows = csv.trim().split('\n').map(l => l.split(',').map(c => c.trim()));
-    console.log(`[CSV] gid ${gid} : ${rows.length-1} data rows`);
-    return rows.slice(1); // drop header
+    console.log(`[CSV] gid ${gid} : ${rows.length - 1} data rows`);
+    return rows.slice(1);          // drop header
   } catch (err) {
     console.error(`[CSV ERROR] gid ${gid}`, err);
     return [];
