@@ -64,6 +64,56 @@
       </div>
     </section>
 
+    <script>
+/* ───────── CONFIG ───────── */
+const LEVELS = [
+  {
+    gid: 0,                // Level 1 tab
+    listId: 'lvl1-top3',
+  },
+  {
+    gid: 849932028,        // Level 2 tab
+    listId: 'lvl2-top3',
+  },
+];
+const SHEET_BASE =
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTcqrmNJ9vrE80L0018DvcocCP2XqJQEG50CQ3Srgi0-jIVNBxKh3W7YtHjqkwXNf0yeSOwIeQCpDgr';
+const REFRESH_MS = 30000;  // 30 s auto-refresh
+
+/* ───────── HELPERS ───────── */
+async function fetchCSV(gid) {
+  const url = `${SHEET_BASE}/pub?gid=${gid}&single=true&output=csv`;
+  const text = await fetch(url).then(r => r.text());
+  return text.trim().split('\n').slice(1) // skip header
+    .map(line => line.split(',').map(c => c.trim()));
+}
+
+function renderTop3(listEl, rows) {
+  // rows: [ [team, pts, matches], … ]
+  const sorted = rows
+    .map(r => ({ team:r[0], pts:+r[1]|0, m:+r[2]|0 }))
+    .sort((a,b) => b.pts - a.pts || b.m - a.m)   // tie-break by matches
+    .slice(0,3);
+
+  [...listEl.querySelectorAll('span')].forEach((s, i) => {
+    const t = sorted[i];
+    s.textContent = t ? `${t.team} – ${t.pts} pts (${t.m} m)` : '—';
+  });
+}
+
+/* ───────── MAIN ───────── */
+async function updateAll() {
+  for (const lvl of LEVELS) {
+    const rows = await fetchCSV(lvl.gid);
+    const ul   = document.getElementById(lvl.listId);
+    renderTop3(ul, rows);
+  }
+}
+updateAll();                   // initial load
+setInterval(updateAll, REFRESH_MS);   // keep fresh
+</script>
+<!-- ===== /RESULTS ===== -->
+
     <!-- TEAMS -->
     <section id="teams" class="post">
       <header class="major"><h2>Teams</h2></header>
