@@ -39,99 +39,99 @@
       </ul>
     </section>
 
-    <!-- ===== RESULTS (auto Top-3 from Google Sheets) ===== -->
+    <!-- ===== RESULTS ===== -->
 <section id="results" class="post">
   <header class="major"><h2>Results</h2></header>
 
   <div class="row gtr-200">
 
-    <!-- Level 1 -->
+    <!-- LEVEL 1 -->
     <div class="col-6 col-12-medium">
       <h3>Level 1 (0 – 1.5)</h3>
+
+      <!-- Manual podium you fill later -->
       <h4>Top 3</h4>
-      <ul id="lvl1-top3">
-        <li><strong>1st🏆:</strong> <span>—</span></li>
-        <li><strong>2nd:</strong>   <span>—</span></li>
-        <li><strong>3rd:</strong>   <span>—</span></li>
+      <ul id="lvl1-top3" class="alt">
+        <li><strong>1st 🏆:</strong> <span>_______</span></li>
+        <li><strong>2nd:</strong>     <span>_______</span></li>
+        <li><strong>3rd:</strong>     <span>_______</span></li>
       </ul>
+
+      <!-- Live leaderboard -->
+      <h4 class="icon solid fa-bolt"> Live Leaderboard (Top 10)</h4>
+      <ol id="lvl1-live"></ol>
     </div>
 
-    <!-- Level 2 -->
+    <!-- LEVEL 2 -->
     <div class="col-6 col-12-medium">
       <h3>Level 2 (1.6 – 2.5)</h3>
+
+      <!-- Manual podium you fill later -->
       <h4>Top 3</h4>
-      <ul id="lvl2-top3">
-        <li><strong>1st🏆:</strong> <span>—</span></li>
-        <li><strong>2nd:</strong>   <span>—</span></li>
-        <li><strong>3rd:</strong>   <span>—</span></li>
+      <ul id="lvl2-top3" class="alt">
+        <li><strong>1st 🏆:</strong> <span>_______</span></li>
+        <li><strong>2nd:</strong>     <span>_______</span></li>
+        <li><strong>3rd:</strong>     <span>_______</span></li>
       </ul>
+
+      <!-- Live leaderboard -->
+      <h4 class="icon solid fa-bolt"> Live Leaderboard (Top 10)</h4>
+      <ol id="lvl2-live"></ol>
     </div>
 
   </div>
 </section>
 
 <script>
-/* ───────── CONFIG ───────── */
+/* ── CONFIG ───────────────────────────────────────── */
 const LEVELS = [
-  { gid: 0,          listId: 'lvl1-top3' },      // Level 1 tab
-  { gid: 849932028,  listId: 'lvl2-top3' },      // Level 2 tab
+  { gid: 0,          liveId: 'lvl1-live' },       // Level 1 tab
+  { gid: 849932028,  liveId: 'lvl2-live' },       // Level 2 tab
 ];
 const SHEET_BASE =
   'https://docs.google.com/spreadsheets/d/e/2PACX-1vTcqrmNJ9vrE80L0018DvcocCP2XqJQEG50CQ3Srgi0-jIVNBxKh3W7YtHjqkwXNf0yeSOwIeQCpDgr';
-const REFRESH_MS = 30000;  // 30 s
+const REFRESH_MS = 30000;     // 30 s
+const SHOW_ROWS  = 10;        // show Top 10
 
-/* ───────── HELPERS ───────── */
+/* ── HELPERS ─────────────────────────────────────── */
 async function fetchCSV(gid) {
   const url = `${SHEET_BASE}/pub?gid=${gid}&single=true&output=csv`;
   try {
-    const text = await fetch(url).then(r => r.text());
-    const rows = text.trim().split('\n').map(l => l.split(',').map(c => c.trim()));
-    console.log(`[CSV] gid ${gid} – ${rows.length} total rows`, rows.slice(0, 5));
-    if (rows.length < 2) throw new Error('Sheet appears empty.');
-    return rows.slice(1);           // skip header
+    const csv = await fetch(url).then(r => r.text());
+    const rows = csv.trim().split('\n').map(l => l.split(',').map(c => c.trim()));
+    console.log(`[CSV] gid ${gid} : ${rows.length-1} data rows`);
+    return rows.slice(1); // drop header
   } catch (err) {
     console.error(`[CSV ERROR] gid ${gid}`, err);
-    return [];                      // fail-safe empty array
+    return [];
   }
 }
 
-function renderTop3(listEl, rows, gid) {
-  if (!listEl) {
-    console.warn(`[DOM] Missing UL for gid ${gid}`);
-    return;
-  }
-  if (!rows.length) {
-    listEl.querySelectorAll('span').forEach(s => s.textContent = '—');
-    return;
-  }
-  // rows: [team, points, matches]
-  const parsed = rows.map(r => ({
-    team: r[0] ?? '',
-    pts:  +r[1] || 0,
-    m:    +r[2] || 0,
-  }));
-  const sorted = parsed
-    .sort((a, b) => b.pts - a.pts || b.m - a.m)
-    .slice(0, 3);
+function renderLive(olEl, rows) {
+  if (!olEl) return;
+  olEl.innerHTML = '';                           // clear list
 
-  [...listEl.querySelectorAll('span')].forEach((span, i) => {
-    const t = sorted[i];
-    span.textContent = t ? `${t.team} – ${t.pts} pts (${t.m} m)` : '—';
+  rows.slice(0, SHOW_ROWS).forEach(r => {        // trust sheet order
+    const [team, pts = 0, matches = 0] = r;
+    olEl.insertAdjacentHTML(
+      'beforeend',
+      `<li>${team} – ${pts} pts (${matches} m)</li>`
+    );
   });
 }
 
-async function updateAll() {
+/* ── MAIN UPDATE LOOP ────────────────────────────── */
+async function updateLeaderboards() {
   for (const lvl of LEVELS) {
     const rows = await fetchCSV(lvl.gid);
-    const ul   = document.getElementById(lvl.listId);
-    renderTop3(ul, rows, lvl.gid);
+    renderLive(document.getElementById(lvl.liveId), rows);
   }
 }
-/* ───────── RUN ───────── */
-updateAll();
-setInterval(updateAll, REFRESH_MS);
+updateLeaderboards();                // initial load
+setInterval(updateLeaderboards, REFRESH_MS);
 </script>
 <!-- ===== /RESULTS ===== -->
+
 
     <!-- TEAMS -->
     <section id="teams" class="post">
