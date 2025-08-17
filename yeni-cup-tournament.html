@@ -57,10 +57,19 @@
         <li><strong>3rd:</strong>     <span>Sharon Poyner and Celeste Nuyten</span></li>
       </ul>
 
-      <!-- Live leaderboard -->
-      <h4 class="icon solid fa-bolt"> Live Leaderboard (Top 9)</h4>
-      <ol id="lvl1-live"></ol>
-    </div>
+      <h4>Top 9</h4>
+<ol class="alt">
+  <li>Lubna Vangeria and Zayaan Vangeria Cajee – 24 pts</li>
+  <li>Charlize Appels and Claire Bartlett – 19 pts</li>
+  <li>Sharon Poyner and Celeste Nuyten – 13 pts</li>
+  <li>Kerry Panczyk and Natasha Jensen – 12 pts</li>
+  <li>Sophia Kasimatis and Fiona Clarke – 9 pts</li>
+  <li>Bailey Maralik and Christina Laidlaw – 9 pts</li>
+  <li>Ginette Bentley and Desiree Dwyer – 7 pts</li>
+  <li>Melissa Pretorius and Melissa Botes – 5 pts</li>
+  <li>Irene Laidlaw and Taryn Purdon – 5 pts</li>
+</ol>
+</div>
 
     <!-- LEVEL 2 -->
     <div class="col-6 col-12-medium">
@@ -74,55 +83,22 @@
         <li><strong>3rd:</strong>     <span>Carolyn Harvey and Antonetta Nel</span></li>
       </ul>
 
-    <script>
-/* ── HARD-CODED FINAL STANDINGS ───────────────────── */
-const LEVELS_STATIC = [
-  {
-    liveId: 'lvl1-live',   // Level 1 (0 – 1.5)
-    rows: [
-      ["Lubna Vangeria and Zayaan Vangeria Cajee", "24"],
-      ["Charlize Appels and Claire Bartlett",       "19"],
-      ["Sharon Poyner and Celeste Nuyten",          "13"],
-      ["Kerry Panczyk and Natasha Jensen",          "12"],
-      ["Sophia Kasimatis and Fiona Clarke",         "9"],
-      ["Bailey Maralik and Christina Laidlaw",      "9"],
-      ["Ginette Bentley and Desiree Dwyer",         "7"],
-      ["Melissa Pretorius and Melissa Botes",       "5"],
-      ["Irene Laidlaw and Taryn Purdon",            "5"],
-    ]
-  },
-  {
-    liveId: 'lvl2-live',   // Level 2 (1.6 – 2.5)
-    rows: [
-      ["Karen Dengler and Madison Sked",                  "22"],
-      ["Kerryn Maralik and Jodie Trueman",               "16"],
-      ["Carolyn Harvey and Antonetta Nel",               "15"],
-      ["Chantelle Vermeulen and Nicole Sheingold",       "13"],
-      ["Anna Tzimas and Stephanie Gardner",              "13"],
-      ["Therusha Budhai and Sharmaine Moodley",          "12"],
-      ["Eunita Du Preez and Mariette Meyer",             "10"],
-      ["Paula Luiz and Lana Jonker",                     "4"],
-      ["Mariam Limbaba and Liyah Limbada",               "0"],
-    ]
-  }
-];
+   <h4>Top 9</h4>
+<ol class="alt">
+  <li>Karen Dengler and Madison Sked – 22 pts</li>
+  <li>Kerryn Maralik and Jodie Trueman – 16 pts</li>
+  <li>Carolyn Harvey and Antonetta Nel – 15 pts</li>
+  <li>Chantelle Vermeulen and Nicole Sheingold – 13 pts</li>
+  <li>Anna Tzimas and Stephanie Gardner – 13 pts</li>
+  <li>Therusha Budhai and Sharmaine Moodley – 12 pts</li>
+  <li>Eunita Du Preez and Mariette Meyer – 10 pts</li>
+  <li>Paula Luiz and Lana Jonker – 4 pts</li>
+  <li>Mariam Limbaba and Liyah Limbada – 0 pts</li>
+</ol>
 
-/* ── RENDER ────────────────────────────────────────── */
-function renderLive(olEl, rows) {
-  if (!olEl) return;
-  olEl.innerHTML = '';
-  rows.forEach(([team, pts]) => {
-    olEl.insertAdjacentHTML('beforeend', `<li>${team} – ${pts} pts</li>`);
-  });
-}
-
-/* ── INIT (one-time render; no fetching, no refresh) ─ */
-LEVELS_STATIC.forEach(lvl => {
-  renderLive(document.getElementById(lvl.liveId), lvl.rows);
-});
-</script>
-
-
+</div>
+</div>
+</section>
 
     <!-- TEAMS -->
     <section id="teams" class="post">
