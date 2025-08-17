@@ -74,68 +74,54 @@
         <li><strong>3rd:</strong>     <span>Carolyn Harvey and Antonetta Nel</span></li>
       </ul>
 
-      <!-- Live leaderboard -->
-      <h4 class="icon solid fa-bolt"> Live Leaderboard (Top 9)</h4>
-      <ol id="lvl2-live"></ol>
-    </div>
-
-  </div>
-</section>
-
-<script>
-/* ── CONFIG ───────────────────────────────────────── */
-const LEVELS = [
-  { gid: 0,          liveId: 'lvl1-live' },       // Level 1 tab
-  { gid: 849932028,  liveId: 'lvl2-live' },       // Level 2 tab
-];
-const SHEET_BASE =
-  'https://docs.google.com/spreadsheets/d/e/2PACX-1vTcqrmNJ9vrE80L0018DvcocCP2XqJQEG50CQ3Srgi0-jIVNBxKh3W7YtHjqkwXNf0yeSOwIeQCpDgr';
-const REFRESH_MS = 30000;     // 30 s
-const SHOW_ROWS  = 9;        // show Top 9
-
-/* ── HELPERS ─────────────────────────────────────── */
-async function fetchCSV(gid) {
-  /* 1️⃣  give every request a unique ts=… suffix */
-  const url =
-    `${SHEET_BASE}/pub?gid=${gid}&single=true&output=csv&ts=${Date.now()}`;
-
-  try {
-    /* 2️⃣  tell the browser not to cache the response */
-    const csv = await fetch(url, { cache: 'no-store' }).then(r => r.text());
-
-    const rows = csv.trim().split('\n').map(l => l.split(',').map(c => c.trim()));
-    console.log(`[CSV] gid ${gid} : ${rows.length - 1} data rows`);
-    return rows.slice(1);          // drop header
-  } catch (err) {
-    console.error(`[CSV ERROR] gid ${gid}`, err);
-    return [];
+    <script>
+/* ── HARD-CODED FINAL STANDINGS ───────────────────── */
+const LEVELS_STATIC = [
+  {
+    liveId: 'lvl1-live',   // Level 1 (0 – 1.5)
+    rows: [
+      ["Lubna Vangeria and Zayaan Vangeria Cajee", "24"],
+      ["Charlize Appels and Claire Bartlett",       "19"],
+      ["Sharon Poyner and Celeste Nuyten",          "13"],
+      ["Kerry Panczyk and Natasha Jensen",          "12"],
+      ["Sophia Kasimatis and Fiona Clarke",         "9"],
+      ["Bailey Maralik and Christina Laidlaw",      "9"],
+      ["Ginette Bentley and Desiree Dwyer",         "7"],
+      ["Melissa Pretorius and Melissa Botes",       "5"],
+      ["Irene Laidlaw and Taryn Purdon",            "5"],
+    ]
+  },
+  {
+    liveId: 'lvl2-live',   // Level 2 (1.6 – 2.5)
+    rows: [
+      ["Karen Dengler and Madison Sked",                  "22"],
+      ["Kerryn Maralik and Jodie Trueman",               "16"],
+      ["Carolyn Harvey and Antonetta Nel",               "15"],
+      ["Chantelle Vermeulen and Nicole Sheingold",       "13"],
+      ["Anna Tzimas and Stephanie Gardner",              "13"],
+      ["Therusha Budhai and Sharmaine Moodley",          "12"],
+      ["Eunita Du Preez and Mariette Meyer",             "10"],
+      ["Paula Luiz and Lana Jonker",                     "4"],
+      ["Mariam Limbaba and Liyah Limbada",               "0"],
+    ]
   }
-}
+];
 
+/* ── RENDER ────────────────────────────────────────── */
 function renderLive(olEl, rows) {
   if (!olEl) return;
-  olEl.innerHTML = '';                           // clear list
-
-  rows.slice(0, SHOW_ROWS).forEach(r => {        // trust sheet order
-    const [team, pts = 0, matches = 0] = r;
-    olEl.insertAdjacentHTML(
-      'beforeend',
-      `<li>${team} – ${pts} pts</li>`
-    );
+  olEl.innerHTML = '';
+  rows.forEach(([team, pts]) => {
+    olEl.insertAdjacentHTML('beforeend', `<li>${team} – ${pts} pts</li>`);
   });
 }
 
-/* ── MAIN UPDATE LOOP ────────────────────────────── */
-async function updateLeaderboards() {
-  for (const lvl of LEVELS) {
-    const rows = await fetchCSV(lvl.gid);
-    renderLive(document.getElementById(lvl.liveId), rows);
-  }
-}
-updateLeaderboards();                // initial load
-setInterval(updateLeaderboards, REFRESH_MS);
+/* ── INIT (one-time render; no fetching, no refresh) ─ */
+LEVELS_STATIC.forEach(lvl => {
+  renderLive(document.getElementById(lvl.liveId), lvl.rows);
+});
 </script>
-<!-- ===== /RESULTS ===== -->
+
 
 
     <!-- TEAMS -->
