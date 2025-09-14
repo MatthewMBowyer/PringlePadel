@@ -23,7 +23,6 @@
       margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
       background: linear-gradient(180deg, #0b0e13, #0f1115 30%);
       color: var(--text);
-      -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     header {
       position: sticky; top: 0; z-index: 10;
@@ -43,7 +42,9 @@
     button { cursor: pointer; }
     button.primary { background: linear-gradient(180deg, #3b82f6, #2563eb); border-color: #1d4ed8; }
     button.ghost { background: transparent; }
+    button.success { background: linear-gradient(180deg, #22c55e, #16a34a); border-color: #15803d; }
     button.warn { background: linear-gradient(180deg, #f59e0b, #d97706); border-color: #b45309; }
+    button.danger { background: linear-gradient(180deg, #ef4444, #dc2626); border-color: #b91c1c; }
     button:disabled { opacity: .5; cursor: not-allowed; }
     .grid { display: grid; gap: 14px; }
     .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -70,6 +71,7 @@
     .flex { display: flex; gap: 8px; align-items: center; }
     .spacer { flex: 1; }
     .hint { font-size: 12px; color: var(--muted); }
+    .danger-text { color: var(--error); }
     .footer { color: var(--muted); font-size: 12px; padding-top: 16px; }
     .divider { height: 1px; background: var(--border); margin: 12px 0; }
     .tag { padding: 3px 8px; border-radius: 999px; background: #0b0e13; border: 1px solid var(--border); font-size: 11px; color: var(--muted); }
@@ -77,19 +79,6 @@
     .small { font-size: 12px; }
     .nowrap { white-space: nowrap; }
     .sr { position: absolute; left: -9999px; }
-
-    /* Print styles */
-    @media print {
-      header, #config, #btn-new, #btn-export, #status { display: none !important; }
-      body { background: #ffffff; color: #000; }
-      .card { background: #fff; border-color: #ddd; }
-      .pill.ok, .pill.fun { border-color: #ccc; }
-      .wrap { max-width: 100%; padding: 0 8mm; }
-      .block > header { background: #f7f7f7; border-color: #ddd; }
-      .score { border: 1px solid #ccc; }
-      .print-header { display: block !important; }
-      .page-break { page-break-before: always; }
-    }
   </style>
 </head>
 <body>
@@ -105,19 +94,17 @@
           </select>
         </label>
         <button id="btn-new" class="warn">New Event</button>
-        <button id="btn-export" class="ghost">Export PDF</button>
+        <button id="btn-export" class="ghost">Export JSON</button>
+        <label class="row" style="gap:6px; align-items:center;">
+          <input id="file-import" type="file" accept="application/json" style="display:none;" />
+          <button id="btn-import" class="ghost">Import JSON</button>
+          <span class="hint">(Persistence is automatic — refresh won’t lose data)</span>
+        </label>
         <div class="spacer"></div>
         <span id="status" class="pill">Idle</span>
       </div>
     </div>
   </header>
-
-  <!-- Print header (hidden on screen) -->
-  <div class="print-header wrap" style="display:none; padding-top:16px;">
-    <h2 style="margin:0 0 6px;">Padel Tournament — Summary</h2>
-    <div id="printMeta" class="subtle"></div>
-    <div class="divider"></div>
-  </div>
 
   <main class="wrap grid" style="padding-top:16px;">
     <!-- CONFIG -->
@@ -126,9 +113,7 @@
       <div id="cfg-americano" class="grid two">
         <div>
           <label class="small">Player Names (one per line) — leave empty to auto-generate</label>
-          <textarea id="players" placeholder="Player 1
-Player 2
-Player 3 ..."></textarea>
+          <textarea id="players" placeholder="Player 1\nPlayer 2\nPlayer 3 ..."></textarea>
         </div>
         <div class="grid two">
           <label>Auto Player Count
@@ -155,9 +140,7 @@ Player 3 ..."></textarea>
       <div id="cfg-rr" class="grid two" style="display:none;">
         <div>
           <label class="small">Team Names (one per line) — leave empty to auto-generate</label>
-          <textarea id="teams" placeholder="Team 1
-Team 2
-Team 3 ..."></textarea>
+          <textarea id="teams" placeholder="Team 1\nTeam 2\nTeam 3 ..."></textarea>
         </div>
         <div class="grid two">
           <label>Auto Team Count
@@ -213,15 +196,28 @@ Team 3 ..."></textarea>
    ********************/
   const $ = (s, r=document) => r.querySelector(s);
   const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
-  const fmtMM = (mins) => { mins = Math.round(mins||0); const h = Math.floor(mins/60), m = mins%60; return h ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m`; };
+  const fmtMM = (mins) => {
+    mins = Math.round(mins||0);
+    const h = Math.floor(mins/60), m = mins%60;
+    return h ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m`;
+  };
   const byName = (a,b) => a.localeCompare(b);
 
   /********************
    * Persistence       
    ********************/
   const STORE_KEY = 'padel-scheduler-v1';
-  function saveState(partial={}){ const existing = loadState(); const state = { ...existing, ...partial, ts: Date.now() }; localStorage.setItem(STORE_KEY, JSON.stringify(state)); $('#status').textContent = 'Saved'; setTimeout(()=> $('#status').textContent = 'Idle', 800); }
-  function loadState(){ try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch{ return {}; } }
+  function saveState(partial={}){
+    const existing = loadState();
+    const state = { ...existing, ...partial, ts: Date.now() };
+    localStorage.setItem(STORE_KEY, JSON.stringify(state));
+    $('#status').textContent = 'Saved';
+    setTimeout(()=> $('#status').textContent = 'Idle', 800);
+  }
+  function loadState(){
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+    catch{ return {}; }
+  }
   function clearState(){ localStorage.removeItem(STORE_KEY); }
 
   /********************
@@ -229,18 +225,28 @@ Team 3 ..."></textarea>
    ********************/
   function slotLenA(cfg){ return (cfg.timeCapA||0) + (cfg.bufferA||0); }
   function totalBlocksA(cfg){ const sl=slotLenA(cfg); return sl>0? Math.floor((cfg.totalEventA||0)/sl) : 0; }
-  function genPlayers(cfg){ const raw = ($('#players').value||'').split(/
-+/).map(s=>s.trim()).filter(Boolean); if(raw.length) return shuffle([...raw]); const n = Math.max(4, parseInt($('#numPlayers').value||'8',10)); return shuffle(Array.from({length:n}, (_,i)=>`Player ${i+1}`)); }
+
+  function genPlayers(cfg){
+    const raw = ($('#players').value||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    if(raw.length) return shuffle([...raw]);
+    const n = Math.max(4, parseInt($('#numPlayers').value||'8',10));
+    return shuffle(Array.from({length:n}, (_,i)=>`Player ${i+1}`));
+  }
+
   function buildIndividualAmericano(players, n_courts, blocks){
-    const P = players.length; if(P < 4 || n_courts < 1 || blocks < 1) return {schedule:[], target:0};
+    const P = players.length;
+    if(P < 4 || n_courts < 1 || blocks < 1) return {schedule:[], target:0};
     const maxMatchesPerBlock = Math.min(n_courts, Math.floor(P/4));
     const totalCapacityMatches = blocks * maxMatchesPerBlock;
     const totalPlayerSlots = totalCapacityMatches * 4;
     const target = Math.floor(totalPlayerSlots / P);
+
     const countedPlayed = Object.fromEntries(players.map(p=>[p,0]));
     const partnerCount  = Object.fromEntries(players.map(p=>[p, {}]));
     const opponentCount = Object.fromEntries(players.map(p=>[p, {}]));
+
     const plus1 = (obj,a,b)=>{ obj[a][b] = (obj[a][b]||0)+1; };
+
     let schedule = []; let mid = 1;
     for(let b=1; b<=blocks; b++){
       let available = shuffle([...players]);
@@ -249,15 +255,34 @@ Team 3 ..."></textarea>
       const pairs=[]; const used=new Set();
       const capacityPairs = maxMatchesPerBlock*2;
       while(pairs.length < capacityPairs){
-        const a = available.find(x=>!used.has(x)); if(!a) break;
-        const candidates = available.filter(x=>!used.has(x) && x!==a); if(!candidates.length) break;
-        candidates.sort((u,v)=>{ const needPref = ((need[a]>0 && need[u]>0)?0:1) - ((need[a]>0 && need[v]>0)?0:1); const pc = (partnerCount[a][u]||0) - (partnerCount[a][v]||0); const nx = (need[v]||0) - (need[u]||0); const rnd = Math.random()-0.5; return needPref || pc || nx || rnd; });
+        const a = available.find(x=>!used.has(x));
+        if(!a) break;
+        const candidates = available.filter(x=>!used.has(x) && x!==a);
+        if(!candidates.length) break;
+        candidates.sort((u,v)=>{
+          const needPref = ((need[a]>0 && need[u]>0)?0:1) - ((need[a]>0 && need[v]>0)?0:1);
+          const pc = (partnerCount[a][u]||0) - (partnerCount[a][v]||0);
+          const nx = (need[v]||0) - (need[u]||0);
+          const rnd = Math.random()-0.5;
+          return needPref || pc || nx || rnd;
+        });
         const bp = candidates[0];
         const remainingFree = available.filter(x=>!used.has(x) && x!==a && x!==bp);
         if((pairs.length % 2 === 0) && remainingFree.length < 2) break;
         pairs.push([a,bp]); used.add(a); used.add(bp);
       }
-      for(let i=0;i<pairs.length;i+=2){ if(i+1 >= pairs.length) break; const [a1,a2] = pairs[i]; const [b1,b2] = pairs[i+1]; const counted = [a1,a2,b1,b2].every(p => countedPlayed[p] < target); schedule.push({ block:b, court: (Math.floor(i/2)+1), A:[a1,a2], B:[b1,b2], is_counted: counted, match_id: mid++ }); partnerCount[a1][a2] = (partnerCount[a1][a2]||0)+1; partnerCount[a2][a1] = (partnerCount[a2][a1]||0)+1; partnerCount[b1][b2] = (partnerCount[b1][b2]||0)+1; partnerCount[b2][b1] = (partnerCount[b2][b1]||0)+1; [a1,a2].forEach(x=> [b1,b2].forEach(y=>{ plus1(opponentCount,x,y); plus1(opponentCount,y,x); })); if(counted){ [a1,a2,b1,b2].forEach(p=> countedPlayed[p]++); } }
+      for(let i=0;i<pairs.length;i+=2){
+        if(i+1 >= pairs.length) break;
+        const [a1,a2] = pairs[i];
+        const [b1,b2] = pairs[i+1];
+        const counted = [a1,a2,b1,b2].every(p => countedPlayed[p] < target);
+        schedule.push({ block:b, court: (Math.floor(i/2)+1), A:[a1,a2], B:[b1,b2], is_counted: counted, match_id: mid++ });
+        // update trackers
+        partnerCount[a1][a2] = (partnerCount[a1][a2]||0)+1; partnerCount[a2][a1] = (partnerCount[a2][a1]||0)+1;
+        partnerCount[b1][b2] = (partnerCount[b1][b2]||0)+1; partnerCount[b2][b1] = (partnerCount[b2][b1]||0)+1;
+        [a1,a2].forEach(x=> [b1,b2].forEach(y=>{ plus1(opponentCount,x,y); plus1(opponentCount,y,x); }));
+        if(counted){ [a1,a2,b1,b2].forEach(p=> countedPlayed[p]++); }
+      }
     }
     return { schedule, target };
   }
@@ -265,40 +290,238 @@ Team 3 ..."></textarea>
   /********************
    * Round Robin logic 
    ********************/
-  function genTeams(){ const raw = ($('#teams').value||'').split(/
-+/).map(s=>s.trim()).filter(Boolean); if(raw.length) return shuffle([...raw]); const n = Math.max(2, parseInt($('#numTeams').value||'8',10)); return shuffle(Array.from({length:n}, (_,i)=>`Team ${i+1}`)); }
-  function allRRMatches(teams){ const matches=[]; const N=teams.length; for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) matches.push([teams[i], teams[j]]); return shuffle(matches); }
-  function buildBlocks(matches, numCourts){ const remaining = [...matches]; const blocks=[]; while(remaining.length){ let block=[]; const used=new Set(); const cand = shuffle([...remaining]); for(const [a,b] of cand){ if(block.length >= numCourts) break; if(!used.has(a) && !used.has(b)){ block.push([a,b]); used.add(a); used.add(b); } } block.forEach(m=>{ const idx = remaining.findIndex(x=> (x[0]===m[0] && x[1]===m[1]) || (x[0]===m[1] && x[1]===m[0])); if(idx>-1) remaining.splice(idx,1); }); blocks.push(block); } return blocks; }
+  function genTeams(){
+    const raw = ($('#teams').value||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    if(raw.length) return shuffle([...raw]);
+    const n = Math.max(2, parseInt($('#numTeams').value||'8',10));
+    return shuffle(Array.from({length:n}, (_,i)=>`Team ${i+1}`));
+  }
+  function allRRMatches(teams){
+    const matches=[]; const N=teams.length;
+    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) matches.push([teams[i], teams[j]]);
+    return shuffle(matches);
+  }
+  function buildBlocks(matches, numCourts){
+    const remaining = [...matches]; const blocks=[];
+    while(remaining.length){
+      let block=[]; const used=new Set();
+      const cand = shuffle([...remaining]);
+      for(const [a,b] of cand){
+        if(block.length >= numCourts) break;
+        if(!used.has(a) && !used.has(b)){
+          block.push([a,b]); used.add(a); used.add(b);
+        }
+      }
+      // remove chosen from remaining
+      block.forEach(m=>{
+        const idx = remaining.findIndex(x=> (x[0]===m[0] && x[1]===m[1]) || (x[0]===m[1] && x[1]===m[0]));
+        if(idx>-1) remaining.splice(idx,1);
+      });
+      blocks.push(block);
+    }
+    return blocks;
+  }
 
   /********************
    * Scoring & Tables  
    ********************/
-  function computeAmericanoTable(players, schedule, results){ const table = Object.fromEntries(players.map(p=>[p,{played:0, points_for:0, wins:0, draws:0, losses:0}])); for(const m of schedule){ if(!m.is_counted) continue; const mid = m.match_id; if(!results[mid]) continue; const [pa,pb] = results[mid]; const [a1,a2]=m.A; const [b1,b2]=m.B; [a1,a2,b1,b2].forEach(p=> table[p].played++); table[a1].points_for += pa; table[a2].points_for += pa; table[b1].points_for += pb; table[b2].points_for += pb; if(pa>pb){ table[a1].wins++; table[a2].wins++; table[b1].losses++; table[b2].losses++; } else if(pb>pa){ table[b1].wins++; table[b2].wins++; table[a1].losses++; table[a2].losses++; } else { table[a1].draws++; table[a2].draws++; table[b1].draws++; table[b2].draws++; } } return table; }
-  function computeRRTable(teams, matches, results){ const table = Object.fromEntries(teams.map(t=>[t,{played:0, points_for:0, wins:0, draws:0, losses:0}])); for(const [a,b] of matches){ const key = keyFor(a,b); if(!results[key]) continue; const [pa,pb] = orientScore(a,b, results[key]); table[a].played++; table[b].played++; table[a].points_for += pa; table[b].points_for += pb; if(pa>pb){ table[a].wins++; table[b].losses++; } else if(pb>pa){ table[b].wins++; table[a].losses++; } else { table[a].draws++; table[b].draws++; } } return table; }
-  function orderTable(entries){ return entries.sort((A,B)=>{ const a=A[1], b=B[1]; return (b.points_for - a.points_for) || (b.wins-a.wins) || (b.draws-a.draws) || (a.losses-b.losses) || byName(A[0],B[0]); }); }
+  function computeAmericanoTable(players, schedule, results){
+    const table = Object.fromEntries(players.map(p=>[p,{played:0, points_for:0, wins:0, draws:0, losses:0}]));
+    for(const m of schedule){
+      if(!m.is_counted) continue;
+      const mid = m.match_id; if(!results[mid]) continue;
+      const [pa,pb] = results[mid]; const [a1,a2]=m.A; const [b1,b2]=m.B;
+      [a1,a2,b1,b2].forEach(p=> table[p].played++);
+      table[a1].points_for += pa; table[a2].points_for += pa; table[b1].points_for += pb; table[b2].points_for += pb;
+      if(pa>pb){ table[a1].wins++; table[a2].wins++; table[b1].losses++; table[b2].losses++; }
+      else if(pb>pa){ table[b1].wins++; table[b2].wins++; table[a1].losses++; table[a2].losses++; }
+      else { table[a1].draws++; table[a2].draws++; table[b1].draws++; table[b2].draws++; }
+    }
+    return table;
+  }
+  function computeRRTable(teams, matches, results){
+    const table = Object.fromEntries(teams.map(t=>[t,{played:0, points_for:0, wins:0, draws:0, losses:0}]));
+    for(const [a,b] of matches){
+      const key = keyFor(a,b); if(!results[key]) continue;
+      const [pa,pb] = orientScore(a,b, results[key]);
+      table[a].played++; table[b].played++;
+      table[a].points_for += pa; table[b].points_for += pb;
+      if(pa>pb){ table[a].wins++; table[b].losses++; }
+      else if(pb>pa){ table[b].wins++; table[a].losses++; }
+      else { table[a].draws++; table[b].draws++; }
+    }
+    return table;
+  }
+  function orderTable(entries){
+    return entries.sort((A,B)=>{
+      const a=A[1], b=B[1];
+      return (b.points_for - a.points_for) || (b.wins-a.wins) || (b.draws-a.draws) || (a.losses-b.losses) || byName(A[0],B[0]);
+    });
+  }
 
   /********************
    * UI — Build Views  
    ********************/
-  const state = { mode: 'americano', players: [], schedule: [], target: 0, resultsA: {}, teams: [], matches: [], blocks: [], resultsT: {}, cfg: { timeCapA:12, bufferA:3, totalEventA:120, maxPointsA:12, numCourtsA:2, numPlayers:8, timeCapT:10, bufferT:2, maxPointsT:null, numCourtsT:3, numTeams:8 }, };
+  const state = {
+    mode: 'americano',
+    // americano
+    players: [], schedule: [], target: 0, resultsA: {},
+    // rr
+    teams: [], matches: [], blocks: [], resultsT: {},
+    // shared
+    cfg: { timeCapA:12, bufferA:3, totalEventA:120, maxPointsA:12, numCourtsA:2, numPlayers:8, timeCapT:10, bufferT:2, maxPointsT:null, numCourtsT:3, numTeams:8 },
+  };
 
-  function applyLoaded(loaded){ if(!loaded || !loaded.mode) return; Object.assign(state, loaded); const num = (v)=> (v===''||v===null||v===undefined)? v : Number(v); state.cfg.timeCapA = num(state.cfg.timeCapA); state.cfg.bufferA  = num(state.cfg.bufferA); state.cfg.totalEventA = num(state.cfg.totalEventA); state.cfg.maxPointsA  = (state.cfg.maxPointsA===''? null : num(state.cfg.maxPointsA)); state.cfg.numCourtsA  = num(state.cfg.numCourtsA); state.cfg.numPlayers  = num(state.cfg.numPlayers); state.cfg.timeCapT = num(state.cfg.timeCapT); state.cfg.bufferT  = num(state.cfg.bufferT); state.cfg.maxPointsT= (state.cfg.maxPointsT===''? null : num(state.cfg.maxPointsT)); state.cfg.numCourtsT= num(state.cfg.numCourtsT); state.cfg.numTeams  = num(state.cfg.numTeams); $('#mode').value = state.mode; $('#players').value = (state.players||[]).join("
-"); $('#numPlayers').value = state.cfg.numPlayers || 8; $('#numCourtsA').value = state.cfg.numCourtsA || 2; $('#timeCapA').value = state.cfg.timeCapA || 12; $('#bufferA').value  = state.cfg.bufferA || 3; $('#totalEventA').value = state.cfg.totalEventA || 120; $('#maxPointsA').value = (state.cfg.maxPointsA ?? 12); $('#teams').value = (state.teams||[]).join("
-"); $('#numTeams').value = state.cfg.numTeams || 8; $('#numCourtsT').value = state.cfg.numCourtsT || 3; $('#timeCapT').value = state.cfg.timeCapT || 10; $('#bufferT').value  = state.cfg.bufferT || 2; $('#maxPointsT').value = (state.cfg.maxPointsT ?? ''); toggleModePanels(); renderAll(); }
+  function applyLoaded(loaded){
+    if(!loaded || !loaded.mode) return;
+    Object.assign(state, loaded);
+    // patch numbers
+    const num = (v)=> (v===''||v===null||v===undefined)? v : Number(v);
+    state.cfg.timeCapA = num(state.cfg.timeCapA);
+    state.cfg.bufferA  = num(state.cfg.bufferA);
+    state.cfg.totalEventA = num(state.cfg.totalEventA);
+    state.cfg.maxPointsA  = (state.cfg.maxPointsA===''? null : num(state.cfg.maxPointsA));
+    state.cfg.numCourtsA  = num(state.cfg.numCourtsA);
+    state.cfg.numPlayers  = num(state.cfg.numPlayers);
+    state.cfg.timeCapT = num(state.cfg.timeCapT);
+    state.cfg.bufferT  = num(state.cfg.bufferT);
+    state.cfg.maxPointsT= (state.cfg.maxPointsT===''? null : num(state.cfg.maxPointsT));
+    state.cfg.numCourtsT= num(state.cfg.numCourtsT);
+    state.cfg.numTeams  = num(state.cfg.numTeams);
 
-  function toggleModePanels(){ const m = $('#mode').value; $('#cfg-americano').style.display = (m==='americano')? '' : 'none'; $('#cfg-rr').style.display = (m==='roundrobin')? '' : 'none'; }
+    // restore controls
+    $('#mode').value = state.mode;
+    $('#players').value = (state.players||[]).join("\n");
+    $('#numPlayers').value = state.cfg.numPlayers || 8;
+    $('#numCourtsA').value = state.cfg.numCourtsA || 2;
+    $('#timeCapA').value = state.cfg.timeCapA || 12;
+    $('#bufferA').value  = state.cfg.bufferA || 3;
+    $('#totalEventA').value = state.cfg.totalEventA || 120;
+    $('#maxPointsA').value = (state.cfg.maxPointsA ?? 12);
 
-  function buildSchedule(){ const m = state.mode = $('#mode').value; if(m==='americano'){ state.cfg.timeCapA = asInt('#timeCapA'); state.cfg.bufferA  = asInt('#bufferA'); state.cfg.totalEventA = asInt('#totalEventA'); const mp = $('#maxPointsA').value.trim(); state.cfg.maxPointsA = (mp==='')? null : Math.max(0, parseInt(mp,10)); state.cfg.numCourtsA = asInt('#numCourtsA'); state.cfg.numPlayers = asInt('#numPlayers'); const players = genPlayers(state.cfg); const blocks = totalBlocksA(state.cfg); const {schedule, target} = buildIndividualAmericano(players, state.cfg.numCourtsA, blocks); state.players = players; state.schedule = schedule; state.target = target; state.resultsA = state.resultsA || {}; saveState({ mode: state.mode, players, schedule, target, resultsA: state.resultsA, cfg: state.cfg }); } else { state.cfg.timeCapT = asInt('#timeCapT'); state.cfg.bufferT  = asInt('#bufferT'); const mp = $('#maxPointsT').value.trim(); state.cfg.maxPointsT = (mp==='')? null : Math.max(0, parseInt(mp,10)); state.cfg.numCourtsT = asInt('#numCourtsT'); state.cfg.numTeams   = asInt('#numTeams'); const teams = genTeams(); const matches = allRRMatches(teams); const blocks  = buildBlocks(matches, state.cfg.numCourtsT); state.teams = teams; state.matches = matches; state.blocks = blocks; state.resultsT = state.resultsT || {}; saveState({ mode: state.mode, teams, matches, blocks, resultsT: state.resultsT, cfg: state.cfg }); }
-    updatePrintHeader(); renderAll(); }
+    $('#teams').value = (state.teams||[]).join("\n");
+    $('#numTeams').value = state.cfg.numTeams || 8;
+    $('#numCourtsT').value = state.cfg.numCourtsT || 3;
+    $('#timeCapT').value = state.cfg.timeCapT || 10;
+    $('#bufferT').value  = state.cfg.bufferT || 2;
+    $('#maxPointsT').value = (state.cfg.maxPointsT ?? '');
 
-  function renderAll(){ renderSummary(); renderFixtures(); renderTable(); updatePrintHeader(); }
+    // switch panels
+    toggleModePanels();
+    // rebuild views
+    renderAll();
+  }
 
-  function renderSummary(){ const k = $('#kpis'); k.innerHTML=''; if(state.mode==='americano'){ const blocks = totalBlocksA(state.cfg); const per = slotLenA(state.cfg); const used = Math.min(blocks, Math.max(...state.schedule.map(m=>m.block), 0)); k.appendChild(kpi('Players', state.players.length)); k.appendChild(kpi('Courts', state.cfg.numCourtsA)); k.appendChild(kpi('Blocks', blocks)); k.appendChild(kpi('Target/Player', state.target)); k.appendChild(kpi('Slot', `${per} min`)); k.appendChild(kpi('Budget', fmtMM(state.cfg.totalEventA||0))); k.appendChild(kpi('Used', fmtMM(used*per))); $('#timingHint').textContent = 'Individual Americano counts only matches tagged as COUNTING. FUN matches still capture scores but do not affect standings.'; } else { const per = (state.cfg.timeCapT||0)+(state.cfg.bufferT||0); k.appendChild(kpi('Teams', state.teams.length)); k.appendChild(kpi('Courts', state.cfg.numCourtsT)); k.appendChild(kpi('Blocks', state.blocks.length)); k.appendChild(kpi('Matches', state.matches.length)); k.appendChild(kpi('Slot', per? `${per} min` : '—')); const total = per? state.blocks.length*per : 0; k.appendChild(kpi('Total', per? fmtMM(total) : '—')); $('#timingHint').textContent = 'Round Robin uses all recorded results for standings.'; } }
-  function kpi(label, value){ const el = document.createElement('div'); el.className='item'; el.innerHTML = `<div class="k">${label}</div><div class="v">${value}</div>`; return el; }
+  function toggleModePanels(){
+    const m = $('#mode').value;
+    $('#cfg-americano').style.display = (m==='americano')? '' : 'none';
+    $('#cfg-rr').style.display         = (m==='roundrobin')? '' : 'none';
+  }
 
-  function renderFixtures(){ const root = $('#fixtures'); root.innerHTML=''; if(state.mode==='americano'){ const byBlock = groupBy(state.schedule, m=>m.block); Object.keys(byBlock).sort((a,b)=>a-b).forEach(b=>{ const block = document.createElement('div'); block.className='block'; block.innerHTML = `<header><div>Block ${b}</div><div class=\"tag\">${state.cfg.maxPointsA==null? 'Free entry' : 'Max '+state.cfg.maxPointsA}</div></header>`; const content = document.createElement('div'); content.className='content'; for(const m of byBlock[b].sort((x,y)=>x.court-y.court)) content.appendChild(matchRowA(m)); block.appendChild(content); root.appendChild(block); }); } else { state.blocks.forEach((blk, idx)=>{ const el = document.createElement('div'); el.className='block'; el.innerHTML = `<header><div>Block ${idx+1}</div><div class=\"tag\">${state.cfg.maxPointsT==null? 'Free entry' : 'Max '+state.cfg.maxPointsT}</div></header>`; const content = document.createElement('div'); content.className='content'; blk.forEach((pair, ci)=> content.appendChild(matchRowT(idx, ci, pair)) ); el.appendChild(content); root.appendChild(el); }); } }
+  function buildSchedule(){
+    const m = state.mode = $('#mode').value;
+    if(m==='americano'){
+      // read cfg
+      state.cfg.timeCapA = asInt('#timeCapA');
+      state.cfg.bufferA  = asInt('#bufferA');
+      state.cfg.totalEventA = asInt('#totalEventA');
+      const mp = $('#maxPointsA').value.trim();
+      state.cfg.maxPointsA = (mp==='')? null : Math.max(0, parseInt(mp,10));
+      state.cfg.numCourtsA = asInt('#numCourtsA');
+      state.cfg.numPlayers = asInt('#numPlayers');
 
-  function matchRowA(m){ const el = document.createElement('div'); el.className='rowline'; const tag = m.is_counted? '<span class="pill ok">COUNTING</span>' : '<span class="pill fun">FUN</span>'; const a = `${m.A[0]} &amp; ${m.A[1]}`; const b = `${m.B[0]} &amp; ${m.B[1]}`; const mp = state.cfg.maxPointsA; const [pa,pb] = state.resultsA[m.match_id] || ['', '']; el.innerHTML = `
+      const players = genPlayers(state.cfg);
+      const blocks = totalBlocksA(state.cfg);
+      const {schedule, target} = buildIndividualAmericano(players, state.cfg.numCourtsA, blocks);
+      state.players = players; state.schedule = schedule; state.target = target; state.resultsA = state.resultsA || {};
+      saveState({ mode: state.mode, players, schedule, target, resultsA: state.resultsA, cfg: state.cfg });
+    } else {
+      state.cfg.timeCapT = asInt('#timeCapT');
+      state.cfg.bufferT  = asInt('#bufferT');
+      const mp = $('#maxPointsT').value.trim();
+      state.cfg.maxPointsT = (mp==='')? null : Math.max(0, parseInt(mp,10));
+      state.cfg.numCourtsT = asInt('#numCourtsT');
+      state.cfg.numTeams   = asInt('#numTeams');
+
+      const teams = genTeams();
+      const matches = allRRMatches(teams);
+      const blocks  = buildBlocks(matches, state.cfg.numCourtsT);
+      state.teams = teams; state.matches = matches; state.blocks = blocks; state.resultsT = state.resultsT || {};
+      saveState({ mode: state.mode, teams, matches, blocks, resultsT: state.resultsT, cfg: state.cfg });
+    }
+    renderAll();
+  }
+
+  function renderAll(){
+    const m = state.mode;
+    renderSummary();
+    renderFixtures();
+    renderTable();
+  }
+
+  function renderSummary(){
+    const k = $('#kpis'); k.innerHTML='';
+    if(state.mode==='americano'){
+      const blocks = totalBlocksA(state.cfg);
+      const per = slotLenA(state.cfg);
+      const used = Math.min(blocks, Math.max(...state.schedule.map(m=>m.block), 0));
+      k.appendChild(kpi('Players', state.players.length));
+      k.appendChild(kpi('Courts', state.cfg.numCourtsA));
+      k.appendChild(kpi('Blocks', blocks));
+      k.appendChild(kpi('Target/Player', state.target));
+      k.appendChild(kpi('Slot', `${per} min`));
+      k.appendChild(kpi('Budget', fmtMM(state.cfg.totalEventA||0)));
+      k.appendChild(kpi('Used', fmtMM(used*per)));
+      $('#timingHint').textContent = 'Individual Americano counts only matches tagged as COUNTING. FUN matches still capture scores but do not affect standings.';
+    } else {
+      const per = (state.cfg.timeCapT||0)+(state.cfg.bufferT||0);
+      k.appendChild(kpi('Teams', state.teams.length));
+      k.appendChild(kpi('Courts', state.cfg.numCourtsT));
+      k.appendChild(kpi('Blocks', state.blocks.length));
+      k.appendChild(kpi('Matches', state.matches.length));
+      k.appendChild(kpi('Slot', per? `${per} min` : '—'));
+      const total = per? state.blocks.length*per : 0;
+      k.appendChild(kpi('Total', per? fmtMM(total) : '—'));
+      $('#timingHint').textContent = 'Round Robin uses all recorded results for standings.';
+    }
+  }
+  function kpi(label, value){
+    const el = document.createElement('div'); el.className='item';
+    el.innerHTML = `<div class="k">${label}</div><div class="v">${value}</div>`;
+    return el;
+  }
+
+  function renderFixtures(){
+    const root = $('#fixtures'); root.innerHTML='';
+    if(state.mode==='americano'){
+      const byBlock = groupBy(state.schedule, m=>m.block);
+      Object.keys(byBlock).sort((a,b)=>a-b).forEach(b=>{
+        const block = document.createElement('div'); block.className='block';
+        block.innerHTML = `<header><div>Block ${b}</div><div class="tag">${state.cfg.maxPointsA==null? 'Free entry' : 'Max '+state.cfg.maxPointsA}</div></header>`;
+        const content = document.createElement('div'); content.className='content';
+        for(const m of byBlock[b].sort((x,y)=>x.court-y.court)){
+          content.appendChild(matchRowA(m));
+        }
+        block.appendChild(content); root.appendChild(block);
+      });
+    } else {
+      state.blocks.forEach((blk, idx)=>{
+        const el = document.createElement('div'); el.className='block';
+        el.innerHTML = `<header><div>Block ${idx+1}</div><div class="tag">${state.cfg.maxPointsT==null? 'Free entry' : 'Max '+state.cfg.maxPointsT}</div></header>`;
+        const content = document.createElement('div'); content.className='content';
+        blk.forEach((pair, ci)=> content.appendChild(matchRowT(idx, ci, pair)) );
+        el.appendChild(content); root.appendChild(el);
+      });
+    }
+  }
+
+  function matchRowA(m){
+    const el = document.createElement('div'); el.className='rowline';
+    const tag = m.is_counted? '<span class="pill ok">COUNTING</span>' : '<span class="pill fun">FUN</span>';
+    const a = `${m.A[0]} &amp; ${m.A[1]}`; const b = `${m.B[0]} &amp; ${m.B[1]}`;
+    const mp = state.cfg.maxPointsA;
+    const [pa,pb] = state.resultsA[m.match_id] || ['', ''];
+    el.innerHTML = `
       <div class="muted">Court ${m.court}</div>
       <div class="right">${a}</div>
       <div class="muted small nowrap">vs</div>
@@ -309,9 +532,37 @@ Team 3 ..."></textarea>
         <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
       </div>
       <div class="right">${tag}</div>
-    `; const [aIn, bIn] = el.querySelectorAll('input'); const onChange = ()=>{ let A = valInt(aIn.value), B = valInt(bIn.value); if(mp!=null){ if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); } if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); } } persistA(); renderTable(); }; const persistA = ()=>{ const A = aIn.value===''? '' : valInt(aIn.value); const B = bIn.value===''? '' : valInt(bIn.value); if(A==='' || B==='') delete state.resultsA[m.match_id]; else state.resultsA[m.match_id] = [A,B]; saveState({resultsA: state.resultsA}); }; aIn.addEventListener('input', onChange); bIn.addEventListener('input', onChange); aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange); return el; }
+    `;
+    const [aIn, bIn] = el.querySelectorAll('input');
+    const onChange = ()=>{
+      let A = valInt(aIn.value), B = valInt(bIn.value);
+      if(mp!=null){
+        // If one side entered and the other empty, auto-fill
+        if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); }
+        if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); }
+        if(validScore(A,B, mp)) { persistA(); renderTable(); return; }
+      } else {
+        if(aIn.value!=='' && bIn.value!==''){ persistA(); renderTable(); return; }
+      }
+      persistA(); renderTable();
+    };
+    const persistA = ()=>{
+      const A = aIn.value===''? '' : valInt(aIn.value);
+      const B = bIn.value===''? '' : valInt(bIn.value);
+      if(A==='' || B==='') delete state.resultsA[m.match_id];
+      else state.resultsA[m.match_id] = [A,B];
+      saveState({resultsA: state.resultsA});
+    };
+    aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange);
+    aIn.addEventListener('input', onChange); bIn.addEventListener('input', onChange);
+    return el;
+  }
 
-  function matchRowT(bi, ci, [Ateam,Bteam]){ const el = document.createElement('div'); el.className='rowline'; const key = keyFor(Ateam, Bteam); const mp = state.cfg.maxPointsT; const [pa,pb] = state.resultsT[key] || ['', '']; el.innerHTML = `
+  function matchRowT(bi, ci, [Ateam,Bteam]){
+    const el = document.createElement('div'); el.className='rowline';
+    const key = keyFor(Ateam, Bteam); const mp = state.cfg.maxPointsT;
+    const [pa,pb] = state.resultsT[key] || ['', ''];
+    el.innerHTML = `
       <div class="muted">Court ${ci+1}</div>
       <div class="right">${Ateam}</div>
       <div class="muted small nowrap">vs</div>
@@ -322,16 +573,62 @@ Team 3 ..."></textarea>
         <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
       </div>
       <div class="right"><button class="ghost small" type="button">Draw</button></div>
-    `; const [aIn,bIn] = el.querySelectorAll('input'); const drawBtn = el.querySelector('button'); drawBtn.addEventListener('click', ()=>{ if(mp!=null && mp%2===0){ aIn.value = mp/2; bIn.value = mp/2; persistT(); renderTable(); } }); const onChange = ()=>{ let A = valInt(aIn.value), B = valInt(bIn.value); if(mp!=null){ if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); } if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); } } persistT(); renderTable(); }; const persistT = ()=>{ const A = aIn.value===''? '' : valInt(aIn.value); const B = bIn.value===''? '' : valInt(bIn.value); if(A==='' || B==='') delete state.resultsT[key]; else state.resultsT[key] = [A,B]; saveState({resultsT: state.resultsT}); }; aIn.addEventListener('input', onChange); bIn.addEventListener('input', onChange); aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange); return el; }
+    `;
+    const [aIn,bIn] = el.querySelectorAll('input');
+    const drawBtn = el.querySelector('button');
+    drawBtn.addEventListener('click', ()=>{
+      if(mp!=null && mp%2===0){ aIn.value = mp/2; bIn.value = mp/2; persistT(); renderTable(); }
+    });
+    const onChange = ()=>{
+      let A = valInt(aIn.value), B = valInt(bIn.value);
+      if(mp!=null){
+        if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); }
+        if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); }
+        if(validScore(A,B, mp)) { persistT(); renderTable(); return; }
+      } else {
+        if(aIn.value!=='' && bIn.value!==''){ persistT(); renderTable(); return; }
+      }
+      persistT(); renderTable();
+    };
+    const persistT = ()=>{
+      const A = aIn.value===''? '' : valInt(aIn.value);
+      const B = bIn.value===''? '' : valInt(bIn.value);
+      if(A==='' || B==='') delete state.resultsT[key];
+      else state.resultsT[key] = [A,B];
+      saveState({resultsT: state.resultsT});
+    };
+    aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange);
+    aIn.addEventListener('input', onChange); bIn.addEventListener('input', onChange);
+    return el;
+  }
 
-  function renderTable(){ const tbl = $('#table'); if(state.mode==='americano'){ const table = computeAmericanoTable(state.players, state.schedule, state.resultsA); const rows = orderTable(Object.entries(table)); tbl.innerHTML = `<tr><th>Player</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>` + rows.map(([name,r])=> `<tr><td>${name}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join(''); } else { const table = computeRRTable(state.teams, state.matches, state.resultsT); const rows = orderTable(Object.entries(table)); tbl.innerHTML = `<tr><th>Team</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>` + rows.map(([name,r])=> `<tr><td>${name}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join(''); } }
+  function renderTable(){
+    const tbl = $('#table');
+    if(state.mode==='americano'){
+      const table = computeAmericanoTable(state.players, state.schedule, state.resultsA);
+      const rows = orderTable(Object.entries(table));
+      tbl.innerHTML = `<tr><th>Player</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>` +
+        rows.map(([name,r])=> `<tr><td>${name}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join('');
+    } else {
+      const table = computeRRTable(state.teams, state.matches, state.resultsT);
+      const rows = orderTable(Object.entries(table));
+      tbl.innerHTML = `<tr><th>Team</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>` +
+        rows.map(([name,r])=> `<tr><td>${name}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join('');
+    }
+  }
 
   /********************
    * Helpers (scores)  
    ********************/
   function keyFor(a,b){ return JSON.stringify([a,b].sort()); }
-  function orientScore(a,b, arr){ const [x,y] = JSON.parse(keyFor(a,b)); if(a===x && b===y) return arr; return [arr[1], arr[0]]; }
+  function orientScore(a,b, arr){
+    const [x,y] = JSON.parse(keyFor(a,b));
+    // arr is stored in sorted orientation [xScore, yScore]
+    if(a===x && b===y) return arr;
+    return [arr[1], arr[0]];
+  }
   function valInt(v){ const n = parseInt(v,10); return Number.isFinite(n)? n : 0; }
+  function validScore(a,b, mp){ return Number.isFinite(a) && Number.isFinite(b) && a>=0 && b>=0 && (mp==null || (a<=mp && b<=mp && a+b===mp)); }
   function groupBy(arr, fn){ return arr.reduce((acc,x)=>{ const k=fn(x); (acc[k]=acc[k]||[]).push(x); return acc; }, {}); }
   function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
   function asInt(sel){ return Math.max(0, parseInt($(sel).value||'0',10)); }
@@ -341,17 +638,54 @@ Team 3 ..."></textarea>
    ********************/
   $('#mode').addEventListener('change', ()=>{ toggleModePanels(); saveState({mode: $('#mode').value}); renderAll(); });
   $('#btn-build').addEventListener('click', buildSchedule);
-  $('#btn-clear-scores').addEventListener('click', ()=>{ if(state.mode==='americano'){ state.resultsA = {}; saveState({resultsA:{}}); } else { state.resultsT = {}; saveState({resultsT:{}}); } renderTable(); });
-  $('#btn-new').addEventListener('click', ()=>{ if(confirm('Start a brand new event? This clears current schedule, names and scores.')){ clearState(); location.reload(); } });
-  $('#btn-export').addEventListener('click', ()=>{ updatePrintHeader(); window.print(); });
+  $('#btn-clear-scores').addEventListener('click', ()=>{
+    if(state.mode==='americano'){ state.resultsA = {}; saveState({resultsA:{}}); }
+    else { state.resultsT = {}; saveState({resultsT:{}}); }
+    renderTable();
+  });
+  $('#btn-new').addEventListener('click', ()=>{
+    if(confirm('Start a brand new event? This clears current schedule, names and scores.')){
+      clearState(); location.reload();
+    }
+  });
+  $('#btn-export').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], {type:'application/json'});
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'padel_event.json'; a.click();
+  });
+  $('#btn-import').addEventListener('click', ()=> $('#file-import').click());
+  $('#file-import').addEventListener('change', (e)=>{
+    const f = e.target.files[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      try{ const json = JSON.parse(ev.target.result); saveState(json); applyLoaded(json); }
+      catch(err){ alert('Invalid JSON'); }
+    };
+    reader.readAsText(f);
+  });
 
   // Auto-save config inputs
-  $$('#config input, #config textarea').forEach(el=>{ el.addEventListener('change', ()=> collectAndSaveCfg()); el.addEventListener('input', ()=> collectAndSaveCfg()); });
-  function collectAndSaveCfg(){ const cfg = { timeCapA: asInt('#timeCapA'), bufferA: asInt('#bufferA'), totalEventA: asInt('#totalEventA'), maxPointsA: (()=>{ const v=$('#maxPointsA').value.trim(); return v===''? null : Math.max(0, parseInt(v,10)); })(), numCourtsA: asInt('#numCourtsA'), numPlayers: asInt('#numPlayers'), timeCapT: asInt('#timeCapT'), bufferT: asInt('#bufferT'), maxPointsT: (()=>{ const v=$('#maxPointsT').value.trim(); return v===''? null : Math.max(0, parseInt(v,10)); })(), numCourtsT: asInt('#numCourtsT'), numTeams: asInt('#numTeams') }; state.cfg = cfg; const playersTxt = $('#players').value||''; const teamsTxt = $('#teams').value||''; const players = playersTxt.split(/
-+/).map(s=>s.trim()).filter(Boolean); const teams = teamsTxt.split(/
-+/).map(s=>s.trim()).filter(Boolean); saveState({ cfg, players, teams }); }
-
-  function updatePrintHeader(){ const meta = $('#printMeta'); const now = new Date(); const modeLabel = (state.mode==='americano')? 'Individual Americano (Doubles)' : 'Teams — Full Round Robin'; const extra = (state.mode==='americano') ? `Players: ${state.players.length} | Courts: ${state.cfg.numCourtsA}` : `Teams: ${state.teams.length} | Courts: ${state.cfg.numCourtsT}`; meta.textContent = `${modeLabel} • ${extra} • Exported ${now.toLocaleString()}`; }
+  $$('#config input, #config textarea').forEach(el=>{
+    el.addEventListener('change', ()=> collectAndSaveCfg());
+    el.addEventListener('input', ()=> collectAndSaveCfg());
+  });
+  function collectAndSaveCfg(){
+    const cfg = {
+      timeCapA: asInt('#timeCapA'), bufferA: asInt('#bufferA'), totalEventA: asInt('#totalEventA'),
+      maxPointsA: (()=>{
+        const v=$('#maxPointsA').value.trim(); return v===''? null : Math.max(0, parseInt(v,10)); })(),
+      numCourtsA: asInt('#numCourtsA'), numPlayers: asInt('#numPlayers'),
+      timeCapT: asInt('#timeCapT'), bufferT: asInt('#bufferT'),
+      maxPointsT: (()=>{
+        const v=$('#maxPointsT').value.trim(); return v===''? null : Math.max(0, parseInt(v,10)); })(),
+      numCourtsT: asInt('#numCourtsT'), numTeams: asInt('#numTeams')
+    };
+    state.cfg = cfg;
+    // Also capture textareas
+    const playersTxt = $('#players').value||''; const teamsTxt = $('#teams').value||'';
+    const players = playersTxt.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    const teams   = teamsTxt.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+    saveState({ cfg, players, teams });
+  }
 
   // Init
   applyLoaded(loadState());
