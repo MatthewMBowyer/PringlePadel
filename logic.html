@@ -79,6 +79,76 @@
     .small { font-size: 12px; }
     .nowrap { white-space: nowrap; }
     .sr { position: absolute; left: -9999px; }
+
+    /* ===== Mobile responsiveness (drop-in) ===== */
+@media (max-width: 900px) {
+  .wrap { padding: 14px 12px; }
+  .grid.two, .grid.three { grid-template-columns: 1fr; }  /* stack cards/controls */
+  .kpi { gap: 12px; }
+  .kpi .item { flex: 1 1 45%; }
+  select, input[type="number"], input[type="text"], textarea, button { width: 100%; }
+  .row { gap: 8px; }
+  h1 { font-size: 20px; line-height: 1.2; }
+  .score { width: 58px; }
+  .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
+/* Condense header controls on narrow phones */
+@media (max-width: 640px) {
+  header .row { flex-wrap: wrap; }
+  header .row > * { flex: 1 1 160px; }
+  #status { flex: 0 0 auto; }
+}
+
+/* Reflow each fixture row from 6 tight columns → stacked, touch-friendly layout */
+@media (max-width: 900px) {
+  .rowline {
+    display: grid;
+    grid-template-columns: 1fr 84px;      /* left column + score/actions */
+    grid-template-areas:
+      "court tag"
+      "a     a"
+      "vs    vs"
+      "b     score";
+    gap: 6px 10px;
+    align-items: center;
+  }
+  /* Map existing children into the areas */
+  .rowline > :nth-child(1) { grid-area: court; }   /* "Court X" */
+  .rowline > :nth-child(2) { grid-area: a;    text-align: left; }    /* Team/Pair A */
+  .rowline > :nth-child(3) { grid-area: vs;   text-align: left; }    /* "vs" */
+  .rowline > :nth-child(4) { grid-area: b;    text-align: left; }    /* Team/Pair B */
+  .rowline > :nth-child(5) { grid-area: score; justify-self: end; }  /* inputs A–B */
+  .rowline > :nth-child(6) { grid-area: tag;  justify-self: end; }   /* COUNTING/FUN or Draw btn */
+
+  /* Tighten paddings so rows don’t overflow */
+  .block .content { padding: 8px 8px; }
+  .card { padding: 12px; }
+}
+
+/* Make long names wrap instead of forcing horizontal scroll */
+@media (max-width: 480px) {
+  .nowrap { white-space: normal; }
+  .rowline .muted.small { font-size: 11px; }
+  .score { width: 52px; }
+}
+
+    /* Allow grid children to actually shrink/wrap (fixes overflow on long names) */
+.rowline > * { min-width: 0; }
+
+/* iOS focus zoom fix on small phones */
+@media (max-width: 480px) {
+  select, input[type="number"], input[type="text"], textarea, button {
+    font-size: 16px; /* >=16px prevents Safari zoom */
+  }
+  header h1 { 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+  }
+}
+
+
   </style>
 </head>
 <body>
