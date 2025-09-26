@@ -75,7 +75,7 @@
     .footer { color: var(--muted); font-size: 12px; padding-top: 16px; }
     .divider { height: 1px; background: var(--border); margin: 12px 0; }
     .tag { padding: 3px 8px; border-radius: 999px; background: #0b0e13; border: 1px solid var(--border); font-size: 11px; color: var(--muted); }
-    .score { width: 150px; }
+    .score { width: 120px; }
     .small { font-size: 12px; }
     .nowrap { white-space: nowrap; }
     .sr { position: absolute; left: -9999px; }
@@ -83,15 +83,24 @@
     /* ===== Mobile responsiveness (drop-in) ===== */
 @media (max-width: 900px) {
   .wrap { padding: 14px 12px; }
-  .grid.two, .grid.three { grid-template-columns: 1fr; }  /* stack cards/controls */
+  .grid.two, .grid.three { grid-template-columns: 1fr; }
   .kpi { gap: 12px; }
   .kpi .item { flex: 1 1 45%; }
   select, input[type="number"], input[type="text"], textarea, button { width: 100%; }
   .row { gap: 8px; }
   h1 { font-size: 20px; line-height: 1.2; }
-  .score { width: 120px; }
+
+  /* 🔥 Make score inputs bigger here */
+  .score { 
+    width: 180px; 
+    height: 60px; 
+    font-size: 24px; 
+    padding: 12px 16px; 
+  }
+
   .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
+
 
 /* Condense header controls on narrow phones */
 @media (max-width: 640px) {
@@ -130,8 +139,16 @@
 @media (max-width: 480px) {
   .nowrap { white-space: normal; }
   .rowline .muted.small { font-size: 11px; }
-  .score { width: 100px; }
+
+  /* 🔥 Make the score inputs bigger on small phones too */
+  .score {
+    width: 160px;
+    height: 56px;
+    font-size: 22px;
+    padding: 10px 14px;
+  }
 }
+
 
     /* Allow grid children to actually shrink/wrap (fixes overflow on long names) */
 .rowline > * { min-width: 0; }
