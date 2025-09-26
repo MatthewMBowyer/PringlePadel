@@ -75,7 +75,7 @@
     .footer { color: var(--muted); font-size: 12px; padding-top: 16px; }
     .divider { height: 1px; background: var(--border); margin: 12px 0; }
     .tag { padding: 3px 8px; border-radius: 999px; background: #0b0e13; border: 1px solid var(--border); font-size: 11px; color: var(--muted); }
-    .score { width: 70px; }
+    .score { width: 88px; }
     .small { font-size: 12px; }
     .nowrap { white-space: nowrap; }
     .sr { position: absolute; left: -9999px; }
@@ -89,7 +89,7 @@
   select, input[type="number"], input[type="text"], textarea, button { width: 100%; }
   .row { gap: 8px; }
   h1 { font-size: 20px; line-height: 1.2; }
-  .score { width: 58px; }
+  .score { width: 80px; }
   .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 }
 
@@ -130,7 +130,7 @@
 @media (max-width: 480px) {
   .nowrap { white-space: normal; }
   .rowline .muted.small { font-size: 11px; }
-  .score { width: 52px; }
+  .score { width: 72px; }
 }
 
     /* Allow grid children to actually shrink/wrap (fixes overflow on long names) */
@@ -628,49 +628,65 @@
     return el;
   }
 
-  function matchRowT(bi, ci, [Ateam,Bteam]){
-    const el = document.createElement('div'); el.className='rowline';
-    const key = keyFor(Ateam, Bteam); const mp = state.cfg.maxPointsT;
-    const [pa,pb] = state.resultsT[key] || ['', ''];
-    el.innerHTML = `
-      <div class="muted">Court ${ci+1}</div>
-      <div class="right">${Ateam}</div>
-      <div class="muted small nowrap">vs</div>
-      <div>${Bteam}</div>
-      <div class="flex">
-        <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
-        <span class="muted">–</span>
-        <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
-      </div>
-      <div class="right"><button class="ghost small" type="button">Draw</button></div>
-    `;
-    const [aIn,bIn] = el.querySelectorAll('input');
-    const drawBtn = el.querySelector('button');
-    drawBtn.addEventListener('click', ()=>{
-      if(mp!=null && mp%2===0){ aIn.value = mp/2; bIn.value = mp/2; persistT(); renderTable(); }
-    });
-    const onChange = ()=>{
-      let A = valInt(aIn.value), B = valInt(bIn.value);
-      if(mp!=null){
-        if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); }
-        if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); }
-        if(validScore(A,B, mp)) { persistT(); renderTable(); return; }
-      } else {
-        if(aIn.value!=='' && bIn.value!==''){ persistT(); renderTable(); return; }
-      }
+function matchRowT(bi, ci, [Ateam,Bteam]){
+  const el = document.createElement('div'); el.className='rowline';
+  const key = keyFor(Ateam, Bteam); const mp = state.cfg.maxPointsT;
+  const [pa,pb] = state.resultsT[key] || ['', ''];
+  el.innerHTML = `
+    <div class="muted">Court ${ci+1}</div>
+    <div class="right">${Ateam}</div>
+    <div class="muted small nowrap">vs</div>
+    <div>${Bteam}</div>
+    <div class="flex">
+      <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
+      <span class="muted">–</span>
+      <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
+    </div>
+    <div class="right"><button class="ghost small" type="button">Draw</button></div>
+  `;
+  const [aIn,bIn] = el.querySelectorAll('input');
+  const drawBtn = el.querySelector('button');
+
+  // Draw helper (only valid if max is even)
+  drawBtn.addEventListener('click', ()=>{
+    if(mp!=null && mp%2===0){
+      aIn.value = mp/2; bIn.value = mp/2;
       persistT(); renderTable();
-    };
-    const persistT = ()=>{
-      const A = aIn.value===''? '' : valInt(aIn.value);
-      const B = bIn.value===''? '' : valInt(bIn.value);
-      if(A==='' || B==='') delete state.resultsT[key];
-      else state.resultsT[key] = [A,B];
-      saveState({resultsT: state.resultsT});
-    };
-    aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange);
-    aIn.addEventListener('input', onChange); bIn.addEventListener('input', onChange);
-    return el;
-  }
+    }
+  });
+
+  const onChange = ()=>{
+    let A = valInt(aIn.value), B = valInt(bIn.value);
+    if(mp!=null){
+      // Autofill opposite side to sum to max points
+      if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); }
+      if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); }
+      if(validScore(A,B, mp)) { persistT(); renderTable(); return; }
+    } else {
+      if(aIn.value!=='' && bIn.value!==''){ persistT(); renderTable(); return; }
+    }
+    persistT(); renderTable();
+  };
+
+  // Store scores in the key’s **sorted orientation** so retrieval is consistent.
+  const persistT = ()=>{
+    const Aval = aIn.value===''? '' : valInt(aIn.value);
+    const Bval = bIn.value===''? '' : valInt(bIn.value);
+    if(Aval==='' || Bval===''){
+      delete state.resultsT[key];
+    } else {
+      const [x,y] = JSON.parse(key); // sorted team names for this key
+      // If display order matches sorted order, keep [A,B]; otherwise flip to [B,A]
+      state.resultsT[key] = (Ateam===x && Bteam===y) ? [Aval, Bval] : [Bval, Aval];
+    }
+    saveState({resultsT: state.resultsT});
+  };
+
+  aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange);
+  aIn.addEventListener('input', onChange);  bIn.addEventListener('input', onChange);
+  return el;
+}
+
 
   function renderTable(){
     const tbl = $('#table');
