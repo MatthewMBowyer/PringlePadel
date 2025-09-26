@@ -118,7 +118,7 @@
   .rowline {
     display: grid;
     /* Give the score area real space */
-    grid-template-columns: 1fr minmax(360px, 1fr);
+    grid-template-columns: 1fr minmax(180px, 1fr);
     grid-template-areas:
       "court tag"
       "a     a"
@@ -133,7 +133,7 @@
   .rowline > :nth-child(2) { grid-area: a;    text-align: left; }
   .rowline > :nth-child(3) { grid-area: vs;   text-align: left; }
   .rowline > :nth-child(4) { grid-area: b;    text-align: left; }
-  .rowline > :nth-child(5) { grid-area: score; justify-self: stretch; width: 100%; }
+  .rowline > :nth-child(5) { grid-area: score; justify-self: stretch; width: 50%; }
   .rowline > :nth-child(6) { grid-area: tag;  justify-self: end; }
 
   .rowline .flex { width: 100%; gap: 8px; }
