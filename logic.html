@@ -403,26 +403,47 @@
     for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) matches.push([teams[i], teams[j]]);
     return shuffle(matches);
   }
-  function buildBlocks(matches, numCourts){
-    const remaining = [...matches]; const blocks=[];
-    while(remaining.length){
-      let block=[]; const used=new Set();
-      const cand = shuffle([...remaining]);
-      for(const [a,b] of cand){
-        if(block.length >= numCourts) break;
-        if(!used.has(a) && !used.has(b)){
-          block.push([a,b]); used.add(a); used.add(b);
-        }
+ function buildBlocks(matches, numCourts){
+  const remaining = [...matches];
+  const playedCount = {}; // track appearances
+  const countTeam = t => playedCount[t] || 0;
+
+  const inc = (a,b) => {
+    playedCount[a] = (playedCount[a]||0) + 1;
+    playedCount[b] = (playedCount[b]||0) + 1;
+  };
+
+  const blocks = [];
+  while(remaining.length){
+    let block = [];
+    let used = new Set();
+
+    // sort matches: pick ones involving teams with the fewest total games first
+    remaining.sort((m1,m2)=>{
+      const [a1,b1] = m1;
+      const [a2,b2] = m2;
+      return (countTeam(a1)+countTeam(b1)) - (countTeam(a2)+countTeam(b2));
+    });
+
+    for(const [a,b] of remaining){
+      if(block.length >= numCourts) break;
+      if(!used.has(a) && !used.has(b)){
+        block.push([a,b]);
+        used.add(a); used.add(b);
       }
-      // remove chosen from remaining
-      block.forEach(m=>{
-        const idx = remaining.findIndex(x=> (x[0]===m[0] && x[1]===m[1]) || (x[0]===m[1] && x[1]===m[0]));
-        if(idx>-1) remaining.splice(idx,1);
-      });
-      blocks.push(block);
     }
-    return blocks;
+
+    block.forEach(([a,b])=>{
+      inc(a,b);
+      const idx = remaining.findIndex(x=> (x[0]===a && x[1]===b) || (x[0]===b && x[1]===a));
+      if(idx>-1) remaining.splice(idx,1);
+    });
+
+    blocks.push(block);
   }
+  return blocks;
+}
+
 
   /********************
    * Scoring & Tables  
