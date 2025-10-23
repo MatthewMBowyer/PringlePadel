@@ -66,56 +66,55 @@
 </section>
 
 <script>
-async function loadStandings(sheetUrl, targetId) {
+async function loadStandingsJSON(sheetUrl, targetId) {
   try {
     const res = await fetch(sheetUrl);
-    const html = await res.text();
-    // Extract table data from published sheet
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-    const rows = Array.from(doc.querySelectorAll("table tbody tr"));
-    const data = rows.map(r =>
-      Array.from(r.querySelectorAll("td")).map(td => td.innerText.trim())
-    ).filter(r => r.length >= 6); // guard
+    const text = await res.text();
+    const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+    const rows = json.table.rows;
 
-    // Identify columns (Block, Court, TeamA, TeamB, PointsA, PointsB)
     const teamPoints = {};
-    data.forEach(r => {
-      const [block, court, teamA, teamB, ptsA, ptsB] = r;
-      if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + Number(ptsA || 0);
-      if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + Number(ptsB || 0);
+
+    rows.forEach(r => {
+      const block   = r.c[0]?.v;
+      const court   = r.c[1]?.v;
+      const teamA   = r.c[2]?.v;
+      const teamB   = r.c[3]?.v;
+      const pointsA = r.c[4]?.v || 0;
+      const pointsB = r.c[5]?.v || 0;
+
+      if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + pointsA;
+      if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + pointsB;
     });
 
-    // Sort by total points desc, then alphabetical
     const sorted = Object.entries(teamPoints)
-      .sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0]));
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
 
-    // Build HTML list
     let htmlOut = "<ol>";
-    sorted.slice(0,12).forEach(([team,pts],i)=>{
-      const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
-      htmlOut += `<li>${medal?`<strong>${medal} ${team}</strong> — <strong>${pts} pts</strong>`:`${team} — ${pts} pts`}</li>`;
-
+    sorted.slice(0, 12).forEach(([team, pts], i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "";
+      htmlOut += `<li><strong>${medal ? medal + " " : ""}${team}</strong> — <strong>${pts} pts</strong></li>`;
     });
     htmlOut += "</ol>";
 
     document.getElementById(targetId).innerHTML = htmlOut;
-  } catch(err){
+  } catch (err) {
     document.getElementById(targetId).innerText = "Error loading standings.";
     console.error(err);
   }
 }
 
-// Division 1 and 2 links
-loadStandings(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=0&single=true",
+loadStandingsJSON(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=0",
   "div1-table"
 );
-loadStandings(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=1217839661&single=true",
+
+loadStandingsJSON(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=1217839661",
   "div2-table"
 );
 </script>
+
 
 
     <!-- ===== TEAMS (UPDATED & ALPHABETICAL) ===== -->
