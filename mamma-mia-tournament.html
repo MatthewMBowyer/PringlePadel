@@ -65,10 +65,11 @@
   </div>
 </section>
 
-<script>
+
+  <script>
 async function loadStandingsJSON(sheetUrl, targetId) {
   try {
-    const res = await fetch(sheetUrl);
+    const res = await fetch(sheetUrl, { mode: 'cors' });
     const text = await res.text();
     const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
     const rows = json.table.rows;
@@ -105,12 +106,12 @@ async function loadStandingsJSON(sheetUrl, targetId) {
 }
 
 loadStandingsJSON(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=0",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&tq=select%20*&gid=0",
   "div1-table"
 );
 
 loadStandingsJSON(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=1217839661",
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&tq=select%20*&gid=1217839661",
   "div2-table"
 );
 </script>
