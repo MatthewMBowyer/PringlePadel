@@ -66,51 +66,167 @@
 </section>
 
 <script>
-async function loadStandings(sheetUrl, targetId) {
+/* ===================== CONFIG ===================== */
+const PUBLISHED_BASE =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q";
+
+const DIVS = [
+  { sheetName: "Div 1 Points", targetId: "div1-table", label: "Division 1" },
+  { sheetName: "Div 2 Points", targetId: "div2-table", label: "Division 2" },
+];
+
+/* ===================== UTILITIES ===================== */
+function buildGVizUrlBySheetName(sheetName) {
+  const tq = encodeURIComponent("select *");
+  const sheet = encodeURIComponent(sheetName);
+  // Use sheet= (by name) instead of gid=
+  return `${PUBLISHED_BASE}/gviz/tq?tqx=out:json&tq=${tq}&sheet=${sheet}`;
+}
+
+function showError(targetId, heading, details) {
+  const el = document.getElementById(targetId);
+  el.innerHTML = `
+    <div style="background:#fff3f3;border:1px solid #f5c2c7;color:#842029;padding:12px;border-radius:8px">
+      <strong>${heading}</strong>
+      ${details ? `<pre style="white-space:pre-wrap;margin-top:8px;font-size:.85rem">${details}</pre>` : ""}
+    </div>`;
+}
+
+function parseGVizPayload(text) {
+  const s = text.indexOf("{");
+  const e = text.lastIndexOf("}");
+  if (s === -1 || e === -1) throw new Error("Invalid GViz payload (no JSON braces found).");
+  return JSON.parse(text.substring(s, e + 1));
+}
+
+function makeColMap(cols) {
+  const map = {};
+  (cols || []).forEach((c, i) => {
+    const label = (c?.label || "").trim().toLowerCase();
+    if (label) map[label] = i;
+  });
+  return map;
+}
+
+function buildStandingsHTML(teamPoints) {
+  const sorted = Object.entries(teamPoints)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])); // tie → alphabetical
+  if (!sorted.length) return `<div style="opacity:.8">No rows found.</div>`;
+
+  let out = "<ol>";
+  sorted.slice(0, 12).forEach(([team, pts], i) => {
+    const medal = i===0 ? "🥇 " : i===1 ? "🥈 " : i===2 ? "🥉 " : "";
+    out += `<li><strong>${medal}${team}</strong> — <strong>${pts} pts</strong></li>`;
+  });
+  out += "</ol>";
+  return out;
+}
+
+function accumulatePointsFromTable(json, targetId) {
+  const cols = json?.table?.cols || [];
+  const rows = json?.table?.rows || [];
+
+  const colMap = makeColMap(cols);
+  const need = ["block", "court", "team a", "team b", "points a", "points b"];
+  const missing = need.filter(k => !(k in colMap));
+
+  if (missing.length) {
+    showError(
+      targetId,
+      "Standings load error: Missing expected column headers.",
+      "Expected headers (case-insensitive):\n" +
+      "Block, Court, Team A, Team B, Points A, Points B\n\n" +
+      "Found: " + cols.map(c => c.label || "(blank)").join(", ")
+    );
+    return null;
+  }
+
+  const iA  = colMap["team a"], iB  = colMap["team b"];
+  const iPA = colMap["points a"], iPB = colMap["points b"];
+
+  const teamPoints = {};
+  (rows || []).forEach(r => {
+    const c = r.c || [];
+    const teamA = c[iA]?.v?.toString().trim();
+    const teamB = c[iB]?.v?.toString().trim();
+    const ptsA  = Number(c[iPA]?.v || 0);
+    const ptsB  = Number(c[iPB]?.v || 0);
+    if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + ptsA;
+    if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + ptsB;
+  });
+
+  return { teamPoints, meta: { rows: rows.length, cols: cols.length, headers: cols.map(c=>c.label||"") } };
+}
+
+/* ===================== LOADERS ===================== */
+async function tryFetch(url) {
+  const res = await fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" });
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+  return await res.text();
+}
+
+function tryJSONP(url) {
+  return new Promise((resolve, reject) => {
+    const cb = "gviz_cb_" + Math.random().toString(36).slice(2);
+    const s = document.createElement("script");
+    s.src = url.replace("tqx=out:json", `tqx=out:json;responseHandler:${cb}`) + "&_cb=" + Date.now();
+
+    window[cb] = (payload) => {
+      resolve({ jsonp: true, payload });
+      cleanup();
+    };
+    s.onerror = () => { reject(new Error("JSONP script error")); cleanup(); };
+
+    document.body.appendChild(s);
+    function cleanup() { delete window[cb]; s.remove(); }
+  });
+}
+
+async function loadStandingsFor(sheetName, targetId, label) {
+  const url = buildGVizUrlBySheetName(sheetName);
+  const target = document.getElementById(targetId);
+  if (!target) return;
+
+  // Status line while loading
+  target.innerHTML = `<div style="opacity:.7">Loading ${label}…</div>`;
+
+  let text = "";
   try {
-    const res = await fetch(sheetUrl);
-    const text = await res.text();
-    const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
-    const rows = json.table.rows;
-
-    const teamPoints = {};
-
-    rows.forEach(r => {
-      const teamA = r.c[2]?.v;
-      const teamB = r.c[3]?.v;
-      const ptsA  = Number(r.c[4]?.v || 0);
-      const ptsB  = Number(r.c[5]?.v || 0);
-
-      if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + ptsA;
-      if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + ptsB;
-    });
-
-    const sorted = Object.entries(teamPoints)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-
-    let htmlOut = "<ol>";
-    sorted.slice(0, 12).forEach(([team, pts], i) => {
-      const medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
-      htmlOut += `<li><strong>${medal}${team}</strong> — <strong>${pts} pts</strong></li>`;
-    });
-    htmlOut += "</ol>";
-
-    document.getElementById(targetId).innerHTML = htmlOut;
-  } catch (err) {
-    document.getElementById(targetId).innerHTML =
-      "<div style='opacity:.7;color:#b00'>Unable to load standings</div>";
+    // 1) Fetch path
+    text = await tryFetch(url);
+    const json = parseGVizPayload(text);
+    const acc = accumulatePointsFromTable(json, targetId);
+    if (!acc) return; // error already displayed
+    target.innerHTML = buildStandingsHTML(acc.teamPoints);
+    return;
+  } catch (e1) {
+    // 2) JSONP fallback
+    try {
+      const { payload } = await tryJSONP(url);
+      const acc = accumulatePointsFromTable(payload, targetId);
+      if (!acc) return;
+      target.innerHTML = buildStandingsHTML(acc.teamPoints);
+      return;
+    } catch (e2) {
+      // 3) Explain what happened, with diagnostics
+      showError(
+        targetId,
+        `Could not load ${label} from Google Sheets.`,
+        `Tried URL (by sheet name):\n${url}\n\n` +
+        `Fetch error: ${e1 && (e1.message || e1)}\n` +
+        `JSONP error: ${e2 && (e2.message || e2)}\n\n` +
+        `Checklist:\n` +
+        `• File → Share → Publish to web → Entire document (not just a tab)\n` +
+        `• The tab is named exactly "${sheetName}"\n` +
+        `• Row 1 headers exactly: Block | Court | Team A | Team B | Points A | Points B\n` +
+        `• At least one numeric Points cell is entered`
+      );
+    }
   }
 }
 
-loadStandings(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=0",
-  "div1-table"
-);
-
-loadStandings(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=1217839661",
-  "div2-table"
-);
+/* ===================== KICKOFF ===================== */
+DIVS.forEach(d => loadStandingsFor(d.sheetName, d.targetId, d.label));
 </script>
 
 
