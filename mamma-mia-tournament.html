@@ -67,57 +67,44 @@
 
 
 <script>
-async function loadDebugTable(url, target) {
-  document.getElementById(target).innerHTML = "Loading sheet…";
+// ✅ CSV LINKS (replace gid if needed, but these are correct formats)
+const DIV1_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=0&single=true&output=csv";
+const DIV2_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=1217839661&single=true&output=csv";
 
-  try {
-    const res = await fetch(url);
-    const text = await res.text();
-
-    // Create HTML parser
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "text/html");
-    const rows = Array.from(doc.querySelectorAll("table tbody tr"));
-
-    // Extract rows
-    let html = "<table border='1' style='font-size:12px; width:100%; border-collapse:collapse;'>";
-    html += "<tr><th>Block</th><th>Court</th><th>Team A</th><th>Team B</th><th>Pts A</th><th>Pts B</th></tr>";
-
-    rows.forEach(r => {
-      const cells = r.querySelectorAll("td");
-      if (cells.length >= 6) {
-        html += `<tr>
-          <td>${cells[0].innerText}</td>
-          <td>${cells[1].innerText}</td>
-          <td>${cells[2].innerText}</td>
-          <td>${cells[3].innerText}</td>
-          <td>${cells[4].innerText}</td>
-          <td>${cells[5].innerText}</td>
-        </tr>`;
-      }
+// ✅ Convert CSV -> HTML Table
+function csvToTable(csv) {
+  const rows = csv.trim().split("\n").map(r => r.split(","));
+  let html = "<table border='1' cellpadding='6' style='border-collapse:collapse;'>";
+  rows.forEach((row, i) => {
+    html += "<tr>";
+    row.forEach(cell => {
+      html += i === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
     });
-
-    html += "</table>";
-    document.getElementById(target).innerHTML = html;
-
-  } catch(err) {
-    document.getElementById(target).innerHTML = "<p style='color:red;'>❌ Failed to load sheet</p>";
-    console.error("FETCH ERROR:", err);
-  }
+    html += "</tr>";
+  });
+  html += "</table>";
+  return html;
 }
 
-// Load both divisions in debug mode
-loadDebugTable(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=0&single=true",
-  "div1-table"
-);
+// ✅ Fetch and display standings
+function loadTable(csvUrl, elementId) {
+  console.log("Fetching:", csvUrl);
+  fetch(csvUrl)
+    .then(r => r.text())
+    .then(csv => {
+      console.log("CSV Loaded:", csv);
+      document.getElementById(elementId).innerHTML = csvToTable(csv);
+    })
+    .catch(err => {
+      console.error("ERROR:", err);
+      document.getElementById(elementId).innerHTML = "Unable to load standings.";
+    });
+}
 
-loadDebugTable(
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=1217839661&single=true",
-  "div2-table"
-);
+// ✅ RUN
+loadTable(DIV1_CSV, "div1-table");
+loadTable(DIV2_CSV, "div2-table");
 </script>
-
 
 
 
