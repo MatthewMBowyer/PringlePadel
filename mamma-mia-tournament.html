@@ -94,7 +94,8 @@ async function loadStandings(sheetUrl, targetId) {
     let htmlOut = "<ol>";
     sorted.slice(0,12).forEach(([team,pts],i)=>{
       const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
-      htmlOut += `<li><strong>${medal?medal+" ":""}${team}</strong> — ${pts} pts</li>`;
+      htmlOut += `<li>${medal?`<strong>${medal} ${team}</strong> — <strong>${pts} pts</strong>`:`${team} — ${pts} pts`}</li>`;
+
     });
     htmlOut += "</ol>";
 
