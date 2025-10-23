@@ -2,6 +2,8 @@
 <html>
 <head>
   <title>MAMMA MIA TOURNAMENT</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
   <link rel="stylesheet" href="assets/css/main.css" />
@@ -67,81 +69,48 @@
 
 
 <script>
-const DIV1_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=0&single=true&output=csv";
-const DIV2_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=1217839661&single=true&output=csv";
+const div1CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=0&single=true&output=csv";
+const div2CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=1217839661&single=true&output=csv";
 
-// ✅ Proper CSV parser (handles commas inside quotes)
-function parseCSV(csv) {
-  const rows = [];
-  let cur = "", row = [], insideQuote = false;
+// Load + print raw data
+function loadDivision(csvUrl, elementId) {
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      const rows = results.data;
 
-  for (let char of csv) {
-    if (char === '"' && insideQuote) { insideQuote = false; }
-    else if (char === '"' && !insideQuote) { insideQuote = true; }
-    else if (char === ',' && !insideQuote) { row.push(cur); cur = ""; }
-    else if (char === '\n' && !insideQuote) { row.push(cur); rows.push(row); row = []; cur = ""; }
-    else { cur += char; }
-  }
-  if (cur) row.push(cur);
-  if (row.length) rows.push(row);
-  return rows;
-}
+      if (!rows.length) {
+        document.getElementById(elementId).innerHTML = "No data found.";
+        return;
+      }
 
-function csvToTable(rows) {
-  let html = "<table border='1' cellpadding='6' style='border-collapse:collapse;'>";
-  rows.forEach((row, i) => {
-    html += "<tr>";
-    row.forEach(cell => {
-      html += i === 0 ? `<th>${cell}</th>` : `<td>${cell}</td>`;
-    });
-    html += "</tr>";
-  });
-  html += "</table>";
-  return html;
-}
+      // Build HTML table
+      let html = "<table border='1' cellpadding='5'><tr>";
+      html += "<th>Block</th><th>Court</th><th>Team A</th><th>Team B</th><th>Points A</th><th>Points B</th></tr>";
 
-// ✅ Compute Top 3
-function computeTop3(rows) {
-  const teamPoints = {};
-  const header = rows.shift(); // remove header row
+      rows.forEach(row => {
+        if (!row["Block"]) return; // skip empty
+        html += `<tr>
+          <td>${row["Block"] || ""}</td>
+          <td>${row["Court"] || ""}</td>
+          <td>${row["Team A"] || ""}</td>
+          <td>${row["Team B"] || ""}</td>
+          <td>${row["Points A"] || ""}</td>
+          <td>${row["Points B"] || ""}</td>
+        </tr>`;
+      });
 
-  const idxA = header.indexOf("Team A");
-  const idxB = header.indexOf("Team B");
-  const idxPA = header.indexOf("Points A");
-  const idxPB = header.indexOf("Points B");
-
-  rows.forEach(r => {
-    const A = r[idxA], B = r[idxB];
-    const PA = parseInt(r[idxPA] || 0), PB = parseInt(r[idxPB] || 0);
-    teamPoints[A] = (teamPoints[A] || 0) + PA;
-    teamPoints[B] = (teamPoints[B] || 0) + PB;
-  });
-
-  return Object.entries(teamPoints)
-    .sort((a,b) => b[1] - a[1])
-    .slice(0,3);
-}
-
-function load(csvUrl, tableId, topId) {
-  fetch(csvUrl).then(r => r.text()).then(csv => {
-    const rows = parseCSV(csv);
-    document.getElementById(tableId).innerHTML = csvToTable(rows);
-
-    const top3 = computeTop3(JSON.parse(JSON.stringify(rows)));
-    let topHTML = "<h3>🏆 Top 3 Teams</h3><ol>";
-    top3.forEach(([team, pts]) => topHTML += `<li>${team} — <b>${pts} pts</b></li>`);
-    topHTML += "</ol>";
-    document.getElementById(topId).innerHTML = topHTML;
-
-  }).catch(() => {
-    document.getElementById(tableId).innerHTML = "Unable to load standings.";
+      html += "</table>";
+      document.getElementById(elementId).innerHTML = html;
+    }
   });
 }
 
-// ✅ Run both
-load(DIV1_CSV, "div1-table", "div1-top3");
-load(DIV2_CSV, "div2-table", "div2-top3");
+loadDivision(div1CSV, "div1Table");
+loadDivision(div2CSV, "div2Table");
 </script>
+
 
 
 
