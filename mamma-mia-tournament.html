@@ -112,6 +112,62 @@ loadDivision(div2CSV, "div2-table");
 
 </script>
 
+    <script>
+// === BUILD STANDINGS ===
+function loadStandings(csvUrl, elementId) {
+  Papa.parse(csvUrl, {
+    download: true,
+    header: true,
+    complete: function(results) {
+      const rows = results.data;
+      const tableDiv = document.getElementById(elementId);
+
+      if (!rows.length) {
+        tableDiv.innerHTML = "No standings data.";
+        return;
+      }
+
+      // SUM POINTS PER TEAM
+      const standings = {};
+      rows.forEach(row => {
+        const teamA = row["Team A"];
+        const teamB = row["Team B"];
+        const ptsA = parseInt(row["Points A"]);
+        const ptsB = parseInt(row["Points B"]);
+
+        if (!teamA || !teamB) return;
+        if (!standings[teamA]) standings[teamA] = 0;
+        if (!standings[teamB]) standings[teamB] = 0;
+        if (!isNaN(ptsA)) standings[teamA] += ptsA;
+        if (!isNaN(ptsB)) standings[teamB] += ptsB;
+      });
+
+      // SORT — POINTS DESC, NAME ASC
+      const sortedTeams = Object.keys(standings).sort((a, b) => {
+        if (standings[b] === standings[a]) return a.localeCompare(b);
+        return standings[b] - standings[a];
+      });
+
+      // BUILD HTML STANDINGS TABLE
+      let html = "<table border='1' cellpadding='5'><tr><th>Rank</th><th>Team</th><th>Total Points</th></tr>";
+      sortedTeams.forEach((team, index) => {
+        const rank = index + 1;
+        const points = standings[team];
+        let medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
+        html += `<tr><td>${rank} ${medal}</td><td>${team}</td><td>${points}</td></tr>`;
+      });
+      html += "</table>";
+      tableDiv.innerHTML = html;
+    }
+  });
+}
+
+// ✅ CALL STANDINGS LOADER
+loadStandings(div1CSV, "div1-table");
+loadStandings(div2CSV, "div2-table");
+</script>
+
+
 
 
 
