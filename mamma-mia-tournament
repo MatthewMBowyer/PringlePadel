@@ -1,0 +1,185 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>MAMMA MIA TOURNAMENT</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+  <style>
+    /* Small fun accents without breaking your theme */
+    .abba-pill {
+      background: linear-gradient(135deg,#ff69b4,#ffc0cb);
+      color:#fff; padding:8px 14px; border-radius:999px; text-decoration:none; font-weight:700;
+      display:inline-block;
+    }
+    .note { font-size:.95rem; opacity:.85 }
+  </style>
+</head>
+<body class="is-preload">
+
+<div id="wrapper">
+
+  <!-- Header -->
+  <header id="header">
+    <h2>🎤🪩 MAMMA MIA TOURNAMENT 🪩🎤</h2>
+  </header>
+
+  <!-- Nav -->
+  <nav id="nav">
+    <ul class="links">
+      <li><a href="tournaments.html">Tournaments</a></li>
+      <li class="active"><a href="#">MAMMA MIA TOURNAMENT</a></li>
+    </ul>
+  </nav>
+
+  <!-- Main -->
+  <div id="main">
+
+    <!-- Intro -->
+    <section class="post">
+      <header class="major">
+        <h1>🪩 MAMMA MIA TOURNAMENT 🎾</h1>
+
+        <p>
+          <a href="https://yeni.co.za/" target="_blank" class="abba-pill">Check out Yeni’s website</a>
+        </p>
+
+        <p>Division 1: Rating 0.5–1.5 • Division 2: Rating 1.6–2.5</p>
+
+        <p class="note"><strong>Here we go again!</strong> Gimme! Gimme! Gimme! a winning shot 🎾✨
+          Channel your inner Dancing Queen, bring the sparkle, and may the best duo take it all! 💖</p>
+      </header>
+      <ul class="actions special">
+        <li><a href="#results" class="button primary">Results</a></li>
+        <li><a href="#teams" class="button">Teams</a></li>
+        <li><a href="#breakdown" class="button">Match Breakdown</a></li>
+      </ul>
+    </section>
+
+    <!-- ===== RESULTS (BLANK) ===== -->
+    <section id="results" class="post">
+      <header class="major"><h2>Results 🏆</h2></header>
+
+      <div class="row gtr-200">
+        <!-- LEVEL 1 -->
+        <div class="col-6 col-12-medium">
+          <h3>Division 1 (Rating 0.5–1.5)</h3>
+
+          <!-- Blank podium -->
+          <h4>Top 3</h4>
+          <ul id="lvl1-top3" class="alt">
+            <!-- Intentionally left blank for now -->
+          </ul>
+
+          <!-- Blank Top 9 -->
+          <h4>Top 9</h4>
+          <ol class="alt" id="lvl1-top9">
+            <!-- Intentionally left blank for now -->
+          </ol>
+        </div>
+
+        <!-- LEVEL 2 -->
+        <div class="col-6 col-12-medium">
+          <h3>Division 2 (Rating 1.6–2.5)</h3>
+
+          <!-- Blank podium -->
+          <h4>Top 3</h4>
+          <ul id="lvl2-top3" class="alt">
+            <!-- Intentionally left blank for now -->
+          </ul>
+
+          <!-- Blank Top 9 -->
+          <h4>Top 9</h4>
+          <ol class="alt" id="lvl2-top9">
+            <!-- Intentionally left blank for now -->
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TEAMS (UPDATED & ALPHABETICAL) ===== -->
+    <section id="teams" class="post">
+      <header class="major"><h2>Teams 👯‍♀️</h2></header>
+      <div class="row gtr-200">
+        <div class="col-6 col-12-medium">
+          <h3>Division 1: Rating 0.5–1.5</h3>
+          <ul class="alt">
+            <li>ABBA Angels</li>
+            <li>Chiquita's</li>
+            <li>Disco Divas</li>
+            <li>Drop Shot Divas</li>
+            <li>Glitter Gals</li>
+            <li>Honey, Honey, hit that ball</li>
+            <li>Mama Breena</li>
+            <li>Mamma Mia Smashers</li>
+            <li>Take A Chance on Us</li>
+            <li>The Dynamos</li>
+            <li>The Newbies</li>
+            <li>The Sister's</li>
+          </ul>
+        </div>
+        <div class="col-6 col-12-medium">
+          <h3>Division 2: Rating 1.6–2.5</h3>
+          <ul class="alt">
+            <li>ABBA-solutely Smashing</li>
+            <li>Hot Shots</li>
+            <li>Lay All Your Lobs on Me</li>
+            <li>Serve-ivors</li>
+            <li>Smashing Queens</li>
+            <li>Soft Touch</li>
+            <li>Super Troupers</li>
+            <li>The Dancing Queens</li>
+            <li>The Hitting Huns</li>
+            <li>The Spicy Mamma Mias</li>
+            <li>Twix</li>
+            <li>Waterloo Warriors</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MATCH BREAKDOWN (BLANK TABLES) ===== -->
+    <section id="breakdown" class="post">
+      <header class="major"><h2>Match Breakdown 📋</h2></header>
+
+      <!-- LEVEL 1 -->
+      <h3>Division 1 (Rating 0.5–1.5)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Round</th><th>Court 1</th><th>Court 2</th><th>Court 3</th></tr>
+          </thead>
+          <tbody id="lvl1-breakdown">
+            <!-- Empty by request — paste fixtures here later -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- LEVEL 2 -->
+      <h3>Division 2 (Rating 1.6–2.5)</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Round</th><th>Court 4</th><th>Court 5</th><th>Court 6</th></tr>
+          </thead>
+          <tbody id="lvl2-breakdown">
+            <!-- Empty by request — paste fixtures here later -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /#main -->
+</div><!-- /#wrapper -->
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>
