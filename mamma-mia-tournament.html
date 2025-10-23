@@ -66,92 +66,35 @@
 </section>
 
 <script>
-// ==========================
-// CONFIG
-// ==========================
-const DIVISION_1_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=0";
-const DIVISION_2_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=1217839661";
-
-// ==========================
-// MAIN LOADER
-// ==========================
-async function loadDivisionStandings(url, targetElementId) {
-  console.log(`🔍 Fetching standings from:\n${url}`);
+async function debugFetchSheet(url, target) {
+  document.getElementById(target).innerHTML = "Fetching sheet…";
 
   try {
     const res = await fetch(url);
-
-    if (!res.ok) {
-      console.error(`❌ HTTP Error ${res.status} — ${res.statusText}`);
-      document.getElementById(targetElementId).innerHTML =
-        `<p style="color:red;">Unable to load standings (HTTP ${res.status}).</p>`;
-      return;
-    }
-
     const text = await res.text();
 
-    if (!text.includes("table")) {
-      console.error("❌ Response did not include a Google JSON table.");
-      console.log("Full response for debugging:", text);
-      document.getElementById(targetElementId).innerHTML =
-        `<p style="color:red;">Standings data not found in sheet.</p>`;
-      return;
-    }
+    document.getElementById(target).innerHTML =
+      `<pre style="white-space:pre-wrap; font-size:12px; max-height:300px; overflow:auto;">${text}</pre>`;
 
-    // Google JSON comes wrapped — extract JSON only
-    const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
-    const data = JSON.parse(jsonStr);
+    console.log("✅ RAW SHEET HTML FETCHED:");
+    console.log(text);
 
-    const table = data.table;
-    const rows = table.rows;
-
-    // ==========================
-    // BUILD POINTS TOTALS
-    // ==========================
-    const totals = {};
-
-    rows.forEach(r => {
-      const teamA = r.c[2]?.v || "";
-      const teamB = r.c[3]?.v || "";
-      const ptsA = Number(r.c[4]?.v || 0);
-      const ptsB = Number(r.c[5]?.v || 0);
-
-      if (teamA) totals[teamA] = (totals[teamA] || 0) + ptsA;
-      if (teamB) totals[teamB] = (totals[teamB] || 0) + ptsB;
-    });
-
-    // ==========================
-    // SORT RESULTS
-    // ==========================
-    const sorted = Object.entries(totals)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-
-    // ==========================
-    // BUILD HTML OUTPUT
-    // ==========================
-    let html = "<ol>";
-    sorted.forEach(([team, pts], i) => {
-      let medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
-      html += `<li><strong>${medal}${team}</strong> — ${pts} pts</li>`;
-    });
-    html += "</ol>";
-
-    // Render standings
-    document.getElementById(targetElementId).innerHTML = html;
-    console.log(`✅ Successfully loaded standings for #${targetElementId}`);
-
-  } catch (err) {
-    console.error("❌ FATAL SCRIPT ERROR:", err);
-    document.getElementById(targetElementId).innerHTML =
-      `<p style="color:red;">Script error — see console for details.</p>`;
+  } catch(err) {
+    document.getElementById(target).innerHTML =
+      `<p style="color:red;">❌ Fetch failed — see console</p>`;
+    console.error("FETCH ERROR:", err);
   }
 }
 
-// ==========================
-// INIT CALLS
-// ==========================
-loadDivisionStandings(DIVISION_1_URL, "div1-table");
-loadDivisionStandings(DIVISION_2_URL, "div2-table");
+debugFetchSheet(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=0&single=true",
+  "div1-table"
+);
+
+debugFetchSheet(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=1217839661&single=true",
+  "div2-table"
+);
 </script>
 
 
