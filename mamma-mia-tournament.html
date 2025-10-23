@@ -65,166 +65,55 @@
   </div>
 </section>
 
-
 <script>
-/* -------- CONFIG: your two sheet URLs (GViz) -------- */
-const DIV1_URL = "hhttps://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=0";
-const DIV2_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=1217839661";
-
-/* -------- Helpers -------- */
-function showError(targetId, msg, extra) {
-  const el = document.getElementById(targetId);
-  el.innerHTML = `<div style="background:#fff3f3;border:1px solid #f5c2c7;color:#842029;padding:12px;border-radius:8px;">
-    <strong>Standings load error:</strong> ${msg}
-    ${extra ? `<pre style="white-space:pre-wrap;margin-top:8px;font-size:.85rem">${extra}</pre>` : ""}
-  </div>`;
-}
-
-function toMapByLabel(cols) {
-  // Build { normalizedLabel: index }
-  const map = {};
-  cols.forEach((c, i) => {
-    const label = (c.label || "").trim().toLowerCase();
-    map[label] = i;
-  });
-  return map;
-}
-
-function parseGViz(text) {
-  // GViz wraps JSON with )]}'
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("Invalid GViz payload");
-  return JSON.parse(text.substring(start, end + 1));
-}
-
-function buildStandingsHTML(teamPoints) {
-  const sorted = Object.entries(teamPoints)
-    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])); // tie-break alphabetical (case-insensitive)
-
-  if (sorted.length === 0) {
-    return `<div style="opacity:.8">No rows found (check your sheet headers and that at least one Points cell has a number).</div>`;
-  }
-
-  let html = "<ol>";
-  sorted.slice(0, 12).forEach(([team, pts], i) => {
-    const medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
-    const strong = i < 3 ? "strong" : "span";
-    html += `<li><${strong}>${medal}${team}</${strong}> — <${strong}>${Number(pts)||0} pts</${strong}></li>`;
-  });
-  html += "</ol>";
-  return html;
-}
-
-function accumulatePoints(json, targetId) {
-  const cols = json.table.cols || [];
-  const rows = json.table.rows || [];
-
-  // Expect labels: Block | Court | Team A | Team B | Points A | Points B
-  const map = toMapByLabel(cols);
-  const need = ["block", "court", "team a", "team b", "points a", "points b"];
-  const missing = need.filter(k => !(k in map));
-  if (missing.length) {
-    console.error("Missing expected columns:", { have: cols.map(c=>c.label), missing });
-    showError(targetId, "Missing expected column headers in the sheet.",
-      "Expected headers (case-insensitive): Block, Court, Team A, Team B, Points A, Points B\n" +
-      "Current headers: " + cols.map(c => c.label).join(", ")
-    );
-    return;
-  }
-
-  const iA = map["team a"], iB = map["team b"], iPA = map["points a"], iPB = map["points b"];
-
-  const teamPoints = {};
-  rows.forEach(r => {
-    const c = r.c || [];
-    const teamA = c[iA]?.v?.toString().trim();
-    const teamB = c[iB]?.v?.toString().trim();
-    const ptsA  = Number(c[iPA]?.v || 0);
-    const ptsB  = Number(c[iPB]?.v || 0);
-    if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + ptsA;
-    if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + ptsB;
-  });
-
-  console.table(Object.entries(teamPoints).map(([team, pts]) => ({ team, pts })));
-  return teamPoints;
-}
-
-/* -------- Fetch path (with detailed logging) -------- */
-async function loadStandingsFetch(sheetUrl, targetId) {
-  const url = sheetUrl + "&_cb=" + Date.now(); // bust cache
-  console.log("[Standings] Fetching:", url);
-  const res = await fetch(url, { mode: "cors", credentials: "omit", cache: "no-store" });
-  if (!res.ok) {
-    throw new Error(`HTTP ${res.status} ${res.statusText}`);
-  }
-  const text = await res.text();
-  console.log("[Standings] Response snippet:", text.slice(0, 200));
-  const json = parseGViz(text);
-  const teamPoints = accumulatePoints(json, targetId);
-  if (!teamPoints) return; // accumulatePoints already reported
-  document.getElementById(targetId).innerHTML = buildStandingsHTML(teamPoints);
-}
-
-/* -------- JSONP fallback (no CORS issues) -------- */
-function loadStandingsJSONP(sheetUrl, targetId) {
-  return new Promise((resolve, reject) => {
-    const cbName = "gviz_cb_" + Math.random().toString(36).slice(2);
-    const url = sheetUrl.replace("tqx=out:json", `tqx=out:json;responseHandler:${cbName}`) + "&_cb=" + Date.now();
-
-    window[cbName] = (json) => {
-      try {
-        const teamPoints = accumulatePoints(json, targetId);
-        if (!teamPoints) { reject(new Error("No data / header mismatch")); return; }
-        document.getElementById(targetId).innerHTML = buildStandingsHTML(teamPoints);
-        resolve();
-      } catch (e) {
-        reject(e);
-      } finally {
-        cleanup();
-      }
-    };
-
-    const s = document.createElement("script");
-    s.src = url;
-    s.onerror = (e) => {
-      cleanup();
-      reject(new Error("JSONP script error"));
-    };
-    document.body.appendChild(s);
-
-    function cleanup() {
-      delete window[cbName];
-      if (s.parentNode) s.parentNode.removeChild(s);
-    }
-  });
-}
-
-/* -------- Unified loader: try fetch, then JSONP -------- */
 async function loadStandings(sheetUrl, targetId) {
   try {
-    await loadStandingsFetch(sheetUrl, targetId);
+    const res = await fetch(sheetUrl);
+    const text = await res.text();
+    const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
+    const rows = json.table.rows;
+
+    const teamPoints = {};
+
+    rows.forEach(r => {
+      const teamA = r.c[2]?.v;
+      const teamB = r.c[3]?.v;
+      const ptsA  = Number(r.c[4]?.v || 0);
+      const ptsB  = Number(r.c[5]?.v || 0);
+
+      if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + ptsA;
+      if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + ptsB;
+    });
+
+    const sorted = Object.entries(teamPoints)
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+
+    let htmlOut = "<ol>";
+    sorted.slice(0, 12).forEach(([team, pts], i) => {
+      const medal = i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "";
+      htmlOut += `<li><strong>${medal}${team}</strong> — <strong>${pts} pts</strong></li>`;
+    });
+    htmlOut += "</ol>";
+
+    document.getElementById(targetId).innerHTML = htmlOut;
   } catch (err) {
-    console.warn(`[Standings] Fetch failed, falling back to JSONP: ${err && err.message}`);
-    try {
-      await loadStandingsJSONP(sheetUrl, targetId);
-    } catch (err2) {
-      console.error("[Standings] JSONP failed:", err2);
-      showError(targetId,
-        "Could not load from Google Sheets.",
-        `Fetch error: ${err && err.message}\nJSONP error: ${err2 && err2.message}\n` +
-        `Tips:\n- Make sure the sheet is 'Published to the web' (File → Share → Publish to web)\n` +
-        `- Headers must be EXACTLY: Block | Court | Team A | Team B | Points A | Points B\n` +
-        `- Ensure at least one Points cell has a number`
-      );
-    }
+    document.getElementById(targetId).innerHTML =
+      "<div style='opacity:.7;color:#b00'>Unable to load standings</div>";
   }
 }
 
-/* -------- Kick off both divisions -------- */
-loadStandings(DIV1_URL, "div1-table");
-loadStandings(DIV2_URL, "div2-table");
+loadStandings(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=0",
+  "div1-table"
+);
+
+loadStandings(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/gviz/tq?tqx=out:json&gid=1217839661",
+  "div2-table"
+);
 </script>
+
+
 
 
 
