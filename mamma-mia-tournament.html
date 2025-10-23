@@ -50,30 +50,72 @@
       </ul>
     </section>
 
-    <!-- ===== RESULTS (BLANK) ===== -->
-    <section id="results" class="post">
-      <header class="major"><h2>Results 🏆</h2></header>
+   <!-- ===== STANDINGS (Auto from Google Sheets) ===== -->
+<section id="standings" class="post">
+  <header class="major"><h2>Standings 🏆</h2></header>
 
-      <div class="row gtr-200">
-        <!-- LEVEL 1 -->
-        <div class="col-6 col-12-medium">
-          <h3>Division 1 (Rating 0.5–1.5)</h3>
-          <h4>Top 3</h4>
-          <ul id="lvl1-top3" class="alt"></ul>
-          <h4>Top 9</h4>
-          <ol class="alt" id="lvl1-top9"></ol>
-        </div>
+  <div id="div1-standings">
+    <h3>Division 1 (0.5 – 1.5)</h3>
+    <div id="div1-table">Loading Division 1 Standings…</div>
+  </div>
 
-        <!-- LEVEL 2 -->
-        <div class="col-6 col-12-medium">
-          <h3>Division 2 (Rating 1.6–2.5)</h3>
-          <h4>Top 3</h4>
-          <ul id="lvl2-top3" class="alt"></ul>
-          <h4>Top 9</h4>
-          <ol class="alt" id="lvl2-top9"></ol>
-        </div>
-      </div>
-    </section>
+  <div id="div2-standings" style="margin-top:2rem;">
+    <h3>Division 2 (1.6 – 2.5)</h3>
+    <div id="div2-table">Loading Division 2 Standings…</div>
+  </div>
+</section>
+
+<script>
+async function loadStandings(sheetUrl, targetId) {
+  try {
+    const res = await fetch(sheetUrl);
+    const html = await res.text();
+    // Extract table data from published sheet
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+    const rows = Array.from(doc.querySelectorAll("table tbody tr"));
+    const data = rows.map(r =>
+      Array.from(r.querySelectorAll("td")).map(td => td.innerText.trim())
+    ).filter(r => r.length >= 6); // guard
+
+    // Identify columns (Block, Court, TeamA, TeamB, PointsA, PointsB)
+    const teamPoints = {};
+    data.forEach(r => {
+      const [block, court, teamA, teamB, ptsA, ptsB] = r;
+      if (teamA) teamPoints[teamA] = (teamPoints[teamA] || 0) + Number(ptsA || 0);
+      if (teamB) teamPoints[teamB] = (teamPoints[teamB] || 0) + Number(ptsB || 0);
+    });
+
+    // Sort by total points desc, then alphabetical
+    const sorted = Object.entries(teamPoints)
+      .sort((a,b)=> b[1]-a[1] || a[0].localeCompare(b[0]));
+
+    // Build HTML list
+    let htmlOut = "<ol>";
+    sorted.slice(0,12).forEach(([team,pts],i)=>{
+      const medal = i===0?"🥇":i===1?"🥈":i===2?"🥉":"";
+      htmlOut += `<li><strong>${medal?medal+" ":""}${team}</strong> — ${pts} pts</li>`;
+    });
+    htmlOut += "</ol>";
+
+    document.getElementById(targetId).innerHTML = htmlOut;
+  } catch(err){
+    document.getElementById(targetId).innerText = "Error loading standings.";
+    console.error(err);
+  }
+}
+
+// Division 1 and 2 links
+loadStandings(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=0&single=true",
+  "div1-table"
+);
+loadStandings(
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pubhtml?gid=1217839661&single=true",
+  "div2-table"
+);
+</script>
+
 
     <!-- ===== TEAMS (UPDATED & ALPHABETICAL) ===== -->
     <section id="teams" class="post">
