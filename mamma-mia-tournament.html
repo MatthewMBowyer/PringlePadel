@@ -67,13 +67,27 @@
 
 
 <script>
-// ✅ CSV LINKS (replace gid if needed, but these are correct formats)
 const DIV1_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=0&single=true&output=csv";
 const DIV2_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVHlKa82Vjdc2qbMt_6N2Gbxjv_tY5zdrtxS8O2BCnr_71DzuMpTNnxjdQr0eCs3le1xzfu_kC7I6q/pub?gid=1217839661&single=true&output=csv";
 
-// ✅ Convert CSV -> HTML Table
-function csvToTable(csv) {
-  const rows = csv.trim().split("\n").map(r => r.split(","));
+// ✅ Proper CSV parser (handles commas inside quotes)
+function parseCSV(csv) {
+  const rows = [];
+  let cur = "", row = [], insideQuote = false;
+
+  for (let char of csv) {
+    if (char === '"' && insideQuote) { insideQuote = false; }
+    else if (char === '"' && !insideQuote) { insideQuote = true; }
+    else if (char === ',' && !insideQuote) { row.push(cur); cur = ""; }
+    else if (char === '\n' && !insideQuote) { row.push(cur); rows.push(row); row = []; cur = ""; }
+    else { cur += char; }
+  }
+  if (cur) row.push(cur);
+  if (row.length) rows.push(row);
+  return rows;
+}
+
+function csvToTable(rows) {
   let html = "<table border='1' cellpadding='6' style='border-collapse:collapse;'>";
   rows.forEach((row, i) => {
     html += "<tr>";
@@ -86,24 +100,47 @@ function csvToTable(csv) {
   return html;
 }
 
-// ✅ Fetch and display standings
-function loadTable(csvUrl, elementId) {
-  console.log("Fetching:", csvUrl);
-  fetch(csvUrl)
-    .then(r => r.text())
-    .then(csv => {
-      console.log("CSV Loaded:", csv);
-      document.getElementById(elementId).innerHTML = csvToTable(csv);
-    })
-    .catch(err => {
-      console.error("ERROR:", err);
-      document.getElementById(elementId).innerHTML = "Unable to load standings.";
-    });
+// ✅ Compute Top 3
+function computeTop3(rows) {
+  const teamPoints = {};
+  const header = rows.shift(); // remove header row
+
+  const idxA = header.indexOf("Team A");
+  const idxB = header.indexOf("Team B");
+  const idxPA = header.indexOf("Points A");
+  const idxPB = header.indexOf("Points B");
+
+  rows.forEach(r => {
+    const A = r[idxA], B = r[idxB];
+    const PA = parseInt(r[idxPA] || 0), PB = parseInt(r[idxPB] || 0);
+    teamPoints[A] = (teamPoints[A] || 0) + PA;
+    teamPoints[B] = (teamPoints[B] || 0) + PB;
+  });
+
+  return Object.entries(teamPoints)
+    .sort((a,b) => b[1] - a[1])
+    .slice(0,3);
 }
 
-// ✅ RUN
-loadTable(DIV1_CSV, "div1-table");
-loadTable(DIV2_CSV, "div2-table");
+function load(csvUrl, tableId, topId) {
+  fetch(csvUrl).then(r => r.text()).then(csv => {
+    const rows = parseCSV(csv);
+    document.getElementById(tableId).innerHTML = csvToTable(rows);
+
+    const top3 = computeTop3(JSON.parse(JSON.stringify(rows)));
+    let topHTML = "<h3>🏆 Top 3 Teams</h3><ol>";
+    top3.forEach(([team, pts]) => topHTML += `<li>${team} — <b>${pts} pts</b></li>`);
+    topHTML += "</ol>";
+    document.getElementById(topId).innerHTML = topHTML;
+
+  }).catch(() => {
+    document.getElementById(tableId).innerHTML = "Unable to load standings.";
+  });
+}
+
+// ✅ Run both
+load(DIV1_CSV, "div1-table", "div1-top3");
+load(DIV2_CSV, "div2-table", "div2-top3");
 </script>
 
 
