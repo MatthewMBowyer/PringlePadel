@@ -335,59 +335,153 @@
     return shuffle(Array.from({length:n}, (_,i)=>`Player ${i+1}`));
   }
 
-  function buildIndividualAmericano(players, n_courts, blocks){
-    const P = players.length;
-    if(P < 4 || n_courts < 1 || blocks < 1) return {schedule:[], target:0};
-    const maxMatchesPerBlock = Math.min(n_courts, Math.floor(P/4));
-    const totalCapacityMatches = blocks * maxMatchesPerBlock;
-    const totalPlayerSlots = totalCapacityMatches * 4;
-    const target = Math.floor(totalPlayerSlots / P);
+function buildIndividualAmericano(players, n_courts, blocks) {
+  const P = players.length;
+  if (P < 4 || n_courts < 1 || blocks < 1) return { schedule: [], target: 0 };
 
-    const countedPlayed = Object.fromEntries(players.map(p=>[p,0]));
-    const partnerCount  = Object.fromEntries(players.map(p=>[p, {}]));
-    const opponentCount = Object.fromEntries(players.map(p=>[p, {}]));
+  const maxMatchesPerBlock = Math.min(n_courts, Math.floor(P / 4));
+  const totalCapacityMatches = blocks * maxMatchesPerBlock;
+  const totalPlayerSlots = totalCapacityMatches * 4;
+  const target = Math.floor(totalPlayerSlots / P);
 
-    const plus1 = (obj,a,b)=>{ obj[a][b] = (obj[a][b]||0)+1; };
+  const countedPlayed = Object.fromEntries(players.map(p => [p, 0]));
+  const partnerCount  = Object.fromEntries(players.map(p => [p, {}]));
+  const opponentCount = Object.fromEntries(players.map(p => [p, {}]));
 
-    let schedule = []; let mid = 1;
-    for(let b=1; b<=blocks; b++){
-      let available = shuffle([...players]);
-      const need = Object.fromEntries(available.map(p=>[p, Math.max(0, target - countedPlayed[p]) ]));
-      available.sort((x,y)=> (need[y]-need[x]) || (Math.random()-0.5));
-      const pairs=[]; const used=new Set();
-      const capacityPairs = maxMatchesPerBlock*2;
-      while(pairs.length < capacityPairs){
-        const a = available.find(x=>!used.has(x));
-        if(!a) break;
-        const candidates = available.filter(x=>!used.has(x) && x!==a);
-        if(!candidates.length) break;
-        candidates.sort((u,v)=>{
-          const needPref = ((need[a]>0 && need[u]>0)?0:1) - ((need[a]>0 && need[v]>0)?0:1);
-          const pc = (partnerCount[a][u]||0) - (partnerCount[a][v]||0);
-          const nx = (need[v]||0) - (need[u]||0);
-          const rnd = Math.random()-0.5;
-          return needPref || pc || nx || rnd;
-        });
-        const bp = candidates[0];
-        const remainingFree = available.filter(x=>!used.has(x) && x!==a && x!==bp);
-        if((pairs.length % 2 === 0) && remainingFree.length < 2) break;
-        pairs.push([a,bp]); used.add(a); used.add(bp);
-      }
-      for(let i=0;i<pairs.length;i+=2){
-        if(i+1 >= pairs.length) break;
-        const [a1,a2] = pairs[i];
-        const [b1,b2] = pairs[i+1];
-        const counted = [a1,a2,b1,b2].every(p => countedPlayed[p] < target);
-        schedule.push({ block:b, court: (Math.floor(i/2)+1), A:[a1,a2], B:[b1,b2], is_counted: counted, match_id: mid++ });
-        // update trackers
-        partnerCount[a1][a2] = (partnerCount[a1][a2]||0)+1; partnerCount[a2][a1] = (partnerCount[a2][a1]||0)+1;
-        partnerCount[b1][b2] = (partnerCount[b1][b2]||0)+1; partnerCount[b2][b1] = (partnerCount[b2][b1]||0)+1;
-        [a1,a2].forEach(x=> [b1,b2].forEach(y=>{ plus1(opponentCount,x,y); plus1(opponentCount,y,x); }));
-        if(counted){ [a1,a2,b1,b2].forEach(p=> countedPlayed[p]++); }
+  const plus1 = (obj, a, b) => { obj[a][b] = (obj[a][b] || 0) + 1; };
+
+  let schedule = [];
+  let mid = 1;
+
+  // How many previous blocks to look at when avoiding repeats
+  const recentWindowBlocks = 3;
+
+  for (let b = 1; b <= blocks; b++) {
+
+    // Build a "recent together" map from the last few blocks
+    const lastTogether = {};
+
+    if (b > 1) {
+      const startBlock = Math.max(1, b - recentWindowBlocks);
+
+      for (let blk = startBlock; blk <= b - 1; blk++) {
+        const weight = 1 + (blk - startBlock); // newer blocks score higher
+        const prevMatches = schedule.filter(m => m.block === blk);
+
+        for (const m of prevMatches) {
+          const ps = [...m.A, ...m.B]; // all 4 players who shared a court
+
+          for (let i = 0; i < ps.length; i++) {
+            for (let j = i + 1; j < ps.length; j++) {
+              const p = ps[i], q = ps[j];
+
+              if (!lastTogether[p]) lastTogether[p] = {};
+              if (!lastTogether[q]) lastTogether[q] = {};
+
+              lastTogether[p][q] = (lastTogether[p][q] || 0) + weight;
+              lastTogether[q][p] = (lastTogether[q][p] || 0) + weight;
+            }
+          }
+        }
       }
     }
-    return { schedule, target };
+
+    let available = shuffle([...players]);
+
+    const need = Object.fromEntries(
+      available.map(p => [p, Math.max(0, target - countedPlayed[p])])
+    );
+
+    // Players who still need counted games are preferred
+    available.sort((x, y) => (need[y] - need[x]) || (Math.random() - 0.5));
+
+    const pairs = [];
+    const used = new Set();
+    const capacityPairs = maxMatchesPerBlock * 2; // two pairs per match
+
+    while (pairs.length < capacityPairs) {
+      const a = available.find(x => !used.has(x));
+      if (!a) break;
+
+      const candidates = available.filter(x => !used.has(x) && x !== a);
+      if (!candidates.length) break;
+
+      candidates.sort((u, v) => {
+        // 1) Prefer pairing players who both still need counted matches
+        const needPref =
+          ((need[a] > 0 && need[u] > 0) ? 0 : 1) -
+          ((need[a] > 0 && need[v] > 0) ? 0 : 1);
+
+        // 2) Prefer partners you have played with fewer times overall
+        const pc = (partnerCount[a][u] || 0) - (partnerCount[a][v] || 0);
+
+        // 3) Avoid recently shared courts (weighted by recency)
+        const recentU = (lastTogether[a] && lastTogether[a][u]) ? lastTogether[a][u] : 0;
+        const recentV = (lastTogether[a] && lastTogether[a][v]) ? lastTogether[a][v] : 0;
+        const recentPref = recentU - recentV; // smaller is better
+
+        // 4) Prefer players who still need more counted games
+        const nx = (need[v] || 0) - (need[u] || 0);
+
+        const rnd = Math.random() - 0.5;
+
+        return needPref || recentPref || pc || nx || rnd;
+      });
+
+      const bp = candidates[0];
+
+      const remainingFree = available.filter(
+        x => !used.has(x) && x !== a && x !== bp
+      );
+
+      if ((pairs.length % 2 === 0) && remainingFree.length < 2) break;
+
+      pairs.push([a, bp]);
+      used.add(a);
+      used.add(bp);
+    }
+
+    for (let i = 0; i < pairs.length; i += 2) {
+      if (i + 1 >= pairs.length) break;
+
+      const [a1, a2] = pairs[i];
+      const [b1, b2] = pairs[i + 1];
+
+      const counted = [a1, a2, b1, b2].every(
+        p => countedPlayed[p] < target
+      );
+
+      schedule.push({
+        block: b,
+        court: (Math.floor(i / 2) + 1),
+        A: [a1, a2],
+        B: [b1, b2],
+        is_counted: counted,
+        match_id: mid++
+      });
+
+      // Update long-term partner/opponent counts
+      partnerCount[a1][a2] = (partnerCount[a1][a2] || 0) + 1;
+      partnerCount[a2][a1] = (partnerCount[a2][a1] || 0) + 1;
+      partnerCount[b1][b2] = (partnerCount[b1][b2] || 0) + 1;
+      partnerCount[b2][b1] = (partnerCount[b2][b1] || 0) + 1;
+
+      [a1, a2].forEach(x =>
+        [b1, b2].forEach(y => {
+          plus1(opponentCount, x, y);
+          plus1(opponentCount, y, x);
+        })
+      );
+
+      if (counted) {
+        [a1, a2, b1, b2].forEach(p => countedPlayed[p]++);
+      }
+    }
   }
+
+  return { schedule, target };
+}
+
 
   /********************
    * Round Robin logic 
