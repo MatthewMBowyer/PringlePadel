@@ -1,0 +1,768 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>PRINGLE PADEL SWISS TOURNAMENT</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+  <link rel="stylesheet" href="assets/css/main.css" />
+  <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+  <style>
+    .abba-pill {
+      background: linear-gradient(135deg,#ff69b4,#ffc0cb);
+      color:#fff;
+      padding:8px 14px;
+      border-radius:999px;
+      text-decoration:none;
+      font-weight:700;
+      display:inline-block;
+    }
+    .note { font-size:.95rem; opacity:.85 }
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+      gap:1rem;
+    }
+    .card {
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:12px;
+      padding:1rem;
+      background:#fff;
+      margin-bottom:1rem;
+    }
+    .pill {
+      display:inline-block;
+      border-radius:999px;
+      padding:4px 10px;
+      font-size:.8rem;
+      font-weight:700;
+      background:#f6f6f6;
+      margin-right:6px;
+      margin-bottom:6px;
+    }
+    .bye-pill {
+      background:#fff2c7;
+    }
+    .ok-pill {
+      background:#dff7df;
+    }
+    .warn-pill {
+      background:#ffe1e1;
+    }
+    .small {
+      font-size:.9rem;
+      opacity:.85;
+    }
+    .muted {
+      opacity:.7;
+    }
+    .center { text-align:center; }
+    .mb0 { margin-bottom:0; }
+    .mt1 { margin-top:1rem; }
+    .section-gap { margin-top:2rem; }
+    .tag {
+      display:inline-block;
+      margin-left:8px;
+      font-size:.8rem;
+      opacity:.8;
+    }
+    .pair-box {
+      border:1px solid rgba(0,0,0,.1);
+      border-radius:12px;
+      padding:12px;
+      margin-bottom:10px;
+      background:#fafafa;
+    }
+    .success-text { color:#187a2f; font-weight:700; }
+    .danger-text { color:#b42318; font-weight:700; }
+    table td, table th { vertical-align:middle; }
+    code.inline {
+      background:#f4f4f4;
+      padding:2px 6px;
+      border-radius:6px;
+    }
+  </style>
+</head>
+<body class="is-preload">
+
+<div id="wrapper">
+
+  <header id="header">
+    <h2>🎾 PRINGLE PADEL SWISS TOURNAMENT 🎾</h2>
+  </header>
+
+  <nav id="nav">
+    <ul class="links">
+      <li class="active"><a href="#">Swiss Tournament</a></li>
+    </ul>
+  </nav>
+
+  <div id="main">
+
+    <section class="post">
+      <header class="major">
+        <h1>Swiss Tournament Manager</h1>
+        <p>Uses Google Form results to calculate standings and suggest the next Swiss fixtures.</p>
+        <p class="note"><strong>How it works:</strong> you fill in a Google Form after each match, the linked Google Sheet is published as CSV, and this page recalculates standings and builds the next round automatically.</p>
+      </header>
+
+      <ul class="actions special">
+        <li><a href="#status" class="button primary">Tournament Status</a></li>
+        <li><a href="#standings" class="button">Standings</a></li>
+        <li><a href="#next-round" class="button">Next Round</a></li>
+        <li><a href="#results" class="button">Results Log</a></li>
+        <li><a href="#setup" class="button">Setup</a></li>
+      </ul>
+    </section>
+
+    <section id="status" class="post">
+      <header class="major"><h2>Tournament Status</h2></header>
+      <div class="grid">
+        <div class="card">
+          <h3 class="mb0">Group</h3>
+          <p id="group-name"></p>
+          <div id="group-meta"></div>
+        </div>
+        <div class="card">
+          <h3 class="mb0">Progress</h3>
+          <p id="progress-text"></p>
+          <div id="progress-pills"></div>
+        </div>
+        <div class="card">
+          <h3 class="mb0">Data Check</h3>
+          <p id="data-check"></p>
+          <div id="data-check-pills"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="standings" class="post">
+      <header class="major"><h2>Live Standings 🏆</h2></header>
+      <div id="standings-table"></div>
+    </section>
+
+    <section id="next-round" class="post">
+      <header class="major"><h2>Suggested Next Round 🎾</h2></header>
+      <div id="next-round-content"></div>
+    </section>
+
+    <section id="results" class="post">
+      <header class="major"><h2>Submitted Results 📋</h2></header>
+      <div id="results-table"></div>
+    </section>
+
+    <section id="teams" class="post">
+      <header class="major"><h2>Teams 👯</h2></header>
+      <div id="teams-table"></div>
+    </section>
+
+    <section id="setup" class="post">
+      <header class="major"><h2>Setup Notes</h2></header>
+      <div class="card">
+        <h3>Google Form fields to create</h3>
+        <p class="small">Use these exact question names in your Google Form so the page can read them cleanly:</p>
+        <ul>
+          <li><code class="inline">Round</code></li>
+          <li><code class="inline">Court</code></li>
+          <li><code class="inline">Team A</code></li>
+          <li><code class="inline">Team B</code></li>
+          <li><code class="inline">Points A</code></li>
+          <li><code class="inline">Points B</code></li>
+        </ul>
+        <p class="small">Optional fields are fine, but keep these six exactly as above.</p>
+      </div>
+
+      <div class="card">
+        <h3>How to publish the Sheet as CSV</h3>
+        <ol>
+          <li>Open the Google Sheet that receives the form responses.</li>
+          <li>Go to <strong>File → Share → Publish to web</strong>.</li>
+          <li>Choose the responses tab.</li>
+          <li>Select <strong>CSV</strong>.</li>
+          <li>Paste that URL into <code class="inline">GOOGLE_SHEET_CSV_URL</code> in the config below.</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Important tournament logic in this page</h3>
+        <ul>
+          <li>8 teams</li>
+          <li>3 courts</li>
+          <li>4 Swiss rounds</li>
+          <li>2 byes per round</li>
+          <li>Points are the actual games scored, not win/loss points</li>
+          <li>Standings sort by Total Points, then Game Difference, then Strength rating</li>
+          <li>The pairing engine tries to avoid repeat matches and spread byes fairly</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   CONFIG
+   ========================================================= */
+const CONFIG = {
+  groupName: "Mens Group 1: 2.8 to 3.5",
+  totalRounds: 4,
+  courtsPerRound: 3,
+  teamsPerRoundBye: 2,
+  googleSheetCsvUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vRSlCpbOoc1oHtJKQ-vDuSo355Wt6col4C6PCN43U6beYYwZ2mQNRZfEdh9Pl6038jeggl0progVeln/pub?output=csv",
+  teams: [
+    { team: "Smith", player1: "Alex Smith", player2: "Trevor Smith", rating1: 2.9, rating2: 3.3, cell1: "083 282-8453", cell2: "083 251-4405" },
+    { team: "Fletcher", player1: "MJ Fletcher", player2: "David Gosman", rating1: 3.3, rating2: 2.9, cell1: "073 785-1636", cell2: "074 143-4586" },
+    { team: "Govender", player1: "Srini Govender", player2: "Rowan Budhram", rating1: 3.3, rating2: 2.9, cell1: "071 634-0425", cell2: "065 812-1732" },
+    { team: "Hambridge", player1: "Ty Hambridge", player2: "Ricardo Lopes", rating1: 2.8, rating2: 3.6, cell1: "083 298-4748", cell2: "076 243-1031" },
+    { team: "Sked", player1: "Noah Sked", player2: "Steven Halliday", rating1: 3.5, rating2: 2.8, cell1: "063 864-1318", cell2: "079 404-6785" },
+    { team: "Morgan", player1: "Matthew Morgan", player2: "Kayden Morgan", rating1: 2.8, rating2: 2.7, cell1: "082 871-7504", cell2: "066 524-9601" },
+    { team: "Rohland", player1: "Jarrod Rohland", player2: "Wes Bothwell", rating1: 2.6, rating2: 2.48, cell1: "082 337-8203", cell2: "082 701-0230" },
+    { team: "Forsyth", player1: "Garth Forsyth", player2: "Ryden Forsyth", rating1: 3.59, rating2: 2.95, cell1: "082 582-2251", cell2: "082 565-8526" }
+  ]
+};
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function round2(x) {
+  return Math.round((Number(x) + Number.EPSILON) * 100) / 100;
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", "&#039;");
+}
+
+function normalizeTeamName(name) {
+  return String(name || "").trim();
+}
+
+function asInt(value) {
+  const n = parseInt(value, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+function avgRating(t) {
+  return round2((Number(t.rating1) + Number(t.rating2)) / 2);
+}
+
+function makeTeamLookup(teams) {
+  const lookup = {};
+  teams.forEach(t => {
+    lookup[t.team] = { ...t, avgRating: avgRating(t) };
+  });
+  return lookup;
+}
+
+function canonicalMatchKey(a, b) {
+  return [a, b].sort().join("__");
+}
+
+function sortStandingsRows(rows) {
+  return [...rows].sort((a, b) => {
+    if (b.points !== a.points) return b.points - a.points;
+    if (b.diff !== a.diff) return b.diff - a.diff;
+    if (b.played !== a.played) return a.played - b.played;
+    if (b.avgRating !== a.avgRating) return b.avgRating - a.avgRating;
+    return a.team.localeCompare(b.team);
+  });
+}
+
+function buildEmptyStandings(teams) {
+  return teams.map(t => ({
+    team: t.team,
+    player1: t.player1,
+    player2: t.player2,
+    avgRating: avgRating(t),
+    points: 0,
+    against: 0,
+    diff: 0,
+    played: 0,
+    wins: 0,
+    losses: 0,
+    byes: 0,
+    opponents: []
+  }));
+}
+
+function parseRows(rows, teamLookup) {
+  const parsed = [];
+  const issues = [];
+
+  rows.forEach((row, idx) => {
+    const round = asInt(row["Round"] ?? row["Round "]);
+    const court = String(row["Court"] || "").trim();
+    const teamA = normalizeTeamName(row["Team A"]);
+    const teamB = normalizeTeamName(row["Team B"]);
+    const pointsA = asInt(row["Points A"]);
+    const pointsB = asInt(row["Points B"]);
+
+    const isBlank = !round && !court && !teamA && !teamB && pointsA === null && pointsB === null;
+    if (isBlank) return;
+
+    const rowLabel = `Row ${idx + 2}`;
+
+    if (!round || !teamA || !teamB || pointsA === null || pointsB === null) {
+      issues.push(`${rowLabel}: missing required values`);
+      return;
+    }
+    if (!teamLookup[teamA]) {
+      issues.push(`${rowLabel}: unknown Team A '${teamA}'`);
+      return;
+    }
+    if (!teamLookup[teamB]) {
+      issues.push(`${rowLabel}: unknown Team B '${teamB}'`);
+      return;
+    }
+    if (teamA === teamB) {
+      issues.push(`${rowLabel}: team cannot play itself`);
+      return;
+    }
+
+    parsed.push({
+      round,
+      court,
+      teamA,
+      teamB,
+      pointsA,
+      pointsB
+    });
+  });
+
+  parsed.sort((a, b) => {
+    if (a.round !== b.round) return a.round - b.round;
+    return String(a.court).localeCompare(String(b.court));
+  });
+
+  return { parsed, issues };
+}
+
+function buildState(config, parsedResults) {
+  const teams = config.teams;
+  const standings = buildEmptyStandings(teams);
+  const standingsLookup = Object.fromEntries(standings.map(x => [x.team, x]));
+  const playedMatchKeys = new Set();
+  const rounds = {};
+
+  parsedResults.forEach(match => {
+    if (!rounds[match.round]) rounds[match.round] = [];
+    rounds[match.round].push(match);
+
+    const a = standingsLookup[match.teamA];
+    const b = standingsLookup[match.teamB];
+
+    a.points += match.pointsA;
+    a.against += match.pointsB;
+    a.diff = a.points - a.against;
+    a.played += 1;
+    a.opponents.push(match.teamB);
+
+    b.points += match.pointsB;
+    b.against += match.pointsA;
+    b.diff = b.points - b.against;
+    b.played += 1;
+    b.opponents.push(match.teamA);
+
+    if (match.pointsA > match.pointsB) {
+      a.wins += 1;
+      b.losses += 1;
+    } else if (match.pointsB > match.pointsA) {
+      b.wins += 1;
+      a.losses += 1;
+    }
+
+    playedMatchKeys.add(canonicalMatchKey(match.teamA, match.teamB));
+  });
+
+  const teamsByRound = {};
+  Object.entries(rounds).forEach(([round, matches]) => {
+    teamsByRound[round] = new Set();
+    matches.forEach(m => {
+      teamsByRound[round].add(m.teamA);
+      teamsByRound[round].add(m.teamB);
+    });
+  });
+
+  for (let r = 1; r <= config.totalRounds; r++) {
+    const seen = teamsByRound[r] || new Set();
+    teams.forEach(t => {
+      if (!seen.has(t.team)) standingsLookup[t.team].byes += 1;
+    });
+  }
+
+  const completedRounds = Object.keys(rounds)
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
+
+  const roundsFullyComplete = completedRounds.filter(r => (rounds[r] || []).length === config.courtsPerRound).length;
+  const nextRoundNumber = roundsFullyComplete + 1;
+  const tournamentComplete = roundsFullyComplete >= config.totalRounds;
+
+  return {
+    standings: sortStandingsRows(standings),
+    standingsLookup,
+    rounds,
+    completedRounds,
+    roundsFullyComplete,
+    nextRoundNumber,
+    tournamentComplete,
+    playedMatchKeys
+  };
+}
+
+function chooseByes(sortedTeams, config, nextRound, rounds, standingsLookup) {
+  const alreadyPlayedThisRound = new Set((rounds[nextRound] || []).flatMap(m => [m.teamA, m.teamB]));
+  const candidates = sortedTeams.filter(t => !alreadyPlayedThisRound.has(t.team));
+
+  candidates.sort((a, b) => {
+    if (a.byes !== b.byes) return a.byes - b.byes;
+    if (a.points !== b.points) return a.points - b.points;
+    if (a.diff !== b.diff) return a.diff - b.diff;
+    if (a.avgRating !== b.avgRating) return a.avgRating - b.avgRating;
+    return a.team.localeCompare(b.team);
+  });
+
+  return candidates.slice(0, config.teamsPerRoundBye).map(t => t.team);
+}
+
+function pairRoundOne(teams, byeTeams) {
+  const active = teams
+    .filter(t => !byeTeams.includes(t.team))
+    .sort((a, b) => a.avgRating - b.avgRating || a.team.localeCompare(b.team));
+
+  const pairs = [];
+  for (let i = 0; i < active.length; i += 2) {
+    if (active[i + 1]) {
+      pairs.push([active[i].team, active[i + 1].team]);
+    }
+  }
+  return pairs;
+}
+
+function buildSwissPairs(sortedTeams, byeTeams, playedMatchKeys) {
+  const active = sortedTeams.filter(t => !byeTeams.includes(t.team));
+  const used = new Set();
+  const pairs = [];
+
+  for (let i = 0; i < active.length; i++) {
+    const teamA = active[i];
+    if (used.has(teamA.team)) continue;
+
+    let chosen = null;
+    let chosenScore = Infinity;
+
+    for (let j = i + 1; j < active.length; j++) {
+      const teamB = active[j];
+      if (used.has(teamB.team)) continue;
+
+      const repeatPenalty = playedMatchKeys.has(canonicalMatchKey(teamA.team, teamB.team)) ? 1000 : 0;
+      const scoreGap = Math.abs(teamA.points - teamB.points) * 100;
+      const diffGap = Math.abs(teamA.diff - teamB.diff) * 10;
+      const ratingGap = Math.abs(teamA.avgRating - teamB.avgRating);
+      const totalScore = repeatPenalty + scoreGap + diffGap + ratingGap;
+
+      if (totalScore < chosenScore) {
+        chosen = teamB;
+        chosenScore = totalScore;
+      }
+    }
+
+    if (chosen) {
+      used.add(teamA.team);
+      used.add(chosen.team);
+      pairs.push([teamA.team, chosen.team]);
+    }
+  }
+
+  return pairs;
+}
+
+function suggestNextRound(config, state) {
+  const sorted = state.standings;
+  const nextRound = state.nextRoundNumber;
+
+  if (state.tournamentComplete || nextRound > config.totalRounds) {
+    return {
+      complete: true,
+      round: null,
+      byes: [],
+      courts: []
+    };
+  }
+
+  const byes = chooseByes(sorted, config, nextRound, state.rounds, state.standingsLookup);
+  let pairs;
+
+  if (nextRound === 1) {
+    pairs = pairRoundOne(sorted, byes);
+  } else {
+    pairs = buildSwissPairs(sorted, byes, state.playedMatchKeys);
+  }
+
+  const courts = pairs.slice(0, config.courtsPerRound).map((pair, idx) => ({
+    court: idx + 1,
+    teamA: pair[0],
+    teamB: pair[1]
+  }));
+
+  return {
+    complete: false,
+    round: nextRound,
+    byes,
+    courts
+  };
+}
+
+/* =========================================================
+   RENDERERS
+   ========================================================= */
+function renderTeams(teams) {
+  let html = `
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Player 1</th>
+            <th>Player 2</th>
+            <th>Avg Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  [...teams]
+    .sort((a, b) => avgRating(a) - avgRating(b) || a.team.localeCompare(b.team))
+    .forEach(t => {
+      html += `
+        <tr>
+          <td><strong>${escapeHtml(t.team)}</strong></td>
+          <td>${escapeHtml(t.player1)}</td>
+          <td>${escapeHtml(t.player2)}</td>
+          <td>${avgRating(t).toFixed(2)}</td>
+        </tr>
+      `;
+    });
+
+  html += `</tbody></table></div>`;
+  document.getElementById("teams-table").innerHTML = html;
+}
+
+function renderStandings(standings) {
+  let html = `
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Points</th>
+            <th>Against</th>
+            <th>Diff</th>
+            <th>Played</th>
+            <th>Wins</th>
+            <th>Losses</th>
+            <th>Byes</th>
+            <th>Avg Rating</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  standings.forEach((row, idx) => {
+    const medal = idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : "";
+    html += `
+      <tr>
+        <td>${idx + 1} ${medal}</td>
+        <td><strong>${escapeHtml(row.team)}</strong><span class="tag">${escapeHtml(row.player1)} / ${escapeHtml(row.player2)}</span></td>
+        <td>${row.points}</td>
+        <td>${row.against}</td>
+        <td>${row.diff}</td>
+        <td>${row.played}</td>
+        <td>${row.wins}</td>
+        <td>${row.losses}</td>
+        <td>${row.byes}</td>
+        <td>${row.avgRating.toFixed(2)}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById("standings-table").innerHTML = html;
+}
+
+function renderResults(results) {
+  if (!results.length) {
+    document.getElementById("results-table").innerHTML = `<p class="muted">No form submissions yet.</p>`;
+    return;
+  }
+
+  let html = `
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Round</th>
+            <th>Court</th>
+            <th>Team A</th>
+            <th>Points A</th>
+            <th>Team B</th>
+            <th>Points B</th>
+          </tr>
+        </thead>
+        <tbody>
+  `;
+
+  results.forEach(r => {
+    html += `
+      <tr>
+        <td>${r.round}</td>
+        <td>${escapeHtml(r.court)}</td>
+        <td>${escapeHtml(r.teamA)}</td>
+        <td>${r.pointsA}</td>
+        <td>${escapeHtml(r.teamB)}</td>
+        <td>${r.pointsB}</td>
+      </tr>
+    `;
+  });
+
+  html += `</tbody></table></div>`;
+  document.getElementById("results-table").innerHTML = html;
+}
+
+function renderNextRound(suggestion, state) {
+  const el = document.getElementById("next-round-content");
+
+  if (suggestion.complete) {
+    el.innerHTML = `
+      <div class="card center">
+        <h3>Tournament complete ✅</h3>
+        <p>The configured ${CONFIG.totalRounds} Swiss rounds are finished.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = `
+    <div class="card">
+      <h3>Round ${suggestion.round}</h3>
+      <p class="small">This is the next Swiss suggestion based on current submitted results.</p>
+      <p>
+        ${suggestion.byes.map(team => `<span class="pill bye-pill">Bye: ${escapeHtml(team)}</span>`).join(" ")}
+      </p>
+    </div>
+  `;
+
+  suggestion.courts.forEach(match => {
+    html += `
+      <div class="pair-box">
+        <strong>Court ${match.court}</strong><br>
+        ${escapeHtml(match.teamA)} vs ${escapeHtml(match.teamB)}
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="card mt1">
+      <h3>Form entries to submit after these matches</h3>
+      <p class="small">After each match, submit one Google Form response using the exact team names shown above.</p>
+    </div>
+  `;
+
+  el.innerHTML = html;
+}
+
+function renderStatus(config, parsed, issues, state, suggestion) {
+  document.getElementById("group-name").textContent = config.groupName;
+  document.getElementById("group-meta").innerHTML = `
+    <span class="pill">Teams: ${config.teams.length}</span>
+    <span class="pill">Courts: ${config.courtsPerRound}</span>
+    <span class="pill">Rounds: ${config.totalRounds}</span>
+    <span class="pill">Byes per round: ${config.teamsPerRoundBye}</span>
+  `;
+
+  const matchesExpected = config.totalRounds * config.courtsPerRound;
+  document.getElementById("progress-text").textContent = `${parsed.length} submitted matches out of ${matchesExpected} total scheduled Swiss matches.`;
+  document.getElementById("progress-pills").innerHTML = `
+    <span class="pill ok-pill">Completed rounds: ${state.roundsFullyComplete}</span>
+    <span class="pill">Next round: ${suggestion.complete ? "Done" : suggestion.round}</span>
+  `;
+
+  let dataCheckText = "Data loaded successfully.";
+  let pills = `<span class="pill ok-pill">Valid rows: ${parsed.length}</span>`;
+
+  if (String(config.googleSheetCsvUrl).includes("PASTE_YOUR_PUBLISHED_CSV_URL_HERE")) {
+    dataCheckText = "You still need to paste your published Google Sheet CSV URL into the config.";
+    pills += `<span class="pill warn-pill">CSV URL missing</span>`;
+  }
+
+  if (issues.length) {
+    dataCheckText = `There are ${issues.length} row issue(s) in the form data.`;
+    pills += `<span class="pill warn-pill">Issues found: ${issues.length}</span>`;
+    pills += `<div class="small mt1">${issues.map(x => `• ${escapeHtml(x)}`).join("<br>")}</div>`;
+  }
+
+  document.getElementById("data-check").textContent = dataCheckText;
+  document.getElementById("data-check-pills").innerHTML = pills;
+}
+
+/* =========================================================
+   DATA LOADER
+   ========================================================= */
+function renderWithRows(rawRows) {
+  const teamLookup = makeTeamLookup(CONFIG.teams);
+  const { parsed, issues } = parseRows(rawRows, teamLookup);
+  const state = buildState(CONFIG, parsed);
+  const suggestion = suggestNextRound(CONFIG, state);
+
+  renderTeams(CONFIG.teams);
+  renderStandings(state.standings);
+  renderResults(parsed);
+  renderNextRound(suggestion, state);
+  renderStatus(CONFIG, parsed, issues, state, suggestion);
+}
+
+function loadSheetData() {
+  if (!CONFIG.googleSheetCsvUrl || CONFIG.googleSheetCsvUrl === "PASTE_YOUR_PUBLISHED_CSV_URL_HERE") {
+    renderWithRows([]);
+    return;
+  }
+
+  Papa.parse(CONFIG.googleSheetCsvUrl, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
+      renderWithRows(results.data || []);
+    },
+    error: function() {
+      document.getElementById("data-check").innerHTML = `<span class="danger-text">Could not load the Google Sheet CSV.</span>`;
+      renderWithRows([]);
+    }
+  });
+}
+
+/* =========================================================
+   START
+   ========================================================= */
+document.addEventListener("DOMContentLoaded", function() {
+  loadSheetData();
+});
+</script>
+
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+
+</body>
+</html>
