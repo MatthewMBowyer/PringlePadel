@@ -83,19 +83,20 @@
       specialClass: 'luxia-button'
   ];
 
-  // Render cards
+    // Render cards
   const container = document.getElementById('tournaments');
-container.innerHTML = tournaments.map(t => `
+
+  container.innerHTML = tournaments.map(t => `
     <article class="tournament-card">
       <div class="thumb">
         <img src="${t.image}" alt="${t.name}">
       </div>
       <h3>${t.name}</h3>
-	<a class="button" href="${t.url}" aria-label="Open page for ${t.name}">View results</a>
+      <a class="button ${t.specialClass || ''}" href="${t.url}" aria-label="Open page for ${t.name}">
+        View results
       </a>
     </article>
-`).join('');
-
+  `).join('');
 </script>
 
 <style>
