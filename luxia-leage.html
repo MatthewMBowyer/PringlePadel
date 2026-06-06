@@ -1,0 +1,695 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Luxia League - Season 1</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+
+		<style>
+			:root {
+				--luxia-black: #111111;
+				--luxia-charcoal: #1c1a17;
+				--luxia-gold: #c9a45c;
+				--luxia-soft-gold: #ead8ad;
+				--luxia-cream: #fff9ef;
+				--luxia-muted: #6f6659;
+			}
+
+			.luxia-hero {
+				position: relative;
+				overflow: hidden;
+				padding: 4rem 2rem;
+				border-radius: 22px;
+				background:
+					linear-gradient(135deg, rgba(17,17,17,0.96), rgba(40,31,20,0.92)),
+					radial-gradient(circle at top right, rgba(201,164,92,0.35), transparent 35%);
+				color: #fff;
+				text-align: center;
+				margin-bottom: 2.5rem;
+				box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+			}
+
+			.luxia-hero::before {
+				content: "";
+				position: absolute;
+				inset: 1rem;
+				border: 1px solid rgba(201, 164, 92, 0.45);
+				border-radius: 18px;
+				pointer-events: none;
+			}
+
+			.luxia-kicker {
+				display: inline-block;
+				margin-bottom: 1rem;
+				padding: 0.45rem 0.85rem;
+				border: 1px solid rgba(201, 164, 92, 0.75);
+				border-radius: 999px;
+				color: var(--luxia-soft-gold);
+				font-size: 0.78rem;
+				font-weight: 700;
+				letter-spacing: 0.16em;
+				text-transform: uppercase;
+			}
+
+			.luxia-hero h1 {
+				color: #fff;
+				margin-bottom: 0.75rem;
+				font-size: clamp(2.2rem, 6vw, 4.25rem);
+				letter-spacing: 0.06em;
+			}
+
+			.luxia-hero p {
+				max-width: 760px;
+				margin: 0 auto 1.5rem;
+				color: rgba(255, 255, 255, 0.82);
+				font-size: 1.05rem;
+			}
+
+			.luxia-button-row {
+				display: flex;
+				justify-content: center;
+				flex-wrap: wrap;
+				gap: 0.85rem;
+				margin-top: 1.5rem;
+			}
+
+			.luxia-btn {
+				display: inline-block;
+				padding: 0.85rem 1.35rem;
+				border-radius: 999px;
+				background: linear-gradient(135deg, var(--luxia-gold), var(--luxia-soft-gold));
+				color: var(--luxia-black) !important;
+				border: 1px solid var(--luxia-gold);
+				font-weight: 800;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+				text-decoration: none;
+				box-shadow: 0 10px 26px rgba(201, 164, 92, 0.28);
+				transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+			}
+
+			.luxia-btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 15px 35px rgba(201, 164, 92, 0.38);
+				background: #fff;
+				color: var(--luxia-black) !important;
+			}
+
+			.luxia-btn.secondary {
+				background: transparent;
+				color: #fff !important;
+				border-color: rgba(255, 255, 255, 0.5);
+				box-shadow: none;
+			}
+
+			.luxia-btn.secondary:hover {
+				background: rgba(255, 255, 255, 0.1);
+				border-color: var(--luxia-gold);
+			}
+
+			.luxia-section {
+				margin: 2rem 0;
+				padding: 2rem;
+				border-radius: 18px;
+				background: #fff;
+				border: 1px solid rgba(201, 164, 92, 0.28);
+				box-shadow: 0 10px 32px rgba(0, 0, 0, 0.06);
+			}
+
+			.luxia-section h2 {
+				margin-bottom: 0.65rem;
+				color: var(--luxia-black);
+			}
+
+			.luxia-section .intro {
+				color: var(--luxia-muted);
+				margin-bottom: 1.5rem;
+			}
+
+			.luxia-sponsor-card {
+				display: grid;
+				grid-template-columns: 1.3fr 0.7fr;
+				gap: 1.5rem;
+				align-items: center;
+				background: linear-gradient(135deg, var(--luxia-cream), #fff);
+				border: 1px solid rgba(201, 164, 92, 0.35);
+				border-radius: 18px;
+				padding: 1.5rem;
+			}
+
+			.luxia-sponsor-card h3 {
+				margin-bottom: 0.4rem;
+				color: var(--luxia-black);
+			}
+
+			.luxia-sponsor-badge {
+				justify-self: end;
+				text-align: center;
+				padding: 1rem 1.25rem;
+				border-radius: 16px;
+				background: var(--luxia-black);
+				color: var(--luxia-soft-gold);
+				border: 1px solid var(--luxia-gold);
+				font-weight: 800;
+				letter-spacing: 0.12em;
+				text-transform: uppercase;
+			}
+
+			.results-wrap {
+				overflow-x: auto;
+				border-radius: 14px;
+				border: 1px solid rgba(0, 0, 0, 0.08);
+			}
+
+			.results-table {
+				width: 100%;
+				border-collapse: collapse;
+				min-width: 760px;
+				background: #fff;
+			}
+
+			.results-table th,
+			.results-table td {
+				padding: 0.9rem 0.85rem;
+				text-align: center;
+				border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+			}
+
+			.results-table th {
+				background: var(--luxia-black);
+				color: var(--luxia-soft-gold);
+				font-size: 0.78rem;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+			}
+
+			.results-table td:first-child,
+			.results-table td:nth-child(2) {
+				font-weight: 700;
+				color: var(--luxia-black);
+			}
+
+			.results-table tr:last-child td {
+				border-bottom: 0;
+			}
+
+			.winner-pill {
+				display: inline-block;
+				padding: 0.35rem 0.75rem;
+				border-radius: 999px;
+				background: rgba(201, 164, 92, 0.18);
+				color: var(--luxia-black);
+				border: 1px solid rgba(201, 164, 92, 0.45);
+				font-weight: 800;
+			}
+
+			.luxia-gallery {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+				gap: 1rem;
+				margin-top: 1rem;
+			}
+
+			.luxia-photo-slot {
+				min-height: 240px;
+				border-radius: 18px;
+				border: 1px dashed rgba(201, 164, 92, 0.8);
+				background:
+					linear-gradient(135deg, rgba(255, 249, 239, 0.95), rgba(255, 255, 255, 0.95)),
+					radial-gradient(circle at top right, rgba(201, 164, 92, 0.25), transparent 35%);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				text-align: center;
+				padding: 1.5rem;
+				color: var(--luxia-muted);
+				font-weight: 700;
+			}
+
+			.luxia-photo-slot img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				border-radius: 18px;
+				display: block;
+			}
+
+			.luxia-note {
+				margin-top: 1rem;
+				padding: 1rem;
+				border-left: 4px solid var(--luxia-gold);
+				background: var(--luxia-cream);
+				color: var(--luxia-muted);
+				border-radius: 8px;
+			}
+
+			.loading-message {
+				color: var(--luxia-muted);
+				font-style: italic;
+			}
+
+			@media screen and (max-width: 736px) {
+				.luxia-hero {
+					padding: 3rem 1.25rem;
+				}
+
+				.luxia-section {
+					padding: 1.35rem;
+				}
+
+				.luxia-sponsor-card {
+					grid-template-columns: 1fr;
+				}
+
+				.luxia-sponsor-badge {
+					justify-self: start;
+				}
+			}
+
+			@media (prefers-color-scheme: dark) {
+				.luxia-section {
+					background: #151515;
+					border-color: rgba(201, 164, 92, 0.35);
+				}
+
+				.luxia-section h2,
+				.luxia-sponsor-card h3,
+				.results-table td:first-child,
+				.results-table td:nth-child(2) {
+					color: #fff;
+				}
+
+				.luxia-sponsor-card,
+				.results-table {
+					background: #1b1b1b;
+				}
+
+				.results-table td {
+					color: rgba(255, 255, 255, 0.82);
+				}
+			}
+		</style>
+	</head>
+
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+		<div id="wrapper">
+
+			<!-- Header -->
+			<header id="header">
+				<a href="#footer" class="logo scrolly">Game, Set, Chat!</a>
+			</header>
+
+			<!-- Nav -->
+			<nav id="nav">
+				<ul class="links">
+					<li><a href="Court-side.html">Coach Lea</a></li>
+					<li><a href="index.html">Coaching</a></li>
+					<li><a href="socials.html">Socials</a></li>
+					<li class="active"><a href="tournaments.html">Tournaments</a></li>
+				</ul>
+				<ul class="icons">
+					<li>
+						<a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" 
+						   target="_blank" class="icon brands alt fa-instagram">
+							<span class="label">Instagram</span>
+						</a>
+					</li>
+					<li>
+						<a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" 
+						   target="_blank" class="icon brands alt fa-facebook-f">
+							<span class="label">Facebook</span>
+						</a>
+					</li>
+					<li>
+						<a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" 
+						   target="_blank" class="icon brands alt fa-tiktok">
+							<span class="label">TikTok</span>
+						</a>
+					</li>
+				</ul>
+			</nav>
+
+			<!-- Main -->
+			<div id="main">
+
+				<section class="post">
+
+					<section class="luxia-hero">
+						<span class="luxia-kicker">Female Only Padel Tournament</span>
+						<h1>Luxia Season 1</h1>
+						<p>
+							A premium ladies padel showdown celebrating competition, confidence, community, and courtside energy.
+						</p>
+
+						<div class="luxia-button-row">
+							<a href="#results" class="luxia-btn scrolly">View Results</a>
+							<a href="tournaments.html" class="luxia-btn secondary">Back to Tournaments</a>
+						</div>
+					</section>
+
+					<section class="luxia-section">
+						<h2>About the Tournament</h2>
+						<p class="intro">
+							Luxia Season 1 is a female only padel tournament hosted with a premium, polished feel inspired by our main sponsor, Luxea Nutrition.
+						</p>
+
+						<div class="luxia-sponsor-card">
+							<div>
+								<h3>Main Sponsor</h3>
+								<p>
+									Thank you to Luxea Nutrition for supporting the ladies padel community and helping make Season 1 feel special.
+								</p>
+								<a href="https://luxeanutrition.com/" target="_blank" class="luxia-btn">Visit Sponsor</a>
+							</div>
+
+							<div class="luxia-sponsor-badge">
+								Luxea<br />Nutrition
+							</div>
+						</div>
+					</section>
+
+					<section id="results" class="luxia-section">
+						<h2>Season 1 Results</h2>
+						<p class="intro">
+							Results are loaded from the published Google Sheet. If the sheet cannot load, the page will show the fallback result below.
+						</p>
+
+						<div id="results-status" class="loading-message">Loading results...</div>
+
+						<div class="results-wrap" style="display: none;" id="results-table-wrap">
+							<table class="results-table">
+								<thead>
+									<tr>
+										<th>Team A</th>
+										<th>Team B</th>
+										<th>Set 1</th>
+										<th>Set 2</th>
+										<th>Set 3</th>
+										<th>Winner</th>
+									</tr>
+								</thead>
+								<tbody id="results-body"></tbody>
+							</table>
+						</div>
+
+						<div class="luxia-note">
+							Current result: Chicken beat mine 6-4, 4-6, 6-4.
+						</div>
+					</section>
+
+					<section class="luxia-section">
+						<h2>Ladies on Court</h2>
+						<p class="intro">
+							Add your tournament photos here. Replace the placeholders with your own image tags when ready.
+						</p>
+
+						<div class="luxia-gallery">
+							<div class="luxia-photo-slot">
+								Add photo 1 here<br />
+								Example: images/luxia-ladies-1.jpg
+							</div>
+
+							<div class="luxia-photo-slot">
+								Add photo 2 here<br />
+								Example: images/luxia-ladies-2.jpg
+							</div>
+
+							<div class="luxia-photo-slot">
+								Add photo 3 here<br />
+								Example: images/luxia-ladies-3.jpg
+							</div>
+						</div>
+
+						<!--
+							When you have images, replace a placeholder above with this:
+
+							<div class="luxia-photo-slot">
+								<img src="images/luxia-ladies-1.jpg" alt="Ladies playing in the Luxia Season 1 padel tournament">
+							</div>
+						-->
+					</section>
+
+				</section>
+
+			</div>
+
+			<!-- Footer -->
+			<footer id="footer">
+				<section>
+					<h3>Want to book or ask a question?</h3>
+					<p>Click below to chat with us directly on WhatsApp 👇</p>
+					<a href="https://wa.me/27832630908?text=Hi%20there!%20I%27m%20interested%20in%20padel%20coaching." 
+					   target="_blank" 
+					   class="button primary fit">📱 WhatsApp Us</a>
+				</section>
+
+				<section class="split contact">
+					<section class="alt">
+						<h3>Padel Court:</h3>
+						<p>
+							Indoor Padel Revolution<br />
+							2 Picaroon Street Johannesburg 1724
+						</p>
+					</section>
+
+					<section>
+						<h3>Phone</h3>
+						<p><a href="https://wa.me/27832630908" target="_blank">+27 83 263 0908</a></p>
+					</section>
+
+					<section>
+						<h3>Email</h3>
+						<p><a href="mailto:Pringlepadel@gmail.com">Pringlepadel@gmail.com</a></p>
+					</section>
+
+					<section>
+						<ul class="icons alt">
+							<li>
+								<a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" 
+								   target="_blank" class="icon brands alt fa-instagram">
+									<span class="label">Instagram</span>
+								</a>
+							</li>
+							<li>
+								<a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" 
+								   target="_blank" class="icon brands alt fa-facebook-f">
+									<span class="label">Facebook</span>
+								</a>
+							</li>
+							<li>
+								<a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" 
+								   target="_blank" class="icon brands alt fa-tiktok">
+									<span class="label">TikTok</span>
+								</a>
+							</li>
+						</ul>
+					</section>
+				</section>
+			</footer>
+
+			<!-- Copyright -->
+			<div id="copyright">
+				<ul>
+					<li>&copy; Pring Padel</li>
+					<li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
+				</ul>
+			</div>
+
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+		<script>
+			const sheetCsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT_Ee2Y7YcvapSyADKSLtKPs44vItqDQfJQdM2c_P09PyXAMZP3OEgor6Yo_YJH75iBPI_fRIDueK56/pub?output=csv';
+
+			const fallbackResults = [
+				{
+					teamA: 'Chicken',
+					teamB: 'mine',
+					scoreASet1: '6',
+					scoreBSet1: '4',
+					scoreASet2: '4',
+					scoreBSet2: '6',
+					scoreASet3: '6',
+					scoreBSet3: '4'
+				}
+			];
+
+			function parseCsv(csvText) {
+				const rows = [];
+				let currentRow = [];
+				let currentValue = '';
+				let insideQuotes = false;
+
+				for (let i = 0; i < csvText.length; i++) {
+					const char = csvText[i];
+					const nextChar = csvText[i + 1];
+
+					if (char === '"' && insideQuotes && nextChar === '"') {
+						currentValue += '"';
+						i++;
+					} else if (char === '"') {
+						insideQuotes = !insideQuotes;
+					} else if (char === ',' && !insideQuotes) {
+						currentRow.push(currentValue.trim());
+						currentValue = '';
+					} else if ((char === '\n' || char === '\r') && !insideQuotes) {
+						if (currentValue || currentRow.length) {
+							currentRow.push(currentValue.trim());
+							rows.push(currentRow);
+							currentRow = [];
+							currentValue = '';
+						}
+
+						if (char === '\r' && nextChar === '\n') {
+							i++;
+						}
+					} else {
+						currentValue += char;
+					}
+				}
+
+				if (currentValue || currentRow.length) {
+					currentRow.push(currentValue.trim());
+					rows.push(currentRow);
+				}
+
+				return rows;
+			}
+
+			function normaliseResults(rows) {
+				if (!rows || rows.length < 2) {
+					return [];
+				}
+
+				const headers = rows[0].map(header => header.toLowerCase().trim());
+
+				return rows.slice(1)
+					.filter(row => row.some(value => value !== ''))
+					.map(row => {
+						const getValue = label => {
+							const index = headers.indexOf(label.toLowerCase());
+							return index >= 0 ? row[index] || '' : '';
+						};
+
+						return {
+							teamA: getValue('Team A'),
+							teamB: getValue('Team B'),
+							scoreASet1: getValue('Score A set 1'),
+							scoreBSet1: getValue('Score B set 1'),
+							scoreASet2: getValue('Score A set 2'),
+							scoreBSet2: getValue('Score B set 2'),
+							scoreASet3: getValue('Score A set 3'),
+							scoreBSet3: getValue('Score B set 3')
+						};
+					});
+			}
+
+			function getWinner(match) {
+				let teamASets = 0;
+				let teamBSets = 0;
+
+				const sets = [
+					[match.scoreASet1, match.scoreBSet1],
+					[match.scoreASet2, match.scoreBSet2],
+					[match.scoreASet3, match.scoreBSet3]
+				];
+
+				sets.forEach(set => {
+					const scoreA = Number(set[0]);
+					const scoreB = Number(set[1]);
+
+					if (!Number.isNaN(scoreA) && !Number.isNaN(scoreB)) {
+						if (scoreA > scoreB) {
+							teamASets++;
+						} else if (scoreB > scoreA) {
+							teamBSets++;
+						}
+					}
+				});
+
+				if (teamASets > teamBSets) {
+					return match.teamA;
+				}
+
+				if (teamBSets > teamASets) {
+					return match.teamB;
+				}
+
+				return 'Draw';
+			}
+
+			function renderResults(results, sourceLabel) {
+				const status = document.getElementById('results-status');
+				const tableWrap = document.getElementById('results-table-wrap');
+				const tbody = document.getElementById('results-body');
+
+				if (!results.length) {
+					status.textContent = 'No results are available yet.';
+					tableWrap.style.display = 'none';
+					return;
+				}
+
+				tbody.innerHTML = results.map(match => {
+					const winner = getWinner(match);
+
+					return `
+						<tr>
+							<td>${match.teamA}</td>
+							<td>${match.teamB}</td>
+							<td>${match.scoreASet1}-${match.scoreBSet1}</td>
+							<td>${match.scoreASet2}-${match.scoreBSet2}</td>
+							<td>${match.scoreASet3}-${match.scoreBSet3}</td>
+							<td><span class="winner-pill">${winner}</span></td>
+						</tr>
+					`;
+				}).join('');
+
+				status.textContent = `Showing ${sourceLabel}.`;
+				tableWrap.style.display = 'block';
+			}
+
+			async function loadResults() {
+				try {
+					const response = await fetch(sheetCsvUrl, { cache: 'no-store' });
+
+					if (!response.ok) {
+						throw new Error('Sheet could not be loaded');
+					}
+
+					const csvText = await response.text();
+					const rows = parseCsv(csvText);
+					const results = normaliseResults(rows);
+
+					if (!results.length) {
+						throw new Error('Sheet has no readable rows');
+					}
+
+					renderResults(results, 'live results from Google Sheets');
+				} catch (error) {
+					console.warn(error);
+					renderResults(fallbackResults, 'fallback result');
+				}
+			}
+
+			loadResults();
+		</script>
+
+	</body>
+</html>
