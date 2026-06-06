@@ -136,18 +136,10 @@
 
 			.luxea-hero h1 {
 				color: #fff;
-				margin-bottom: 0.75rem;
+				margin-bottom: 1.25rem;
 				font-size: clamp(2.2rem, 6vw, 4.6rem);
 				letter-spacing: 0.05em;
 				text-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
-			}
-
-			.luxea-hero p {
-				max-width: 780px;
-				margin: 0 auto 1.5rem;
-				color: rgba(255, 255, 255, 0.92);
-				font-size: 1.08rem;
-				font-weight: 600;
 			}
 
 			.luxea-button-row {
@@ -269,7 +261,7 @@
 				border-bottom: 0;
 			}
 
-			.winner-pill {
+			.rank-pill {
 				display: inline-block;
 				padding: 0.35rem 0.75rem;
 				border-radius: 999px;
@@ -279,14 +271,14 @@
 				font-weight: 900;
 			}
 
-			.luxea-note {
-				margin-top: 1rem;
-				padding: 1rem;
-				border-left: 5px solid var(--luxea-orange);
-				background: #fff3ea;
-				color: var(--luxea-muted);
-				border-radius: 12px;
-				font-weight: 700;
+			.winner-pill {
+				display: inline-block;
+				padding: 0.35rem 0.75rem;
+				border-radius: 999px;
+				background: rgba(233, 63, 127, 0.12);
+				color: var(--luxea-pink);
+				border: 1px solid rgba(233, 63, 127, 0.35);
+				font-weight: 900;
 			}
 
 			.loading-message {
@@ -347,63 +339,15 @@
 				display: block;
 			}
 
-			.games-grid {
+			.photo-moments-grid {
 				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 				gap: 1rem;
+				margin-top: 0;
 			}
 
-			.game-card {
-				position: relative;
-				overflow: hidden;
-				padding: 1.35rem;
-				border-radius: 20px;
-				background: #fff;
-				border: 1px solid rgba(244, 123, 32, 0.22);
-				box-shadow: 0 10px 24px rgba(244, 123, 32, 0.08);
-			}
-
-			.game-card::before {
-				content: "";
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 7px;
-				background: linear-gradient(90deg, var(--luxea-pink), var(--luxea-orange));
-			}
-
-			.game-number {
-				display: inline-block;
-				margin-bottom: 0.75rem;
-				padding: 0.35rem 0.7rem;
-				border-radius: 999px;
-				background: rgba(244, 123, 32, 0.12);
-				color: var(--luxea-orange);
-				font-weight: 900;
-				font-size: 0.75rem;
-				text-transform: uppercase;
-				letter-spacing: 0.08em;
-			}
-
-			.game-card h3 {
-				margin: 0 0 0.5rem 0;
-				color: var(--luxea-dark);
-			}
-
-			.game-card p {
-				margin: 0.2rem 0;
-				color: var(--luxea-muted);
-				font-weight: 600;
-			}
-
-			.game-score {
-				margin-top: 0.8rem;
-				padding: 0.75rem;
-				border-radius: 14px;
-				background: #fff3ea;
-				color: var(--luxea-dark) !important;
-				font-weight: 900 !important;
+			.photo-moments-grid .image-slot {
+				min-height: 240px;
 			}
 
 			.funky-strip {
@@ -507,11 +451,10 @@
 
 					<section class="luxea-hero">
 						<span class="luxea-kicker">Luxea Invitational Padel League</span>
-						<h1>Opening Day</h1>
-						<p>Pink. Orange. Padel. Big energy on court.</p>
+						<h1>Luxea Invitational Padel League</h1>
 
 						<div class="luxea-button-row">
-							<a href="#results" class="luxea-btn scrolly">View Results</a>
+							<a href="#standings" class="luxea-btn scrolly">View Standings</a>
 							<a href="#games" class="luxea-btn secondary scrolly">View Games</a>
 						</div>
 
@@ -523,34 +466,6 @@
 							<span class="funky-pill"></span>
 							<span class="funky-pill"></span>
 							<span class="funky-pill"></span>
-						</div>
-					</section>
-
-					<section id="results" class="luxea-section">
-						<div class="section-heading-row">
-							<div>
-								<h2>Results</h2>
-								<p class="intro">Luxea Invitational Padel League match results.</p>
-							</div>
-							<span class="section-badge">Live Sheet</span>
-						</div>
-
-						<div id="results-status" class="loading-message">Loading results...</div>
-
-						<div class="results-wrap" style="display: none;" id="results-table-wrap">
-							<table class="results-table">
-								<thead>
-									<tr>
-										<th>Team A</th>
-										<th>Team B</th>
-										<th>Set 1</th>
-										<th>Set 2</th>
-										<th>Set 3</th>
-										<th>Winner</th>
-									</tr>
-								</thead>
-								<tbody id="results-body"></tbody>
-							</table>
 						</div>
 					</section>
 
@@ -569,6 +484,37 @@
 						</div>
 					</div>
 
+					<section id="standings" class="luxea-section">
+						<div class="section-heading-row">
+							<div>
+								<h2>Standings</h2>
+								<p class="intro">Luxea Invitational Padel League standings.</p>
+							</div>
+							<span class="section-badge">Live Sheet</span>
+						</div>
+
+						<div id="standings-status" class="loading-message">Loading standings...</div>
+
+						<div class="results-wrap" style="display: none;" id="standings-table-wrap">
+							<table class="results-table">
+								<thead>
+									<tr>
+										<th>Rank</th>
+										<th>Team</th>
+										<th>Played</th>
+										<th>Wins</th>
+										<th>Losses</th>
+										<th>Sets For</th>
+										<th>Sets Against</th>
+										<th>Set Diff</th>
+										<th>Points</th>
+									</tr>
+								</thead>
+								<tbody id="standings-body"></tbody>
+							</table>
+						</div>
+					</section>
+
 					<section id="games" class="luxea-section">
 						<div class="section-heading-row">
 							<div>
@@ -580,7 +526,22 @@
 
 						<div id="games-status" class="loading-message">Loading games...</div>
 
-						<div class="games-grid" id="games-body"></div>
+						<div class="results-wrap" style="display: none;" id="games-table-wrap">
+							<table class="results-table">
+								<thead>
+									<tr>
+										<th>Game</th>
+										<th>Team A</th>
+										<th>Team B</th>
+										<th>Set 1</th>
+										<th>Set 2</th>
+										<th>Set 3</th>
+										<th>Winner</th>
+									</tr>
+								</thead>
+								<tbody id="games-body"></tbody>
+							</table>
+						</div>
 					</section>
 
 					<div class="image-row">
@@ -599,15 +560,7 @@
 					</div>
 
 					<section class="luxea-section">
-						<div class="section-heading-row">
-							<div>
-								<h2>Photo Moments</h2>
-								<p class="intro">Add your favourite opening day shots here.</p>
-							</div>
-							<span class="section-badge">Gallery</span>
-						</div>
-
-						<div class="image-row">
+						<div class="photo-moments-grid">
 							<div class="image-slot">
 								Image space 7<br />
 								images/luxea-7.jpg
@@ -623,10 +576,12 @@
 						</div>
 
 						<!--
-							To add a real image, replace any image slot with this:
+							Add as many images as you want inside photo-moments-grid.
+
+							Example:
 
 							<div class="image-slot">
-								<img src="images/luxea-1.jpg" alt="Luxea Invitational Padel League opening day">
+								<img src="images/luxea-10.jpg" alt="Luxea Invitational Padel League">
 							</div>
 						-->
 					</section>
@@ -786,6 +741,33 @@
 					});
 			}
 
+			function formatSet(scoreA, scoreB) {
+				if (!scoreA && !scoreB) {
+					return 'Pending';
+				}
+
+				return `${scoreA || '-'}-${scoreB || '-'}`;
+			}
+
+			function getSetWinner(scoreA, scoreB) {
+				const a = Number(scoreA);
+				const b = Number(scoreB);
+
+				if (Number.isNaN(a) || Number.isNaN(b)) {
+					return null;
+				}
+
+				if (a > b) {
+					return 'A';
+				}
+
+				if (b > a) {
+					return 'B';
+				}
+
+				return null;
+			}
+
 			function getWinner(match) {
 				let teamASets = 0;
 				let teamBSets = 0;
@@ -797,15 +779,12 @@
 				];
 
 				sets.forEach(set => {
-					const scoreA = Number(set[0]);
-					const scoreB = Number(set[1]);
+					const winner = getSetWinner(set[0], set[1]);
 
-					if (!Number.isNaN(scoreA) && !Number.isNaN(scoreB)) {
-						if (scoreA > scoreB) {
-							teamASets++;
-						} else if (scoreB > scoreA) {
-							teamBSets++;
-						}
+					if (winner === 'A') {
+						teamASets++;
+					} else if (winner === 'B') {
+						teamBSets++;
 					}
 				});
 
@@ -817,33 +796,165 @@
 					return match.teamB;
 				}
 
-				return 'Draw';
+				return 'Pending';
 			}
 
-			function formatSet(scoreA, scoreB) {
-				if (!scoreA && !scoreB) {
-					return 'Pending';
+			function buildStandings(results) {
+				const standings = {};
+
+				function addTeam(teamName) {
+					if (!teamName) {
+						return;
+					}
+
+					if (!standings[teamName]) {
+						standings[teamName] = {
+							team: teamName,
+							played: 0,
+							wins: 0,
+							losses: 0,
+							setsFor: 0,
+							setsAgainst: 0,
+							points: 0
+						};
+					}
 				}
 
-				return `${scoreA || '-'}-${scoreB || '-'}`;
+				results.forEach(match => {
+					if (!match.teamA || !match.teamB) {
+						return;
+					}
+
+					addTeam(match.teamA);
+					addTeam(match.teamB);
+
+					let teamASets = 0;
+					let teamBSets = 0;
+					let completedSets = 0;
+
+					const sets = [
+						[match.scoreASet1, match.scoreBSet1],
+						[match.scoreASet2, match.scoreBSet2],
+						[match.scoreASet3, match.scoreBSet3]
+					];
+
+					sets.forEach(set => {
+						const setWinner = getSetWinner(set[0], set[1]);
+
+						if (setWinner) {
+							completedSets++;
+
+							if (setWinner === 'A') {
+								teamASets++;
+							} else if (setWinner === 'B') {
+								teamBSets++;
+							}
+						}
+					});
+
+					if (completedSets === 0) {
+						return;
+					}
+
+					standings[match.teamA].played++;
+					standings[match.teamB].played++;
+
+					standings[match.teamA].setsFor += teamASets;
+					standings[match.teamA].setsAgainst += teamBSets;
+
+					standings[match.teamB].setsFor += teamBSets;
+					standings[match.teamB].setsAgainst += teamASets;
+
+					if (teamASets > teamBSets) {
+						standings[match.teamA].wins++;
+						standings[match.teamB].losses++;
+						standings[match.teamA].points += 3;
+					} else if (teamBSets > teamASets) {
+						standings[match.teamB].wins++;
+						standings[match.teamA].losses++;
+						standings[match.teamB].points += 3;
+					}
+				});
+
+				return Object.values(standings).sort((a, b) => {
+					const pointDiff = b.points - a.points;
+					const winDiff = b.wins - a.wins;
+					const setDiffA = a.setsFor - a.setsAgainst;
+					const setDiffB = b.setsFor - b.setsAgainst;
+					const setsForDiff = b.setsFor - a.setsFor;
+
+					if (pointDiff !== 0) {
+						return pointDiff;
+					}
+
+					if (winDiff !== 0) {
+						return winDiff;
+					}
+
+					if (setDiffB - setDiffA !== 0) {
+						return setDiffB - setDiffA;
+					}
+
+					if (setsForDiff !== 0) {
+						return setsForDiff;
+					}
+
+					return a.team.localeCompare(b.team);
+				});
 			}
 
-			function renderResults(results, sourceLabel) {
-				const status = document.getElementById('results-status');
-				const tableWrap = document.getElementById('results-table-wrap');
-				const tbody = document.getElementById('results-body');
+			function renderStandings(results, sourceLabel) {
+				const status = document.getElementById('standings-status');
+				const tableWrap = document.getElementById('standings-table-wrap');
+				const tbody = document.getElementById('standings-body');
 
-				if (!results.length) {
-					status.textContent = 'No results are available yet.';
+				const standings = buildStandings(results);
+
+				if (!standings.length) {
+					status.textContent = 'No standings are available yet.';
 					tableWrap.style.display = 'none';
 					return;
 				}
 
-				tbody.innerHTML = results.map(match => {
+				tbody.innerHTML = standings.map((team, index) => {
+					const setDiff = team.setsFor - team.setsAgainst;
+
+					return `
+						<tr>
+							<td><span class="rank-pill">${index + 1}</span></td>
+							<td>${team.team}</td>
+							<td>${team.played}</td>
+							<td>${team.wins}</td>
+							<td>${team.losses}</td>
+							<td>${team.setsFor}</td>
+							<td>${team.setsAgainst}</td>
+							<td>${setDiff}</td>
+							<td><strong>${team.points}</strong></td>
+						</tr>
+					`;
+				}).join('');
+
+				status.textContent = `Showing ${sourceLabel}.`;
+				tableWrap.style.display = 'block';
+			}
+
+			function renderGames(results) {
+				const status = document.getElementById('games-status');
+				const tableWrap = document.getElementById('games-table-wrap');
+				const tbody = document.getElementById('games-body');
+
+				if (!results.length) {
+					status.textContent = 'No games are available yet.';
+					tableWrap.style.display = 'none';
+					return;
+				}
+
+				tbody.innerHTML = results.map((match, index) => {
 					const winner = getWinner(match);
 
 					return `
 						<tr>
+							<td>${index + 1}</td>
 							<td>${match.teamA}</td>
 							<td>${match.teamB}</td>
 							<td>${formatSet(match.scoreASet1, match.scoreBSet1)}</td>
@@ -854,40 +965,12 @@
 					`;
 				}).join('');
 
-				status.textContent = `Showing ${sourceLabel}.`;
+				status.textContent = '';
 				tableWrap.style.display = 'block';
 			}
 
-			function renderGames(results) {
-				const gamesStatus = document.getElementById('games-status');
-				const gamesBody = document.getElementById('games-body');
-
-				if (!results.length) {
-					gamesStatus.textContent = 'No games are available yet.';
-					gamesBody.innerHTML = '';
-					return;
-				}
-
-				gamesStatus.textContent = '';
-
-				gamesBody.innerHTML = results.map((match, index) => {
-					const winner = getWinner(match);
-
-					return `
-						<div class="game-card">
-							<span class="game-number">Game ${index + 1}</span>
-							<h3>${match.teamA} vs ${match.teamB}</h3>
-							<p><strong>Set 1:</strong> ${formatSet(match.scoreASet1, match.scoreBSet1)}</p>
-							<p><strong>Set 2:</strong> ${formatSet(match.scoreASet2, match.scoreBSet2)}</p>
-							<p><strong>Set 3:</strong> ${formatSet(match.scoreASet3, match.scoreBSet3)}</p>
-							<p class="game-score">Winner: ${winner}</p>
-						</div>
-					`;
-				}).join('');
-			}
-
 			function renderPage(results, sourceLabel) {
-				renderResults(results, sourceLabel);
+				renderStandings(results, sourceLabel);
 				renderGames(results);
 			}
 
@@ -907,10 +990,10 @@
 						throw new Error('Sheet has no readable rows');
 					}
 
-					renderPage(results, 'live results from Google Sheets');
+					renderPage(results, 'live standings from Google Sheets');
 				} catch (error) {
 					console.warn(error);
-					renderPage(fallbackResults, 'fallback result');
+					renderPage(fallbackResults, 'fallback standings');
 				}
 			}
 
