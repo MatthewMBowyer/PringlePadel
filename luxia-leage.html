@@ -1,12 +1,7 @@
 <!DOCTYPE HTML>
-<!--
-	Massively by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
--->
 <html>
 	<head>
-		<title>Luxia League - Season 1</title>
+		<title>Luxea Invitational Padel League</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -14,65 +9,148 @@
 
 		<style>
 			:root {
-				--luxia-black: #111111;
-				--luxia-charcoal: #1c1a17;
-				--luxia-gold: #c9a45c;
-				--luxia-soft-gold: #ead8ad;
-				--luxia-cream: #fff9ef;
-				--luxia-muted: #6f6659;
+				--luxea-pink: #e93f7f;
+				--luxea-hot-pink: #ff5ca8;
+				--luxea-orange: #f47b20;
+				--luxea-soft-orange: #ffad5c;
+				--luxea-gold: #d9a441;
+				--luxea-cream: #fff6ee;
+				--luxea-white: #ffffff;
+				--luxea-dark: #171717;
+				--luxea-muted: #7a5b52;
 			}
 
-			.luxia-hero {
+			body {
+				background:
+					radial-gradient(circle at top left, rgba(233, 63, 127, 0.16), transparent 32%),
+					radial-gradient(circle at top right, rgba(244, 123, 32, 0.18), transparent 35%),
+					linear-gradient(180deg, #fff7f0 0%, #ffffff 45%, #fff2e8 100%);
+			}
+
+			#main {
 				position: relative;
 				overflow: hidden;
-				padding: 4rem 2rem;
-				border-radius: 22px;
-				background:
-					linear-gradient(135deg, rgba(17,17,17,0.96), rgba(40,31,20,0.92)),
-					radial-gradient(circle at top right, rgba(201,164,92,0.35), transparent 35%);
-				color: #fff;
-				text-align: center;
-				margin-bottom: 2.5rem;
-				box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
 			}
 
-			.luxia-hero::before {
+			.luxea-page {
+				position: relative;
+			}
+
+			.floating-shape {
+				position: absolute;
+				z-index: 0;
+				pointer-events: none;
+				opacity: 0.85;
+			}
+
+			.shape-ball-1 {
+				width: 120px;
+				height: 120px;
+				border-radius: 50%;
+				background:
+					radial-gradient(circle at 35% 35%, #ffffff 0 8%, transparent 9%),
+					radial-gradient(circle at center, var(--luxea-hot-pink), var(--luxea-pink));
+				top: 120px;
+				right: -45px;
+			}
+
+			.shape-ball-2 {
+				width: 90px;
+				height: 90px;
+				border-radius: 50%;
+				background:
+					radial-gradient(circle at 35% 35%, #ffffff 0 9%, transparent 10%),
+					radial-gradient(circle at center, var(--luxea-soft-orange), var(--luxea-orange));
+				top: 760px;
+				left: -35px;
+			}
+
+			.shape-dots {
+				width: 160px;
+				height: 160px;
+				background-image: radial-gradient(var(--luxea-orange) 2px, transparent 2px);
+				background-size: 14px 14px;
+				top: 360px;
+				left: -45px;
+				opacity: 0.28;
+			}
+
+			.shape-dots-2 {
+				width: 160px;
+				height: 160px;
+				background-image: radial-gradient(var(--luxea-pink) 2px, transparent 2px);
+				background-size: 14px 14px;
+				bottom: 220px;
+				right: -45px;
+				opacity: 0.28;
+			}
+
+			.luxea-hero {
+				position: relative;
+				z-index: 1;
+				overflow: hidden;
+				padding: 4rem 2rem;
+				border-radius: 28px;
+				background:
+					linear-gradient(135deg, rgba(233, 63, 127, 0.96), rgba(244, 123, 32, 0.95)),
+					radial-gradient(circle at top right, rgba(255, 255, 255, 0.35), transparent 35%);
+				color: var(--luxea-white);
+				text-align: center;
+				margin-bottom: 2rem;
+				box-shadow: 0 22px 55px rgba(233, 63, 127, 0.28);
+			}
+
+			.luxea-hero::before {
 				content: "";
 				position: absolute;
 				inset: 1rem;
-				border: 1px solid rgba(201, 164, 92, 0.45);
-				border-radius: 18px;
+				border: 2px solid rgba(255, 255, 255, 0.45);
+				border-radius: 22px;
 				pointer-events: none;
 			}
 
-			.luxia-kicker {
+			.luxea-hero::after {
+				content: "";
+				position: absolute;
+				width: 260px;
+				height: 260px;
+				border-radius: 50%;
+				background: rgba(255, 255, 255, 0.15);
+				right: -80px;
+				top: -80px;
+			}
+
+			.luxea-kicker {
 				display: inline-block;
 				margin-bottom: 1rem;
-				padding: 0.45rem 0.85rem;
-				border: 1px solid rgba(201, 164, 92, 0.75);
+				padding: 0.55rem 1rem;
+				border: 1px solid rgba(255, 255, 255, 0.75);
 				border-radius: 999px;
-				color: var(--luxia-soft-gold);
+				color: #fff;
 				font-size: 0.78rem;
-				font-weight: 700;
+				font-weight: 800;
 				letter-spacing: 0.16em;
 				text-transform: uppercase;
+				background: rgba(255, 255, 255, 0.12);
 			}
 
-			.luxia-hero h1 {
+			.luxea-hero h1 {
 				color: #fff;
 				margin-bottom: 0.75rem;
-				font-size: clamp(2.2rem, 6vw, 4.25rem);
-				letter-spacing: 0.06em;
+				font-size: clamp(2.2rem, 6vw, 4.6rem);
+				letter-spacing: 0.05em;
+				text-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
 			}
 
-			.luxia-hero p {
-				max-width: 760px;
+			.luxea-hero p {
+				max-width: 780px;
 				margin: 0 auto 1.5rem;
-				color: rgba(255, 255, 255, 0.82);
-				font-size: 1.05rem;
+				color: rgba(255, 255, 255, 0.92);
+				font-size: 1.08rem;
+				font-weight: 600;
 			}
 
-			.luxia-button-row {
+			.luxea-button-row {
 				display: flex;
 				justify-content: center;
 				flex-wrap: wrap;
@@ -80,92 +158,83 @@
 				margin-top: 1.5rem;
 			}
 
-			.luxia-btn {
+			.luxea-btn {
 				display: inline-block;
 				padding: 0.85rem 1.35rem;
 				border-radius: 999px;
-				background: linear-gradient(135deg, var(--luxia-gold), var(--luxia-soft-gold));
-				color: var(--luxia-black) !important;
-				border: 1px solid var(--luxia-gold);
-				font-weight: 800;
+				background: #fff;
+				color: var(--luxea-pink) !important;
+				border: 1px solid rgba(255, 255, 255, 0.85);
+				font-weight: 900;
 				letter-spacing: 0.08em;
 				text-transform: uppercase;
 				text-decoration: none;
-				box-shadow: 0 10px 26px rgba(201, 164, 92, 0.28);
-				transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+				box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+				transition: transform 0.25s ease, box-shadow 0.25s ease;
 			}
 
-			.luxia-btn:hover {
+			.luxea-btn:hover {
 				transform: translateY(-2px);
-				box-shadow: 0 15px 35px rgba(201, 164, 92, 0.38);
-				background: #fff;
-				color: var(--luxia-black) !important;
+				box-shadow: 0 16px 35px rgba(0, 0, 0, 0.22);
 			}
 
-			.luxia-btn.secondary {
-				background: transparent;
+			.luxea-btn.secondary {
+				background: rgba(255, 255, 255, 0.12);
 				color: #fff !important;
-				border-color: rgba(255, 255, 255, 0.5);
+				border-color: rgba(255, 255, 255, 0.6);
 				box-shadow: none;
 			}
 
-			.luxia-btn.secondary:hover {
-				background: rgba(255, 255, 255, 0.1);
-				border-color: var(--luxia-gold);
-			}
-
-			.luxia-section {
+			.luxea-section {
+				position: relative;
+				z-index: 1;
 				margin: 2rem 0;
 				padding: 2rem;
-				border-radius: 18px;
-				background: #fff;
-				border: 1px solid rgba(201, 164, 92, 0.28);
-				box-shadow: 0 10px 32px rgba(0, 0, 0, 0.06);
+				border-radius: 22px;
+				background:
+					linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 246, 238, 0.98));
+				border: 1px solid rgba(233, 63, 127, 0.16);
+				box-shadow: 0 12px 35px rgba(233, 63, 127, 0.10);
 			}
 
-			.luxia-section h2 {
+			.luxea-section h2 {
 				margin-bottom: 0.65rem;
-				color: var(--luxia-black);
+				color: var(--luxea-dark);
+				letter-spacing: 0.04em;
 			}
 
-			.luxia-section .intro {
-				color: var(--luxia-muted);
+			.luxea-section .intro {
+				color: var(--luxea-muted);
 				margin-bottom: 1.5rem;
+				font-weight: 600;
 			}
 
-			.luxia-sponsor-card {
-				display: grid;
-				grid-template-columns: 1.3fr 0.7fr;
-				gap: 1.5rem;
+			.section-heading-row {
+				display: flex;
 				align-items: center;
-				background: linear-gradient(135deg, var(--luxia-cream), #fff);
-				border: 1px solid rgba(201, 164, 92, 0.35);
-				border-radius: 18px;
-				padding: 1.5rem;
+				justify-content: space-between;
+				gap: 1rem;
+				margin-bottom: 1rem;
 			}
 
-			.luxia-sponsor-card h3 {
-				margin-bottom: 0.4rem;
-				color: var(--luxia-black);
-			}
-
-			.luxia-sponsor-badge {
-				justify-self: end;
-				text-align: center;
-				padding: 1rem 1.25rem;
-				border-radius: 16px;
-				background: var(--luxia-black);
-				color: var(--luxia-soft-gold);
-				border: 1px solid var(--luxia-gold);
-				font-weight: 800;
-				letter-spacing: 0.12em;
+			.section-badge {
+				display: inline-block;
+				padding: 0.45rem 0.85rem;
+				border-radius: 999px;
+				background: linear-gradient(135deg, var(--luxea-pink), var(--luxea-orange));
+				color: #fff;
+				font-size: 0.75rem;
+				font-weight: 900;
+				letter-spacing: 0.1em;
 				text-transform: uppercase;
+				white-space: nowrap;
 			}
 
 			.results-wrap {
 				overflow-x: auto;
-				border-radius: 14px;
-				border: 1px solid rgba(0, 0, 0, 0.08);
+				border-radius: 18px;
+				border: 1px solid rgba(233, 63, 127, 0.18);
+				background: #fff;
 			}
 
 			.results-table {
@@ -177,14 +246,14 @@
 
 			.results-table th,
 			.results-table td {
-				padding: 0.9rem 0.85rem;
+				padding: 0.95rem 0.85rem;
 				text-align: center;
-				border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+				border-bottom: 1px solid rgba(233, 63, 127, 0.12);
 			}
 
 			.results-table th {
-				background: var(--luxia-black);
-				color: var(--luxia-soft-gold);
+				background: linear-gradient(135deg, var(--luxea-pink), var(--luxea-orange));
+				color: #fff;
 				font-size: 0.78rem;
 				letter-spacing: 0.08em;
 				text-transform: uppercase;
@@ -192,8 +261,8 @@
 
 			.results-table td:first-child,
 			.results-table td:nth-child(2) {
-				font-weight: 700;
-				color: var(--luxia-black);
+				font-weight: 800;
+				color: var(--luxea-dark);
 			}
 
 			.results-table tr:last-child td {
@@ -204,95 +273,189 @@
 				display: inline-block;
 				padding: 0.35rem 0.75rem;
 				border-radius: 999px;
-				background: rgba(201, 164, 92, 0.18);
-				color: var(--luxia-black);
-				border: 1px solid rgba(201, 164, 92, 0.45);
-				font-weight: 800;
+				background: rgba(233, 63, 127, 0.12);
+				color: var(--luxea-pink);
+				border: 1px solid rgba(233, 63, 127, 0.35);
+				font-weight: 900;
 			}
 
-			.luxia-gallery {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-				gap: 1rem;
+			.luxea-note {
 				margin-top: 1rem;
+				padding: 1rem;
+				border-left: 5px solid var(--luxea-orange);
+				background: #fff3ea;
+				color: var(--luxea-muted);
+				border-radius: 12px;
+				font-weight: 700;
 			}
 
-			.luxia-photo-slot {
-				min-height: 240px;
-				border-radius: 18px;
-				border: 1px dashed rgba(201, 164, 92, 0.8);
+			.loading-message {
+				color: var(--luxea-muted);
+				font-style: italic;
+				margin-bottom: 1rem;
+			}
+
+			.image-row {
+				display: grid;
+				grid-template-columns: repeat(3, 1fr);
+				gap: 1rem;
+				margin: 1.75rem 0;
+			}
+
+			.image-slot {
+				position: relative;
+				min-height: 220px;
+				border-radius: 22px;
+				border: 2px dashed rgba(233, 63, 127, 0.35);
 				background:
-					linear-gradient(135deg, rgba(255, 249, 239, 0.95), rgba(255, 255, 255, 0.95)),
-					radial-gradient(circle at top right, rgba(201, 164, 92, 0.25), transparent 35%);
+					radial-gradient(circle at top right, rgba(244, 123, 32, 0.18), transparent 35%),
+					radial-gradient(circle at bottom left, rgba(233, 63, 127, 0.18), transparent 35%),
+					linear-gradient(135deg, #fff, #fff4ec);
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				text-align: center;
-				padding: 1.5rem;
-				color: var(--luxia-muted);
-				font-weight: 700;
+				padding: 1.25rem;
+				color: var(--luxea-muted);
+				font-weight: 900;
+				overflow: hidden;
 			}
 
-			.luxia-photo-slot img {
+			.image-slot::before {
+				content: "✦";
+				position: absolute;
+				top: 12px;
+				right: 18px;
+				color: var(--luxea-orange);
+				font-size: 1.4rem;
+			}
+
+			.image-slot::after {
+				content: "●";
+				position: absolute;
+				bottom: 12px;
+				left: 18px;
+				color: var(--luxea-pink);
+				font-size: 1.2rem;
+			}
+
+			.image-slot img {
 				width: 100%;
 				height: 100%;
 				object-fit: cover;
-				border-radius: 18px;
+				border-radius: 20px;
 				display: block;
 			}
 
-			.luxia-note {
-				margin-top: 1rem;
-				padding: 1rem;
-				border-left: 4px solid var(--luxia-gold);
-				background: var(--luxia-cream);
-				color: var(--luxia-muted);
-				border-radius: 8px;
+			.games-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+				gap: 1rem;
 			}
 
-			.loading-message {
-				color: var(--luxia-muted);
-				font-style: italic;
+			.game-card {
+				position: relative;
+				overflow: hidden;
+				padding: 1.35rem;
+				border-radius: 20px;
+				background: #fff;
+				border: 1px solid rgba(244, 123, 32, 0.22);
+				box-shadow: 0 10px 24px rgba(244, 123, 32, 0.08);
+			}
+
+			.game-card::before {
+				content: "";
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 7px;
+				background: linear-gradient(90deg, var(--luxea-pink), var(--luxea-orange));
+			}
+
+			.game-number {
+				display: inline-block;
+				margin-bottom: 0.75rem;
+				padding: 0.35rem 0.7rem;
+				border-radius: 999px;
+				background: rgba(244, 123, 32, 0.12);
+				color: var(--luxea-orange);
+				font-weight: 900;
+				font-size: 0.75rem;
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+			}
+
+			.game-card h3 {
+				margin: 0 0 0.5rem 0;
+				color: var(--luxea-dark);
+			}
+
+			.game-card p {
+				margin: 0.2rem 0;
+				color: var(--luxea-muted);
+				font-weight: 600;
+			}
+
+			.game-score {
+				margin-top: 0.8rem;
+				padding: 0.75rem;
+				border-radius: 14px;
+				background: #fff3ea;
+				color: var(--luxea-dark) !important;
+				font-weight: 900 !important;
+			}
+
+			.funky-strip {
+				display: flex;
+				justify-content: center;
+				gap: 0.55rem;
+				margin: 1.5rem 0 0.5rem;
+				flex-wrap: wrap;
+			}
+
+			.funky-pill {
+				width: 14px;
+				height: 14px;
+				border-radius: 50%;
+				background: var(--luxea-pink);
+			}
+
+			.funky-pill:nth-child(2n) {
+				background: var(--luxea-orange);
+			}
+
+			.funky-pill:nth-child(3n) {
+				background: var(--luxea-gold);
 			}
 
 			@media screen and (max-width: 736px) {
-				.luxia-hero {
-					padding: 3rem 1.25rem;
+				.luxea-hero {
+					padding: 3rem 1.2rem;
 				}
 
-				.luxia-section {
-					padding: 1.35rem;
+				.luxea-section {
+					padding: 1.25rem;
 				}
 
-				.luxia-sponsor-card {
+				.section-heading-row {
+					align-items: flex-start;
+					flex-direction: column;
+				}
+
+				.image-row {
 					grid-template-columns: 1fr;
 				}
 
-				.luxia-sponsor-badge {
-					justify-self: start;
-				}
-			}
-
-			@media (prefers-color-scheme: dark) {
-				.luxia-section {
-					background: #151515;
-					border-color: rgba(201, 164, 92, 0.35);
+				.image-slot {
+					min-height: 190px;
 				}
 
-				.luxia-section h2,
-				.luxia-sponsor-card h3,
-				.results-table td:first-child,
-				.results-table td:nth-child(2) {
-					color: #fff;
-				}
-
-				.luxia-sponsor-card,
-				.results-table {
-					background: #1b1b1b;
-				}
-
-				.results-table td {
-					color: rgba(255, 255, 255, 0.82);
+				.shape-ball-1,
+				.shape-ball-2,
+				.shape-dots,
+				.shape-dots-2 {
+					display: none;
 				}
 			}
 		</style>
@@ -300,15 +463,12 @@
 
 	<body class="is-preload">
 
-		<!-- Wrapper -->
 		<div id="wrapper">
 
-			<!-- Header -->
 			<header id="header">
 				<a href="#footer" class="logo scrolly">Game, Set, Chat!</a>
 			</header>
 
-			<!-- Nav -->
 			<nav id="nav">
 				<ul class="links">
 					<li><a href="Court-side.html">Coach Lea</a></li>
@@ -316,72 +476,64 @@
 					<li><a href="socials.html">Socials</a></li>
 					<li class="active"><a href="tournaments.html">Tournaments</a></li>
 				</ul>
+
 				<ul class="icons">
 					<li>
-						<a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" 
-						   target="_blank" class="icon brands alt fa-instagram">
+						<a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" target="_blank" class="icon brands alt fa-instagram">
 							<span class="label">Instagram</span>
 						</a>
 					</li>
 					<li>
-						<a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" 
-						   target="_blank" class="icon brands alt fa-facebook-f">
+						<a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" target="_blank" class="icon brands alt fa-facebook-f">
 							<span class="label">Facebook</span>
 						</a>
 					</li>
 					<li>
-						<a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" 
-						   target="_blank" class="icon brands alt fa-tiktok">
+						<a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" target="_blank" class="icon brands alt fa-tiktok">
 							<span class="label">TikTok</span>
 						</a>
 					</li>
 				</ul>
 			</nav>
 
-			<!-- Main -->
 			<div id="main">
 
-				<section class="post">
+				<section class="post luxea-page">
 
-					<section class="luxia-hero">
-						<span class="luxia-kicker">Female Only Padel Tournament</span>
-						<h1>Luxia Season 1</h1>
-						<p>
-							A premium ladies padel showdown celebrating competition, confidence, community, and courtside energy.
-						</p>
+					<div class="floating-shape shape-ball-1"></div>
+					<div class="floating-shape shape-ball-2"></div>
+					<div class="floating-shape shape-dots"></div>
+					<div class="floating-shape shape-dots-2"></div>
 
-						<div class="luxia-button-row">
-							<a href="#results" class="luxia-btn scrolly">View Results</a>
-							<a href="tournaments.html" class="luxia-btn secondary">Back to Tournaments</a>
+					<section class="luxea-hero">
+						<span class="luxea-kicker">Luxea Invitational Padel League</span>
+						<h1>Opening Day</h1>
+						<p>Pink. Orange. Padel. Big energy on court.</p>
+
+						<div class="luxea-button-row">
+							<a href="#results" class="luxea-btn scrolly">View Results</a>
+							<a href="#games" class="luxea-btn secondary scrolly">View Games</a>
+						</div>
+
+						<div class="funky-strip">
+							<span class="funky-pill"></span>
+							<span class="funky-pill"></span>
+							<span class="funky-pill"></span>
+							<span class="funky-pill"></span>
+							<span class="funky-pill"></span>
+							<span class="funky-pill"></span>
+							<span class="funky-pill"></span>
 						</div>
 					</section>
 
-					<section class="luxia-section">
-						<h2>About the Tournament</h2>
-						<p class="intro">
-							Luxia Season 1 is a female only padel tournament hosted with a premium, polished feel inspired by our main sponsor, Luxea Nutrition.
-						</p>
-
-						<div class="luxia-sponsor-card">
+					<section id="results" class="luxea-section">
+						<div class="section-heading-row">
 							<div>
-								<h3>Main Sponsor</h3>
-								<p>
-									Thank you to Luxea Nutrition for supporting the ladies padel community and helping make Season 1 feel special.
-								</p>
-								<a href="https://luxeanutrition.com/" target="_blank" class="luxia-btn">Visit Sponsor</a>
+								<h2>Results</h2>
+								<p class="intro">Luxea Invitational Padel League match results.</p>
 							</div>
-
-							<div class="luxia-sponsor-badge">
-								Luxea<br />Nutrition
-							</div>
+							<span class="section-badge">Live Sheet</span>
 						</div>
-					</section>
-
-					<section id="results" class="luxia-section">
-						<h2>Season 1 Results</h2>
-						<p class="intro">
-							Results are loaded from the published Google Sheet. If the sheet cannot load, the page will show the fallback result below.
-						</p>
 
 						<div id="results-status" class="loading-message">Loading results...</div>
 
@@ -400,40 +552,81 @@
 								<tbody id="results-body"></tbody>
 							</table>
 						</div>
-
-						<div class="luxia-note">
-							Current result: Chicken beat mine 6-4, 4-6, 6-4.
-						</div>
 					</section>
 
-					<section class="luxia-section">
-						<h2>Ladies on Court</h2>
-						<p class="intro">
-							Add your tournament photos here. Replace the placeholders with your own image tags when ready.
-						</p>
+					<div class="image-row">
+						<div class="image-slot">
+							Image space 1<br />
+							images/luxea-1.jpg
+						</div>
+						<div class="image-slot">
+							Image space 2<br />
+							images/luxea-2.jpg
+						</div>
+						<div class="image-slot">
+							Image space 3<br />
+							images/luxea-3.jpg
+						</div>
+					</div>
 
-						<div class="luxia-gallery">
-							<div class="luxia-photo-slot">
-								Add photo 1 here<br />
-								Example: images/luxia-ladies-1.jpg
+					<section id="games" class="luxea-section">
+						<div class="section-heading-row">
+							<div>
+								<h2>Games</h2>
+								<p class="intro">All games from the Luxea Invitational Padel League.</p>
 							</div>
+							<span class="section-badge">Match List</span>
+						</div>
 
-							<div class="luxia-photo-slot">
-								Add photo 2 here<br />
-								Example: images/luxia-ladies-2.jpg
+						<div id="games-status" class="loading-message">Loading games...</div>
+
+						<div class="games-grid" id="games-body"></div>
+					</section>
+
+					<div class="image-row">
+						<div class="image-slot">
+							Image space 4<br />
+							images/luxea-4.jpg
+						</div>
+						<div class="image-slot">
+							Image space 5<br />
+							images/luxea-5.jpg
+						</div>
+						<div class="image-slot">
+							Image space 6<br />
+							images/luxea-6.jpg
+						</div>
+					</div>
+
+					<section class="luxea-section">
+						<div class="section-heading-row">
+							<div>
+								<h2>Photo Moments</h2>
+								<p class="intro">Add your favourite opening day shots here.</p>
 							</div>
+							<span class="section-badge">Gallery</span>
+						</div>
 
-							<div class="luxia-photo-slot">
-								Add photo 3 here<br />
-								Example: images/luxia-ladies-3.jpg
+						<div class="image-row">
+							<div class="image-slot">
+								Image space 7<br />
+								images/luxea-7.jpg
+							</div>
+							<div class="image-slot">
+								Image space 8<br />
+								images/luxea-8.jpg
+							</div>
+							<div class="image-slot">
+								Image space 9<br />
+								images/luxea-9.jpg
 							</div>
 						</div>
 
 						<!--
-							When you have images, replace a placeholder above with this:
+							To add a real image, replace any image slot with this:
 
-							<div class="luxia-photo-slot">
-								<img src="images/luxia-ladies-1.jpg" alt="Ladies playing in the Luxia Season 1 padel tournament">
+							<div class="image-slot">
+								<img src="images/luxea-1.jpg" alt="Luxea Invitational Padel League opening day">
 							</div>
 						-->
 					</section>
@@ -442,14 +635,11 @@
 
 			</div>
 
-			<!-- Footer -->
 			<footer id="footer">
 				<section>
 					<h3>Want to book or ask a question?</h3>
 					<p>Click below to chat with us directly on WhatsApp 👇</p>
-					<a href="https://wa.me/27832630908?text=Hi%20there!%20I%27m%20interested%20in%20padel%20coaching." 
-					   target="_blank" 
-					   class="button primary fit">📱 WhatsApp Us</a>
+					<a href="https://wa.me/27832630908?text=Hi%20there!%20I%27m%20interested%20in%20padel%20coaching." target="_blank" class="button primary fit">📱 WhatsApp Us</a>
 				</section>
 
 				<section class="split contact">
@@ -474,20 +664,17 @@
 					<section>
 						<ul class="icons alt">
 							<li>
-								<a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" 
-								   target="_blank" class="icon brands alt fa-instagram">
+								<a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" target="_blank" class="icon brands alt fa-instagram">
 									<span class="label">Instagram</span>
 								</a>
 							</li>
 							<li>
-								<a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" 
-								   target="_blank" class="icon brands alt fa-facebook-f">
+								<a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" target="_blank" class="icon brands alt fa-facebook-f">
 									<span class="label">Facebook</span>
 								</a>
 							</li>
 							<li>
-								<a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" 
-								   target="_blank" class="icon brands alt fa-tiktok">
+								<a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" target="_blank" class="icon brands alt fa-tiktok">
 									<span class="label">TikTok</span>
 								</a>
 							</li>
@@ -496,17 +683,15 @@
 				</section>
 			</footer>
 
-			<!-- Copyright -->
 			<div id="copyright">
 				<ul>
-					<li>&copy; Pring Padel</li>
+					<li>&copy; Pringle Padel</li>
 					<li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
 				</ul>
 			</div>
 
 		</div>
 
-		<!-- Scripts -->
 		<script src="assets/js/jquery.min.js"></script>
 		<script src="assets/js/jquery.scrollex.min.js"></script>
 		<script src="assets/js/jquery.scrolly.min.js"></script>
@@ -521,7 +706,7 @@
 			const fallbackResults = [
 				{
 					teamA: 'Chicken',
-					teamB: 'mine',
+					teamB: 'Mine',
 					scoreASet1: '6',
 					scoreBSet1: '4',
 					scoreASet2: '4',
@@ -635,6 +820,14 @@
 				return 'Draw';
 			}
 
+			function formatSet(scoreA, scoreB) {
+				if (!scoreA && !scoreB) {
+					return 'Pending';
+				}
+
+				return `${scoreA || '-'}-${scoreB || '-'}`;
+			}
+
 			function renderResults(results, sourceLabel) {
 				const status = document.getElementById('results-status');
 				const tableWrap = document.getElementById('results-table-wrap');
@@ -653,9 +846,9 @@
 						<tr>
 							<td>${match.teamA}</td>
 							<td>${match.teamB}</td>
-							<td>${match.scoreASet1}-${match.scoreBSet1}</td>
-							<td>${match.scoreASet2}-${match.scoreBSet2}</td>
-							<td>${match.scoreASet3}-${match.scoreBSet3}</td>
+							<td>${formatSet(match.scoreASet1, match.scoreBSet1)}</td>
+							<td>${formatSet(match.scoreASet2, match.scoreBSet2)}</td>
+							<td>${formatSet(match.scoreASet3, match.scoreBSet3)}</td>
 							<td><span class="winner-pill">${winner}</span></td>
 						</tr>
 					`;
@@ -663,6 +856,39 @@
 
 				status.textContent = `Showing ${sourceLabel}.`;
 				tableWrap.style.display = 'block';
+			}
+
+			function renderGames(results) {
+				const gamesStatus = document.getElementById('games-status');
+				const gamesBody = document.getElementById('games-body');
+
+				if (!results.length) {
+					gamesStatus.textContent = 'No games are available yet.';
+					gamesBody.innerHTML = '';
+					return;
+				}
+
+				gamesStatus.textContent = '';
+
+				gamesBody.innerHTML = results.map((match, index) => {
+					const winner = getWinner(match);
+
+					return `
+						<div class="game-card">
+							<span class="game-number">Game ${index + 1}</span>
+							<h3>${match.teamA} vs ${match.teamB}</h3>
+							<p><strong>Set 1:</strong> ${formatSet(match.scoreASet1, match.scoreBSet1)}</p>
+							<p><strong>Set 2:</strong> ${formatSet(match.scoreASet2, match.scoreBSet2)}</p>
+							<p><strong>Set 3:</strong> ${formatSet(match.scoreASet3, match.scoreBSet3)}</p>
+							<p class="game-score">Winner: ${winner}</p>
+						</div>
+					`;
+				}).join('');
+			}
+
+			function renderPage(results, sourceLabel) {
+				renderResults(results, sourceLabel);
+				renderGames(results);
 			}
 
 			async function loadResults() {
@@ -681,10 +907,10 @@
 						throw new Error('Sheet has no readable rows');
 					}
 
-					renderResults(results, 'live results from Google Sheets');
+					renderPage(results, 'live results from Google Sheets');
 				} catch (error) {
 					console.warn(error);
-					renderResults(fallbackResults, 'fallback result');
+					renderPage(fallbackResults, 'fallback result');
 				}
 			}
 
