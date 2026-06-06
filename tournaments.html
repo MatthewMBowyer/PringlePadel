@@ -144,7 +144,21 @@ container.innerHTML = tournaments.map(t => `
   border-color: #ffd700;          /* gold border */
 }
 
+.tournament-card .button.luxia-button {
+  background: linear-gradient(135deg, #111 0%, #2a2117 50%, #c9a45c 100%);
+  color: #fff;
+  border: 1px solid #c9a45c;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 22px rgba(201, 164, 92, 0.25);
+}
 
+.tournament-card .button.luxia-button:hover {
+  background: #c9a45c;
+  color: #111;
+  border-color: #c9a45c;
+  transform: translateY(-2px);
+}
 
 .tournament-card .thumb {
   aspect-ratio: 16 / 9;
