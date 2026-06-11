@@ -731,7 +731,7 @@
 
 			function formatSet(scoreA, scoreB) {
 				if (!scoreA && !scoreB) {
-					return 'Pending';
+					return '';
 				}
 
 				return `${scoreA || '-'}-${scoreB || '-'}`;
@@ -784,7 +784,7 @@
 					return match.teamB;
 				}
 
-				return 'Pending';
+				return '';
 			}
 
 			function buildStandings(results) {
