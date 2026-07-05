@@ -1,12 +1,14 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+HTML = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Padel Tournament Scheduler — Americano & Round Robin</title>
+  <title>Pringle Padel Scheduler</title>
   <style>
     :root {
-      --bg: #0f1115;         /* dark, production-friendly */
+      --bg: #0f1115;
       --panel: #161a20;
       --muted: #8ea1b2;
       --accent: #4cc9f0;
@@ -17,188 +19,225 @@
       --border: #2a3340;
       --warn: #f59e0b;
     }
+
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { min-height: 100%; }
+
     body {
-      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
       background: linear-gradient(180deg, #0b0e13, #0f1115 30%);
       color: var(--text);
     }
+
     header {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(11,14,19,0.9);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(11,14,19,0.92);
       backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
     }
+
     .wrap { max-width: 1200px; margin: 0 auto; padding: 18px 16px; }
-    h1 { margin: 0 0 8px; letter-spacing: 0.2px; font-weight: 700; }
-    .subtle { color: var(--muted); font-size: 13px; }
+    h1 { margin: 0 0 8px; letter-spacing: 0.2px; font-weight: 800; }
+    h2, h3 { margin: 0 0 10px; }
+    .subtle, .hint, .muted { color: var(--muted); }
+    .hint { font-size: 12px; }
+    .small { font-size: 12px; }
+    .right { text-align: right; }
+    .nowrap { white-space: nowrap; }
+    .spacer { flex: 1; }
+    .divider { height: 1px; background: var(--border); margin: 12px 0; }
+    .sr { position: absolute; left: -9999px; }
+
     .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    select, input[type="number"], input[type="text"], textarea, button {
-      background: var(--panel); color: var(--text); border: 1px solid var(--border); border-radius: 10px;
-      padding: 10px 12px; font: inherit; transition: .15s ease border, .15s ease transform, .15s ease background;
-    }
-    textarea { width: 100%; min-height: 110px; resize: vertical; }
-    button { cursor: pointer; }
-    button.primary { background: linear-gradient(180deg, #3b82f6, #2563eb); border-color: #1d4ed8; }
-    button.ghost { background: transparent; }
-    button.success { background: linear-gradient(180deg, #22c55e, #16a34a); border-color: #15803d; }
-    button.warn { background: linear-gradient(180deg, #f59e0b, #d97706); border-color: #b45309; }
-    button.danger { background: linear-gradient(180deg, #ef4444, #dc2626); border-color: #b91c1c; }
-    button:disabled { opacity: .5; cursor: not-allowed; }
+    .flex { display: flex; gap: 8px; align-items: center; }
     .grid { display: grid; gap: 14px; }
     .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
-    .card h2, .card h3 { margin: 0 0 10px; }
-    .pill { padding: 4px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); color: var(--muted); }
+
+    select,
+    input[type="number"],
+    input[type="text"],
+    textarea,
+    button {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+
+    textarea { width: 100%; min-height: 130px; resize: vertical; }
+    button { cursor: pointer; }
+    button.primary { background: linear-gradient(180deg, #3b82f6, #2563eb); border-color: #1d4ed8; }
+    button.ghost { background: transparent; }
+    button.warn { background: linear-gradient(180deg, #f59e0b, #d97706); border-color: #b45309; }
+    button.danger { background: linear-gradient(180deg, #ef4444, #dc2626); border-color: #b91c1c; }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      display: inline-block;
+    }
+
     .pill.ok { color: #bbf7d0; border-color: #14532d; background: rgba(34,197,94,0.08); }
-    .pill.fun { color: #fcd34d; border-color: #78350f; background: rgba(245,158,11,0.08); }
+    .pill.warn { color: #fde68a; border-color: #78350f; background: rgba(245,158,11,0.08); }
+
+    .tag {
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #0b0e13;
+      border: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .kpi { display: flex; gap: 12px; flex-wrap: wrap; }
+    .kpi .item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; min-width: 110px; }
+    .k { color: var(--muted); font-size: 12px; }
+    .v { font-weight: 800; font-size: 20px; }
+
     .table { width: 100%; border-collapse: collapse; overflow: hidden; }
     .table th, .table td { border-bottom: 1px dashed var(--border); padding: 8px 10px; text-align: left; }
-    .table th { color: var(--muted); font-weight: 600; }
-    .kpi { display: flex; gap: 18px; flex-wrap: wrap; }
-    .kpi .item { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 10px 12px; }
-    .k { color: var(--muted); font-size: 12px; }
-    .v { font-weight: 700; font-size: 20px; }
-    .block { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
-    .block > header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #0b0e13; border-bottom: 1px solid var(--border); }
+    .table th { color: var(--muted); font-weight: 700; }
+
+    .block { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+    .block > .block-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #0b0e13;
+      border-bottom: 1px solid var(--border);
+    }
+
     .block .content { padding: 8px 12px; }
-    .rowline { display: grid; grid-template-columns: 110px 1fr 1fr 1fr 1fr 140px; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+
+    .rowline {
+      display: grid;
+      grid-template-columns: 110px 1fr 40px 1fr 220px 100px;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px dashed var(--border);
+    }
+
     .rowline:last-child { border-bottom: 0; }
-    .muted { color: var(--muted); }
-    .right { text-align: right; }
-    .flex { display: flex; gap: 8px; align-items: center; }
-    .spacer { flex: 1; }
-    .hint { font-size: 12px; color: var(--muted); }
-    .danger-text { color: var(--error); }
+    .rowline > * { min-width: 0; }
+
+    .score {
+      width: 90px;
+      padding: 6px 8px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .master-settings {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .master-settings.open { display: grid; }
+    .simple-settings { margin-top: 12px; }
+
+    .notice {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(76, 201, 240, 0.08);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .notice.warn {
+      background: rgba(245, 158, 11, 0.10);
+      border-color: #78350f;
+      color: #fde68a;
+    }
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(11, 14, 19, 0.35);
+    }
+
     .footer { color: var(--muted); font-size: 12px; padding-top: 16px; }
-    .divider { height: 1px; background: var(--border); margin: 12px 0; }
-    .tag { padding: 3px 8px; border-radius: 999px; background: #0b0e13; border: 1px solid var(--border); font-size: 11px; color: var(--muted); }
-    /* OVERRIDE: make score boxes bigger with tighter inner padding (paste after your current CSS) */
-.score {
-  width: 110px ;
-  padding: 2px 6px ; /* less padding so numbers are more visible */
-  font-size: 18px ;
-}
-    .small { font-size: 12px; }
-    .nowrap { white-space: nowrap; }
-    .sr { position: absolute; left: -9999px; }
 
-    /* ===== Mobile responsiveness (drop-in) ===== */
-@media (max-width: 900px) {
-  .wrap { padding: 14px 12px; }
-  .grid.two, .grid.three { grid-template-columns: 1fr; }
-  .kpi { gap: 12px; }
-  .kpi .item { flex: 1 1 45%; }
-  select, input[type="number"], input[type="text"], textarea, button { width: 100%; }
-  .row { gap: 8px; }
-  h1 { font-size: 20px; line-height: 1.2; }
+    @media (max-width: 900px) {
+      .wrap { padding: 14px 12px; }
+      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      select, input[type="number"], input[type="text"], textarea, button { width: 100%; }
+      h1 { font-size: 20px; line-height: 1.2; }
+      .kpi .item { flex: 1 1 45%; }
+      .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 
-  /* Wider scores with tighter padding so the digits are clearly visible */
-  .score {
-    width: 170px;
-    padding: 2px 6px;
-    font-size: 14px;
-  }
+      .rowline {
+        grid-template-columns: 1fr minmax(180px, 1fr);
+        grid-template-areas:
+          "court tag"
+          "a     a"
+          "vs    vs"
+          "b     score";
+        gap: 6px 10px;
+      }
 
-  .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-}
+      .rowline > :nth-child(1) { grid-area: court; }
+      .rowline > :nth-child(2) { grid-area: a; text-align: left; }
+      .rowline > :nth-child(3) { grid-area: vs; text-align: left; }
+      .rowline > :nth-child(4) { grid-area: b; text-align: left; }
+      .rowline > :nth-child(5) { grid-area: score; justify-self: stretch; width: 100%; }
+      .rowline > :nth-child(6) { grid-area: tag; justify-self: end; }
+      .rowline .flex { width: 100%; }
+      .rowline .score { width: calc(50% - 8px); min-width: 80px; }
+      .block .content { padding: 8px; }
+      .card { padding: 12px; }
+    }
 
+    @media (max-width: 640px) {
+      header .row > * { flex: 1 1 160px; }
+      #status { flex: 0 0 auto; }
+    }
 
-/* Condense header controls on narrow phones */
-@media (max-width: 640px) {
-  header .row { flex-wrap: wrap; }
-  header .row > * { flex: 1 1 160px; }
-  #status { flex: 0 0 auto; }
-}
-
-/* Reflow each fixture row from 6 tight columns → stacked, touch-friendly layout */
-@media (max-width: 900px) {
-  .rowline {
-    display: grid;
-    /* Give the score area real space */
-    grid-template-columns: 1fr minmax(180px, 1fr);
-    grid-template-areas:
-      "court tag"
-      "a     a"
-      "vs    vs"
-      "b     score";
-    gap: 6px 10px;
-    align-items: center;
-  }
-
-  /* Map existing children into the areas */
-  .rowline > :nth-child(1) { grid-area: court; }
-  .rowline > :nth-child(2) { grid-area: a;    text-align: left; }
-  .rowline > :nth-child(3) { grid-area: vs;   text-align: left; }
-  .rowline > :nth-child(4) { grid-area: b;    text-align: left; }
-  .rowline > :nth-child(5) { grid-area: score; justify-self: stretch; width: 100%; }
-  .rowline > :nth-child(6) { grid-area: tag;  justify-self: end; }
-
-  .rowline .flex { width: 100%; gap: 8px; }
-  .rowline .score {
-    width: calc(50% - 8px); /* two wide inputs side-by-side */
-    min-width: 80px;
-    padding: 2px 6px;
-    font-size: 14px;
-  }
-
-  /* Tighten paddings so rows don’t overflow */
-  .block .content { padding: 8px 8px; }
-  .card { padding: 12px; }
-}
-
-
-/* Make long names wrap instead of forcing horizontal scroll */
-@media (max-width: 480px) {
-  .nowrap { white-space: normal; }
-  .rowline .muted.small { font-size: 11px; }
-
-  /* ✅ Make input boxes much wider here */
-  .score {
-    width: 160px ;
-    padding: 2px 6px ;
-    font-size: 18px ;
-  }
-}
-
-
-
-    /* Allow grid children to actually shrink/wrap (fixes overflow on long names) */
-.rowline > * { min-width: 0; }
-
-/* iOS focus zoom fix on small phones */
-@media (max-width: 480px) {
-  select, input[type="number"], input[type="text"], textarea, button {
-    font-size: 16px; /* >=16px prevents Safari zoom */
-  }
-  header h1 { 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-  }
-}
-
-
+    @media (max-width: 480px) {
+      select, input[type="number"], input[type="text"], textarea, button { font-size: 16px; }
+      .nowrap { white-space: normal; }
+      .rowline .muted.small { font-size: 11px; }
+      header h1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    }
   </style>
 </head>
 <body>
   <header>
     <div class="wrap">
-      <h1>Padel Tournament Scheduler</h1>
+      <h1>Pringle Padel Scheduler</h1>
       <div class="row">
         <label>
           <span class="sr">Mode</span>
           <select id="mode">
-            <option value="americano">Individual Americano (Doubles)</option>
-            <option value="roundrobin">Teams — Full Round Robin</option>
+            <option value="americano">Individual Americano</option>
+            <option value="roundrobin">Teams Round Robin</option>
           </select>
         </label>
-        <button id="btn-new" class="warn">New Event</button>
-        <label class="row" style="gap:6px; align-items:center;">      
-        </label>
-          
+        <button id="btn-new" class="warn" type="button">New Event</button>
         <div class="spacer"></div>
         <span id="status" class="pill">Idle</span>
       </div>
@@ -206,710 +245,1060 @@
   </header>
 
   <main class="wrap grid" style="padding-top:16px;">
-    <!-- CONFIG -->
     <section class="card" id="config">
       <h2>Configuration</h2>
+
       <div id="cfg-americano" class="grid two">
         <div>
-          <label class="small">Player Names (one per line) — leave empty to auto-generate</label>
+          <label class="small">Player Names</label>
           <textarea id="players" placeholder="Player 1&#10;Player 2&#10;Player 3 ..."></textarea>
-
-
         </div>
-        <div class="grid two">
-          <label>Auto Player Count
-            <input id="numPlayers" type="number" min="4" step="1" value="8" />
-          </label>
-          <label>Courts
-            <input id="numCourtsA" type="number" min="1" step="1" value="2" />
-          </label>
-          <label>Time Cap (min)
-            <input id="timeCapA" type="number" min="1" step="1" value="12" />
-          </label>
-          <label>Changeover (min)
-            <input id="bufferA" type="number" min="0" step="1" value="3" />
-          </label>
-          <label>Total Event (min)
-            <input id="totalEventA" type="number" min="10" step="5" value="120" />
-          </label>
-          <label>Max Points (or blank for free entry)
-            <input id="maxPointsA" type="number" min="0" step="1" value="12" />
-          </label>
+
+        <div>
+          <div class="grid two simple-settings">
+            <label>Courts
+              <input id="numCourtsA" type="number" min="1" step="1" value="2" />
+            </label>
+          </div>
+
+          <div id="master-americano" class="grid two master-settings">
+            <label>Auto Player Count
+              <input id="numPlayers" type="number" min="4" step="1" value="8" />
+            </label>
+            <label>Time Cap (min)
+              <input id="timeCapA" type="number" min="1" step="1" value="12" />
+            </label>
+            <label>Changeover (min)
+              <input id="bufferA" type="number" min="0" step="1" value="3" />
+            </label>
+            <label>Total Event (min)
+              <input id="totalEventA" type="number" min="10" step="5" value="120" />
+            </label>
+            <label>Max Points
+              <input id="maxPointsA" type="number" min="0" step="1" value="12" />
+            </label>
+          </div>
         </div>
       </div>
 
       <div id="cfg-rr" class="grid two" style="display:none;">
         <div>
-          <label class="small">Team Names (one per line) — leave empty to auto-generate</label>
+          <label class="small">Team Names</label>
           <textarea id="teams" placeholder="Team 1&#10;Team 2&#10;Team 3 ..."></textarea>
-
         </div>
-        <div class="grid two">
-          <label>Auto Team Count
-            <input id="numTeams" type="number" min="2" step="1" value="8" />
-          </label>
-          <label>Courts
-            <input id="numCourtsT" type="number" min="1" step="1" value="3" />
-          </label>
-          <label>Time Cap (min)
-            <input id="timeCapT" type="number" min="1" step="1" value="10" />
-          </label>
-          <label>Changeover (min)
-            <input id="bufferT" type="number" min="0" step="1" value="2" />
-          </label>
-          <label>Max Points (or blank for free entry)
-            <input id="maxPointsT" type="number" min="0" step="1" placeholder="(leave empty for free entry)" />
-          </label>
+
+        <div>
+          <div class="grid two simple-settings">
+            <label>Courts
+              <input id="numCourtsT" type="number" min="1" step="1" value="3" />
+            </label>
+          </div>
+
+          <div id="master-rr" class="grid two master-settings">
+            <label>Auto Team Count
+              <input id="numTeams" type="number" min="2" step="1" value="8" />
+            </label>
+            <label>Time Cap (min)
+              <input id="timeCapT" type="number" min="1" step="1" value="10" />
+            </label>
+            <label>Changeover (min)
+              <input id="bufferT" type="number" min="0" step="1" value="2" />
+            </label>
+            <label>Max Points
+              <input id="maxPointsT" type="number" min="0" step="1" placeholder="Leave empty for free entry" />
+            </label>
+          </div>
         </div>
       </div>
 
       <div class="row" style="margin-top:12px;">
-        <button id="btn-build" class="primary">Build Schedule</button>
-        <button id="btn-clear-scores" class="ghost">Clear Scores</button>
-        <span class="hint">All changes auto‑save locally.</span>
+        <button id="btn-build" class="primary" type="button">Build Schedule</button>
+        <button id="btn-clear-scores" class="ghost" type="button">Clear Scores</button>
+        <button id="btn-master" class="ghost" type="button">Show Master Settings</button>
+        <span class="hint">Building a new schedule resets scores automatically.</span>
       </div>
+
+      <div id="scheduleNotice" class="notice" style="display:none;"></div>
     </section>
 
-    <!-- KPI / TIMING -->
     <section class="card" id="summary">
-      <h2>Summary & Timing</h2>
+      <h2>Summary</h2>
       <div class="kpi" id="kpis"></div>
       <div class="divider"></div>
       <div class="hint" id="timingHint"></div>
     </section>
 
-    <!-- FIXTURES / RESULTS -->
     <section class="card">
       <h2>Fixtures & Results</h2>
       <div id="fixtures"></div>
     </section>
 
-    <!-- TABLE -->
     <section class="card">
       <h2>Standings</h2>
       <table class="table" id="table"></table>
-      <div class="footer">Sorted by Points ➜ Wins ➜ Draws ➜ Losses ➜ Name.</div>
+      <div class="footer">Sorted by Points, Wins, Draws, Losses, Name.</div>
     </section>
   </main>
 
   <script>
-  /********************
-   * Utility helpers  *
-   ********************/
-  const $ = (s, r=document) => r.querySelector(s);
-  const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
-  const fmtMM = (mins) => {
-    mins = Math.round(mins||0);
-    const h = Math.floor(mins/60), m = mins%60;
-    return h ? `${h}h ${String(m).padStart(2,'0')}m` : `${m}m`;
-  };
-  const byName = (a,b) => a.localeCompare(b);
+    const $ = (s, r = document) => r.querySelector(s);
+    const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
 
-  /********************
-   * Persistence       
-   ********************/
-  const STORE_KEY = 'padel-scheduler-v1';
-  function saveState(partial={}){
-    const existing = loadState();
-    const state = { ...existing, ...partial, ts: Date.now() };
-    localStorage.setItem(STORE_KEY, JSON.stringify(state));
-    $('#status').textContent = 'Saved';
-    setTimeout(()=> $('#status').textContent = 'Idle', 800);
-  }
-  function loadState(){
-    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
-    catch{ return {}; }
-  }
-  function clearState(){ localStorage.removeItem(STORE_KEY); }
+    const STORE_KEY = 'pringle-padel-scheduler-v2';
 
-  /********************
-   * Americano logic   
-   ********************/
-  function slotLenA(cfg){ return (cfg.timeCapA||0) + (cfg.bufferA||0); }
-  function totalBlocksA(cfg){ const sl=slotLenA(cfg); return sl>0? Math.floor((cfg.totalEventA||0)/sl) : 0; }
+    const state = {
+      mode: 'americano',
+      players: [],
+      schedule: [],
+      target: 0,
+      resultsA: {},
+      teams: [],
+      matches: [],
+      blocks: [],
+      resultsT: {},
+      scheduleNote: '',
+      masterOpen: false,
+      cfg: {
+        timeCapA: 12,
+        bufferA: 3,
+        totalEventA: 120,
+        maxPointsA: 12,
+        numCourtsA: 2,
+        numPlayers: 8,
+        timeCapT: 10,
+        bufferT: 2,
+        maxPointsT: null,
+        numCourtsT: 3,
+        numTeams: 8
+      }
+    };
 
-  function genPlayers(cfg){
-    const raw = ($('#players').value||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    if(raw.length) return shuffle([...raw]);
-    const n = Math.max(4, parseInt($('#numPlayers').value||'8',10));
-    return shuffle(Array.from({length:n}, (_,i)=>`Player ${i+1}`));
-  }
+    function fmtMM(mins) {
+      mins = Math.round(mins || 0);
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      return h ? `${h}h ${String(m).padStart(2, '0')}m` : `${m}m`;
+    }
 
-function buildIndividualAmericano(players, n_courts, blocks) {
-  const P = players.length;
-  if (P < 4 || n_courts < 1 || blocks < 1) return { schedule: [], target: 0 };
+    function saveState(partial = {}) {
+      const existing = loadState();
+      const saved = { ...existing, ...partial, ts: Date.now() };
+      localStorage.setItem(STORE_KEY, JSON.stringify(saved));
+      setStatus('Saved');
+    }
 
-  const maxMatchesPerBlock = Math.min(n_courts, Math.floor(P / 4));
-  const totalCapacityMatches = blocks * maxMatchesPerBlock;
-  const totalPlayerSlots = totalCapacityMatches * 4;
-  const target = Math.floor(totalPlayerSlots / P);
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
 
-  const countedPlayed = Object.fromEntries(players.map(p => [p, 0]));
-  const partnerCount  = Object.fromEntries(players.map(p => [p, {}]));
-  const opponentCount = Object.fromEntries(players.map(p => [p, {}]));
+    function clearState() {
+      localStorage.removeItem(STORE_KEY);
+    }
 
-  const plus1 = (obj, a, b) => { obj[a][b] = (obj[a][b] || 0) + 1; };
+    function setStatus(text) {
+      $('#status').textContent = text;
+      if (text !== 'Idle') {
+        window.clearTimeout(setStatus.timer);
+        setStatus.timer = window.setTimeout(() => $('#status').textContent = 'Idle', 900);
+      }
+    }
 
-  let schedule = [];
-  let mid = 1;
+    function asInt(sel, fallback = 0) {
+      const n = parseInt($(sel).value || String(fallback), 10);
+      return Number.isFinite(n) ? Math.max(0, n) : fallback;
+    }
 
-  // How many previous blocks to look at when avoiding repeats
-  const recentWindowBlocks = 3;
+    function valInt(v) {
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? n : 0;
+    }
 
-  for (let b = 1; b <= blocks; b++) {
+    function validScore(a, b, maxPoints) {
+      return Number.isFinite(a)
+        && Number.isFinite(b)
+        && a >= 0
+        && b >= 0
+        && (maxPoints == null || (a <= maxPoints && b <= maxPoints && a + b === maxPoints));
+    }
 
-    // Build a "recent together" map from the last few blocks
-    const lastTogether = {};
+    function groupBy(arr, fn) {
+      return arr.reduce((acc, x) => {
+        const k = fn(x);
+        (acc[k] = acc[k] || []).push(x);
+        return acc;
+      }, {});
+    }
 
-    if (b > 1) {
-      const startBlock = Math.max(1, b - recentWindowBlocks);
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
-      for (let blk = startBlock; blk <= b - 1; blk++) {
-        const weight = 1 + (blk - startBlock); // newer blocks score higher
-        const prevMatches = schedule.filter(m => m.block === blk);
+    function byName(a, b) {
+      return a.localeCompare(b);
+    }
 
-        for (const m of prevMatches) {
-          const ps = [...m.A, ...m.B]; // all 4 players who shared a court
+    function slotLenA(cfg) {
+      return (cfg.timeCapA || 0) + (cfg.bufferA || 0);
+    }
 
-          for (let i = 0; i < ps.length; i++) {
-            for (let j = i + 1; j < ps.length; j++) {
-              const p = ps[i], q = ps[j];
+    function totalBlocksA(cfg) {
+      const slot = slotLenA(cfg);
+      return slot > 0 ? Math.floor((cfg.totalEventA || 0) / slot) : 0;
+    }
 
-              if (!lastTogether[p]) lastTogether[p] = {};
-              if (!lastTogether[q]) lastTogether[q] = {};
+    function genPlayers() {
+      const raw = ($('#players').value || '')
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean);
 
-              lastTogether[p][q] = (lastTogether[p][q] || 0) + weight;
-              lastTogether[q][p] = (lastTogether[q][p] || 0) + weight;
+      if (raw.length) return [...raw];
+
+      const n = Math.max(4, asInt('#numPlayers', 8));
+      return Array.from({ length: n }, (_, i) => `Player ${i + 1}`);
+    }
+
+    function genTeams() {
+      const raw = ($('#teams').value || '')
+        .split(/\n+/)
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (raw.length) return [...raw];
+
+      const n = Math.max(2, asInt('#numTeams', 8));
+      return Array.from({ length: n }, (_, i) => `Team ${i + 1}`);
+    }
+
+    function buildIndividualAmericano(players, nCourts, blocks) {
+      const P = players.length;
+
+      if (P < 4 || nCourts < 1 || blocks < 1) {
+        return {
+          schedule: [],
+          target: 0,
+          note: 'Not enough players, courts or time to build a schedule.'
+        };
+      }
+
+      const maxMatchesPerBlock = Math.min(nCourts, Math.floor(P / 4));
+      const totalCapacityMatches = blocks * maxMatchesPerBlock;
+      const totalPlayerSlots = totalCapacityMatches * 4;
+      const target = Math.max(1, Math.floor(totalPlayerSlots / P));
+
+      const playedCount = Object.fromEntries(players.map(p => [p, 0]));
+      const partnerPairs = new Set();
+      const opponentPairs = new Set();
+      const courtGroups = new Set();
+      const schedule = [];
+      let matchId = 1;
+      let stoppedBlock = null;
+
+      const pairKey = (a, b) => [a, b].sort().join('|||');
+      const groupKey = (arr) => [...arr].sort().join('|||');
+
+      function splitFour(a, b, c, d) {
+        return [
+          { A: [a, b], B: [c, d] },
+          { A: [a, c], B: [b, d] },
+          { A: [a, d], B: [b, c] }
+        ];
+      }
+
+      function isValidMatch(match, usedThisBlock) {
+        const all = [...match.A, ...match.B];
+
+        if (new Set(all).size !== 4) return false;
+        if (all.some(p => usedThisBlock.has(p))) return false;
+        if (courtGroups.has(groupKey(all))) return false;
+        if (partnerPairs.has(pairKey(match.A[0], match.A[1]))) return false;
+        if (partnerPairs.has(pairKey(match.B[0], match.B[1]))) return false;
+
+        for (const a of match.A) {
+          for (const b of match.B) {
+            if (opponentPairs.has(pairKey(a, b))) return false;
+          }
+        }
+
+        return true;
+      }
+
+      function scoreMatch(match) {
+        const all = [...match.A, ...match.B];
+        const needScore = all.reduce((sum, p) => sum + Math.max(0, target - playedCount[p]), 0);
+        const totalPlayed = all.reduce((sum, p) => sum + playedCount[p], 0);
+        const maxAfter = Math.max(...all.map(p => playedCount[p] + 1));
+        const minAfter = Math.min(...all.map(p => playedCount[p] + 1));
+        const fairnessGap = maxAfter - minAfter;
+
+        return (needScore * 1000) - (fairnessGap * 150) - totalPlayed + Math.random();
+      }
+
+      function findBestMatch(available, usedThisBlock) {
+        let best = null;
+        let bestScore = -Infinity;
+
+        for (let i = 0; i < available.length; i++) {
+          for (let j = i + 1; j < available.length; j++) {
+            for (let k = j + 1; k < available.length; k++) {
+              for (let l = k + 1; l < available.length; l++) {
+                const four = [available[i], available[j], available[k], available[l]];
+
+                for (const match of splitFour(four[0], four[1], four[2], four[3])) {
+                  if (!isValidMatch(match, usedThisBlock)) continue;
+
+                  const score = scoreMatch(match);
+                  if (score > bestScore) {
+                    best = match;
+                    bestScore = score;
+                  }
+                }
+              }
             }
           }
         }
+
+        return best;
       }
-    }
 
-    let available = shuffle([...players]);
+      for (let block = 1; block <= blocks; block++) {
+        const usedThisBlock = new Set();
+        let matchesInBlock = 0;
 
-    const need = Object.fromEntries(
-      available.map(p => [p, Math.max(0, target - countedPlayed[p])])
-    );
+        while (matchesInBlock < maxMatchesPerBlock) {
+          const available = players
+            .filter(p => !usedThisBlock.has(p))
+            .sort((a, b) => playedCount[a] - playedCount[b] || a.localeCompare(b));
 
-    // Players who still need counted games are preferred
-    available.sort((x, y) => (need[y] - need[x]) || (Math.random() - 0.5));
+          const match = findBestMatch(available, usedThisBlock);
+          if (!match) break;
 
-    const pairs = [];
-    const used = new Set();
-    const capacityPairs = maxMatchesPerBlock * 2; // two pairs per match
+          const all = [...match.A, ...match.B];
 
-    while (pairs.length < capacityPairs) {
-      const a = available.find(x => !used.has(x));
-      if (!a) break;
+          schedule.push({
+            block,
+            court: matchesInBlock + 1,
+            A: match.A,
+            B: match.B,
+            is_counted: true,
+            match_id: matchId++
+          });
 
-      const candidates = available.filter(x => !used.has(x) && x !== a);
-      if (!candidates.length) break;
+          partnerPairs.add(pairKey(match.A[0], match.A[1]));
+          partnerPairs.add(pairKey(match.B[0], match.B[1]));
 
-      candidates.sort((u, v) => {
-        // 1) Prefer pairing players who both still need counted matches
-        const needPref =
-          ((need[a] > 0 && need[u] > 0) ? 0 : 1) -
-          ((need[a] > 0 && need[v] > 0) ? 0 : 1);
+          for (const a of match.A) {
+            for (const b of match.B) {
+              opponentPairs.add(pairKey(a, b));
+            }
+          }
 
-        // 2) Prefer partners you have played with fewer times overall
-        const pc = (partnerCount[a][u] || 0) - (partnerCount[a][v] || 0);
+          courtGroups.add(groupKey(all));
 
-        // 3) Avoid recently shared courts (weighted by recency)
-        const recentU = (lastTogether[a] && lastTogether[a][u]) ? lastTogether[a][u] : 0;
-        const recentV = (lastTogether[a] && lastTogether[a][v]) ? lastTogether[a][v] : 0;
-        const recentPref = recentU - recentV; // smaller is better
+          all.forEach(p => {
+            playedCount[p]++;
+            usedThisBlock.add(p);
+          });
 
-        // 4) Prefer players who still need more counted games
-        const nx = (need[v] || 0) - (need[u] || 0);
-
-        const rnd = Math.random() - 0.5;
-
-        return needPref || recentPref || pc || nx || rnd;
-      });
-
-      const bp = candidates[0];
-
-      const remainingFree = available.filter(
-        x => !used.has(x) && x !== a && x !== bp
-      );
-
-      if ((pairs.length % 2 === 0) && remainingFree.length < 2) break;
-
-      pairs.push([a, bp]);
-      used.add(a);
-      used.add(bp);
-    }
-
-    for (let i = 0; i < pairs.length; i += 2) {
-      if (i + 1 >= pairs.length) break;
-
-      const [a1, a2] = pairs[i];
-      const [b1, b2] = pairs[i + 1];
-
-      const counted = [a1, a2, b1, b2].every(
-        p => countedPlayed[p] < target
-      );
-
-      schedule.push({
-        block: b,
-        court: (Math.floor(i / 2) + 1),
-        A: [a1, a2],
-        B: [b1, b2],
-        is_counted: counted,
-        match_id: mid++
-      });
-
-      // Update long-term partner/opponent counts
-      partnerCount[a1][a2] = (partnerCount[a1][a2] || 0) + 1;
-      partnerCount[a2][a1] = (partnerCount[a2][a1] || 0) + 1;
-      partnerCount[b1][b2] = (partnerCount[b1][b2] || 0) + 1;
-      partnerCount[b2][b1] = (partnerCount[b2][b1] || 0) + 1;
-
-      [a1, a2].forEach(x =>
-        [b1, b2].forEach(y => {
-          plus1(opponentCount, x, y);
-          plus1(opponentCount, y, x);
-        })
-      );
-
-      if (counted) {
-        [a1, a2, b1, b2].forEach(p => countedPlayed[p]++);
-      }
-    }
-  }
-
-  return { schedule, target };
-}
-
-
-  /********************
-   * Round Robin logic 
-   ********************/
-  function genTeams(){
-    const raw = ($('#teams').value||'').split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    if(raw.length) return shuffle([...raw]);
-    const n = Math.max(2, parseInt($('#numTeams').value||'8',10));
-    return shuffle(Array.from({length:n}, (_,i)=>`Team ${i+1}`));
-  }
-  function allRRMatches(teams){
-    const matches=[]; const N=teams.length;
-    for(let i=0;i<N;i++) for(let j=i+1;j<N;j++) matches.push([teams[i], teams[j]]);
-    return shuffle(matches);
-  }
- function buildBlocks(matches, numCourts){
-  const remaining = [...matches];
-  const playedCount = {}; // track appearances
-  const countTeam = t => playedCount[t] || 0;
-
-  const inc = (a,b) => {
-    playedCount[a] = (playedCount[a]||0) + 1;
-    playedCount[b] = (playedCount[b]||0) + 1;
-  };
-
-  const blocks = [];
-  while(remaining.length){
-    let block = [];
-    let used = new Set();
-
-    // sort matches: pick ones involving teams with the fewest total games first
-    remaining.sort((m1,m2)=>{
-      const [a1,b1] = m1;
-      const [a2,b2] = m2;
-      return (countTeam(a1)+countTeam(b1)) - (countTeam(a2)+countTeam(b2));
-    });
-
-    for(const [a,b] of remaining){
-      if(block.length >= numCourts) break;
-      if(!used.has(a) && !used.has(b)){
-        block.push([a,b]);
-        used.add(a); used.add(b);
-      }
-    }
-
-    block.forEach(([a,b])=>{
-      inc(a,b);
-      const idx = remaining.findIndex(x=> (x[0]===a && x[1]===b) || (x[0]===b && x[1]===a));
-      if(idx>-1) remaining.splice(idx,1);
-    });
-
-    blocks.push(block);
-  }
-  return blocks;
-}
-
-
-  /********************
-   * Scoring & Tables  
-   ********************/
-  function computeAmericanoTable(players, schedule, results){
-    const table = Object.fromEntries(players.map(p=>[p,{played:0, points_for:0, wins:0, draws:0, losses:0}]));
-    for(const m of schedule){
-      if(!m.is_counted) continue;
-      const mid = m.match_id; if(!results[mid]) continue;
-      const [pa,pb] = results[mid]; const [a1,a2]=m.A; const [b1,b2]=m.B;
-      [a1,a2,b1,b2].forEach(p=> table[p].played++);
-      table[a1].points_for += pa; table[a2].points_for += pa; table[b1].points_for += pb; table[b2].points_for += pb;
-      if(pa>pb){ table[a1].wins++; table[a2].wins++; table[b1].losses++; table[b2].losses++; }
-      else if(pb>pa){ table[b1].wins++; table[b2].wins++; table[a1].losses++; table[a2].losses++; }
-      else { table[a1].draws++; table[a2].draws++; table[b1].draws++; table[b2].draws++; }
-    }
-    return table;
-  }
-  function computeRRTable(teams, matches, results){
-    const table = Object.fromEntries(teams.map(t=>[t,{played:0, points_for:0, wins:0, draws:0, losses:0}]));
-    for(const [a,b] of matches){
-      const key = keyFor(a,b); if(!results[key]) continue;
-      const [pa,pb] = orientScore(a,b, results[key]);
-      table[a].played++; table[b].played++;
-      table[a].points_for += pa; table[b].points_for += pb;
-      if(pa>pb){ table[a].wins++; table[b].losses++; }
-      else if(pb>pa){ table[b].wins++; table[a].losses++; }
-      else { table[a].draws++; table[b].draws++; }
-    }
-    return table;
-  }
-  function orderTable(entries){
-    return entries.sort((A,B)=>{
-      const a=A[1], b=B[1];
-      return (b.points_for - a.points_for) || (b.wins-a.wins) || (b.draws-a.draws) || (a.losses-b.losses) || byName(A[0],B[0]);
-    });
-  }
-
-  /********************
-   * UI — Build Views  
-   ********************/
-  const state = {
-    mode: 'americano',
-    // americano
-    players: [], schedule: [], target: 0, resultsA: {},
-    // rr
-    teams: [], matches: [], blocks: [], resultsT: {},
-    // shared
-    cfg: { timeCapA:12, bufferA:3, totalEventA:120, maxPointsA:12, numCourtsA:2, numPlayers:8, timeCapT:10, bufferT:2, maxPointsT:null, numCourtsT:3, numTeams:8 },
-  };
-
-  function applyLoaded(loaded){
-    if(!loaded || !loaded.mode) return;
-    Object.assign(state, loaded);
-    // patch numbers
-    const num = (v)=> (v===''||v===null||v===undefined)? v : Number(v);
-    state.cfg.timeCapA = num(state.cfg.timeCapA);
-    state.cfg.bufferA  = num(state.cfg.bufferA);
-    state.cfg.totalEventA = num(state.cfg.totalEventA);
-    state.cfg.maxPointsA  = (state.cfg.maxPointsA===''? null : num(state.cfg.maxPointsA));
-    state.cfg.numCourtsA  = num(state.cfg.numCourtsA);
-    state.cfg.numPlayers  = num(state.cfg.numPlayers);
-    state.cfg.timeCapT = num(state.cfg.timeCapT);
-    state.cfg.bufferT  = num(state.cfg.bufferT);
-    state.cfg.maxPointsT= (state.cfg.maxPointsT===''? null : num(state.cfg.maxPointsT));
-    state.cfg.numCourtsT= num(state.cfg.numCourtsT);
-    state.cfg.numTeams  = num(state.cfg.numTeams);
-
-    // restore controls
-    $('#mode').value = state.mode;
-    $('#players').value = (state.players||[]).join("\n");
-    $('#numPlayers').value = state.cfg.numPlayers || 8;
-    $('#numCourtsA').value = state.cfg.numCourtsA || 2;
-    $('#timeCapA').value = state.cfg.timeCapA || 12;
-    $('#bufferA').value  = state.cfg.bufferA || 3;
-    $('#totalEventA').value = state.cfg.totalEventA || 120;
-    $('#maxPointsA').value = (state.cfg.maxPointsA ?? 12);
-
-    $('#teams').value = (state.teams||[]).join("\n");
-    $('#numTeams').value = state.cfg.numTeams || 8;
-    $('#numCourtsT').value = state.cfg.numCourtsT || 3;
-    $('#timeCapT').value = state.cfg.timeCapT || 10;
-    $('#bufferT').value  = state.cfg.bufferT || 2;
-    $('#maxPointsT').value = (state.cfg.maxPointsT ?? '');
-
-    // switch panels
-    toggleModePanels();
-    // rebuild views
-    renderAll();
-  }
-
-  function toggleModePanels(){
-    const m = $('#mode').value;
-    $('#cfg-americano').style.display = (m==='americano')? '' : 'none';
-    $('#cfg-rr').style.display         = (m==='roundrobin')? '' : 'none';
-  }
-
-  function buildSchedule(){
-    const m = state.mode = $('#mode').value;
-    if(m==='americano'){
-      // read cfg
-      state.cfg.timeCapA = asInt('#timeCapA');
-      state.cfg.bufferA  = asInt('#bufferA');
-      state.cfg.totalEventA = asInt('#totalEventA');
-      const mp = $('#maxPointsA').value.trim();
-      state.cfg.maxPointsA = (mp==='')? null : Math.max(0, parseInt(mp,10));
-      state.cfg.numCourtsA = asInt('#numCourtsA');
-      state.cfg.numPlayers = asInt('#numPlayers');
-
-      const players = genPlayers(state.cfg);
-      const blocks = totalBlocksA(state.cfg);
-      const {schedule, target} = buildIndividualAmericano(players, state.cfg.numCourtsA, blocks);
-      state.players = players; state.schedule = schedule; state.target = target; state.resultsA = state.resultsA || {};
-      saveState({ mode: state.mode, players, schedule, target, resultsA: state.resultsA, cfg: state.cfg });
-    } else {
-      state.cfg.timeCapT = asInt('#timeCapT');
-      state.cfg.bufferT  = asInt('#bufferT');
-      const mp = $('#maxPointsT').value.trim();
-      state.cfg.maxPointsT = (mp==='')? null : Math.max(0, parseInt(mp,10));
-      state.cfg.numCourtsT = asInt('#numCourtsT');
-      state.cfg.numTeams   = asInt('#numTeams');
-
-      const teams = genTeams();
-      const matches = allRRMatches(teams);
-      const blocks  = buildBlocks(matches, state.cfg.numCourtsT);
-      state.teams = teams; state.matches = matches; state.blocks = blocks; state.resultsT = state.resultsT || {};
-      saveState({ mode: state.mode, teams, matches, blocks, resultsT: state.resultsT, cfg: state.cfg });
-    }
-    renderAll();
-  }
-
-  function renderAll(){
-    const m = state.mode;
-    renderSummary();
-    renderFixtures();
-    renderTable();
-  }
-
-  function renderSummary(){
-    const k = $('#kpis'); k.innerHTML='';
-    if(state.mode==='americano'){
-      const blocks = totalBlocksA(state.cfg);
-      const per = slotLenA(state.cfg);
-      const used = Math.min(blocks, Math.max(...state.schedule.map(m=>m.block), 0));
-      k.appendChild(kpi('Players', state.players.length));
-      k.appendChild(kpi('Courts', state.cfg.numCourtsA));
-      k.appendChild(kpi('Blocks', blocks));
-      k.appendChild(kpi('Target/Player', state.target));
-      k.appendChild(kpi('Slot', `${per} min`));
-      k.appendChild(kpi('Budget', fmtMM(state.cfg.totalEventA||0)));
-      k.appendChild(kpi('Used', fmtMM(used*per)));
-      $('#timingHint').textContent = 'Individual Americano counts only matches tagged as COUNTING. FUN matches still capture scores but do not affect standings.';
-    } else {
-      const per = (state.cfg.timeCapT||0)+(state.cfg.bufferT||0);
-      k.appendChild(kpi('Teams', state.teams.length));
-      k.appendChild(kpi('Courts', state.cfg.numCourtsT));
-      k.appendChild(kpi('Blocks', state.blocks.length));
-      k.appendChild(kpi('Matches', state.matches.length));
-      k.appendChild(kpi('Slot', per? `${per} min` : '—'));
-      const total = per? state.blocks.length*per : 0;
-      k.appendChild(kpi('Total', per? fmtMM(total) : '—'));
-      $('#timingHint').textContent = 'Round Robin uses all recorded results for standings.';
-    }
-  }
-  function kpi(label, value){
-    const el = document.createElement('div'); el.className='item';
-    el.innerHTML = `<div class="k">${label}</div><div class="v">${value}</div>`;
-    return el;
-  }
-
-  function renderFixtures(){
-    const root = $('#fixtures'); root.innerHTML='';
-    if(state.mode==='americano'){
-      const byBlock = groupBy(state.schedule, m=>m.block);
-      Object.keys(byBlock).sort((a,b)=>a-b).forEach(b=>{
-        const block = document.createElement('div'); block.className='block';
-        block.innerHTML = `<header><div>Block ${b}</div><div class="tag">${state.cfg.maxPointsA==null? 'Free entry' : 'Max '+state.cfg.maxPointsA}</div></header>`;
-        const content = document.createElement('div'); content.className='content';
-        for(const m of byBlock[b].sort((x,y)=>x.court-y.court)){
-          content.appendChild(matchRowA(m));
+          matchesInBlock++;
         }
-        block.appendChild(content); root.appendChild(block);
-      });
-    } else {
-      state.blocks.forEach((blk, idx)=>{
-        const el = document.createElement('div'); el.className='block';
-        el.innerHTML = `<header><div>Block ${idx+1}</div><div class="tag">${state.cfg.maxPointsT==null? 'Free entry' : 'Max '+state.cfg.maxPointsT}</div></header>`;
-        const content = document.createElement('div'); content.className='content';
-        blk.forEach((pair, ci)=> content.appendChild(matchRowT(idx, ci, pair)) );
-        el.appendChild(content); root.appendChild(el);
-      });
-    }
-  }
 
-  function matchRowA(m){
-    const el = document.createElement('div'); el.className='rowline';
-    const tag = m.is_counted? '<span class="pill ok">COUNTING</span>' : '<span class="pill fun">FUN</span>';
-    const a = `${m.A[0]} &amp; ${m.A[1]}`; const b = `${m.B[0]} &amp; ${m.B[1]}`;
-    const mp = state.cfg.maxPointsA;
-    const [pa,pb] = state.resultsA[m.match_id] || ['', ''];
-    el.innerHTML = `
-      <div class="muted">Court ${m.court}</div>
-      <div class="right">${a}</div>
-      <div class="muted small nowrap">vs</div>
-      <div>${b}</div>
-      <div class="flex">
-        <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
-        <span class="muted">–</span>
-        <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
-      </div>
-      <div class="right">${tag}</div>
-    `;
-    const [aIn, bIn] = el.querySelectorAll('input');
-    const onChange = ()=>{
-      let A = valInt(aIn.value), B = valInt(bIn.value);
-      if(mp!=null){
-        // If one side entered and the other empty, auto-fill
-        if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); }
-        if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); }
-        if(validScore(A,B, mp)) { persistA(); renderTable(); return; }
-      } else {
-        if(aIn.value!=='' && bIn.value!==''){ persistA(); renderTable(); return; }
+        if (matchesInBlock === 0) {
+          stoppedBlock = block;
+          break;
+        }
       }
-      persistA(); renderTable();
-    };
-    const persistA = ()=>{
-      const A = aIn.value===''? '' : valInt(aIn.value);
-      const B = bIn.value===''? '' : valInt(bIn.value);
-      if(A==='' || B==='') delete state.resultsA[m.match_id];
-      else state.resultsA[m.match_id] = [A,B];
-      saveState({resultsA: state.resultsA});
-    };
-    aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange);
-    aIn.addEventListener('input', onChange); bIn.addEventListener('input', onChange);
-    return el;
-  }
 
-function matchRowT(bi, ci, [Ateam,Bteam]){
-  const el = document.createElement('div'); el.className='rowline';
-  const key = keyFor(Ateam, Bteam); const mp = state.cfg.maxPointsT;
-  const [pa,pb] = state.resultsT[key] || ['', ''];
-  el.innerHTML = `
-    <div class="muted">Court ${ci+1}</div>
-    <div class="right">${Ateam}</div>
-    <div class="muted small nowrap">vs</div>
-    <div>${Bteam}</div>
-    <div class="flex">
-      <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
-      <span class="muted">–</span>
-      <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
-    </div>
-    <div class="right"><button class="ghost small" type="button">Draw</button></div>
-  `;
-  const [aIn,bIn] = el.querySelectorAll('input');
-  const drawBtn = el.querySelector('button');
+      let note = '';
+      if (schedule.length === 0) {
+        note = 'No fair non-repeat matches could be created. Add more players or reduce the number of courts/rounds.';
+      } else if (stoppedBlock) {
+        note = `Schedule stopped before Round ${stoppedBlock} because no fair non-repeat matches were available. No fun matches were added.`;
+      } else {
+        note = 'Schedule built using only counted non-repeat matches.';
+      }
 
-  // Draw helper (only valid if max is even)
-  drawBtn.addEventListener('click', ()=>{
-    if(mp!=null && mp%2===0){
-      aIn.value = mp/2; bIn.value = mp/2;
-      persistT(); renderTable();
+      return { schedule, target, note };
     }
-  });
 
-  const onChange = ()=>{
-    let A = valInt(aIn.value), B = valInt(bIn.value);
-    if(mp!=null){
-      // Autofill opposite side to sum to max points
-      if(aIn === document.activeElement && aIn.value!=='' && (bIn.value==='')){ B = mp - A; bIn.value = String(B); }
-      if(bIn === document.activeElement && bIn.value!=='' && (aIn.value==='')){ A = mp - B; aIn.value = String(A); }
-      if(validScore(A,B, mp)) { persistT(); renderTable(); return; }
-    } else {
-      if(aIn.value!=='' && bIn.value!==''){ persistT(); renderTable(); return; }
+    function allRRMatches(teams) {
+      const matches = [];
+      for (let i = 0; i < teams.length; i++) {
+        for (let j = i + 1; j < teams.length; j++) {
+          matches.push([teams[i], teams[j]]);
+        }
+      }
+      return shuffle(matches);
     }
-    persistT(); renderTable();
-  };
 
-  // Store scores in the key’s **sorted orientation** so retrieval is consistent.
-  const persistT = ()=>{
-    const Aval = aIn.value===''? '' : valInt(aIn.value);
-    const Bval = bIn.value===''? '' : valInt(bIn.value);
-    if(Aval==='' || Bval===''){
-      delete state.resultsT[key];
-    } else {
-      const [x,y] = JSON.parse(key); // sorted team names for this key
-      // If display order matches sorted order, keep [A,B]; otherwise flip to [B,A]
-      state.resultsT[key] = (Ateam===x && Bteam===y) ? [Aval, Bval] : [Bval, Aval];
+    function buildBlocks(matches, numCourts) {
+      const remaining = [...matches];
+      const playedCount = {};
+      const countTeam = t => playedCount[t] || 0;
+
+      function inc(a, b) {
+        playedCount[a] = (playedCount[a] || 0) + 1;
+        playedCount[b] = (playedCount[b] || 0) + 1;
+      }
+
+      const blocks = [];
+
+      while (remaining.length) {
+        const block = [];
+        const used = new Set();
+
+        remaining.sort((m1, m2) => {
+          const [a1, b1] = m1;
+          const [a2, b2] = m2;
+          return (countTeam(a1) + countTeam(b1)) - (countTeam(a2) + countTeam(b2));
+        });
+
+        for (const [a, b] of remaining) {
+          if (block.length >= numCourts) break;
+          if (!used.has(a) && !used.has(b)) {
+            block.push([a, b]);
+            used.add(a);
+            used.add(b);
+          }
+        }
+
+        if (!block.length) break;
+
+        block.forEach(([a, b]) => {
+          inc(a, b);
+          const idx = remaining.findIndex(x => (x[0] === a && x[1] === b) || (x[0] === b && x[1] === a));
+          if (idx > -1) remaining.splice(idx, 1);
+        });
+
+        blocks.push(block);
+      }
+
+      return blocks;
     }
-    saveState({resultsT: state.resultsT});
-  };
 
-  aIn.addEventListener('change', onChange); bIn.addEventListener('change', onChange);
-  aIn.addEventListener('input', onChange);  bIn.addEventListener('input', onChange);
-  return el;
-}
-
-
-  function renderTable(){
-    const tbl = $('#table');
-    if(state.mode==='americano'){
-      const table = computeAmericanoTable(state.players, state.schedule, state.resultsA);
-      const rows = orderTable(Object.entries(table));
-      tbl.innerHTML = `<tr><th>Player</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>` +
-        rows.map(([name,r])=> `<tr><td>${name}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join('');
-    } else {
-      const table = computeRRTable(state.teams, state.matches, state.resultsT);
-      const rows = orderTable(Object.entries(table));
-      tbl.innerHTML = `<tr><th>Team</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>` +
-        rows.map(([name,r])=> `<tr><td>${name}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join('');
+    function keyFor(a, b) {
+      return JSON.stringify([a, b].sort());
     }
-  }
 
-  /********************
-   * Helpers (scores)  
-   ********************/
-  function keyFor(a,b){ return JSON.stringify([a,b].sort()); }
-  function orientScore(a,b, arr){
-    const [x,y] = JSON.parse(keyFor(a,b));
-    // arr is stored in sorted orientation [xScore, yScore]
-    if(a===x && b===y) return arr;
-    return [arr[1], arr[0]];
-  }
-  function valInt(v){ const n = parseInt(v,10); return Number.isFinite(n)? n : 0; }
-  function validScore(a,b, mp){ return Number.isFinite(a) && Number.isFinite(b) && a>=0 && b>=0 && (mp==null || (a<=mp && b<=mp && a+b===mp)); }
-  function groupBy(arr, fn){ return arr.reduce((acc,x)=>{ const k=fn(x); (acc[k]=acc[k]||[]).push(x); return acc; }, {}); }
-  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
-  function asInt(sel){ return Math.max(0, parseInt($(sel).value||'0',10)); }
-
-  /********************
-   * Buttons & events  
-   ********************/
-  $('#mode').addEventListener('change', ()=>{ toggleModePanels(); saveState({mode: $('#mode').value}); renderAll(); });
-  $('#btn-build').addEventListener('click', buildSchedule);
-  $('#btn-clear-scores').addEventListener('click', ()=>{
-    if(state.mode==='americano'){ state.resultsA = {}; saveState({resultsA:{}}); }
-    else { state.resultsT = {}; saveState({resultsT:{}}); }
-    renderTable();
-  });
-  $('#btn-new').addEventListener('click', ()=>{
-    if(confirm('Start a brand new event? This clears current schedule, names and scores.')){
-      clearState(); location.reload();
+    function orientScore(a, b, arr) {
+      const [x] = JSON.parse(keyFor(a, b));
+      return a === x ? arr : [arr[1], arr[0]];
     }
-  });
 
+    function computeAmericanoTable(players, schedule, results) {
+      const table = Object.fromEntries(players.map(p => [p, { played: 0, points_for: 0, wins: 0, draws: 0, losses: 0 }]));
 
-  // Auto-save config inputs
-  $$('#config input, #config textarea').forEach(el=>{
-    el.addEventListener('change', ()=> collectAndSaveCfg());
-    el.addEventListener('input', ()=> collectAndSaveCfg());
-  });
-  function collectAndSaveCfg(){
-    const cfg = {
-      timeCapA: asInt('#timeCapA'), bufferA: asInt('#bufferA'), totalEventA: asInt('#totalEventA'),
-      maxPointsA: (()=>{
-        const v=$('#maxPointsA').value.trim(); return v===''? null : Math.max(0, parseInt(v,10)); })(),
-      numCourtsA: asInt('#numCourtsA'), numPlayers: asInt('#numPlayers'),
-      timeCapT: asInt('#timeCapT'), bufferT: asInt('#bufferT'),
-      maxPointsT: (()=>{
-        const v=$('#maxPointsT').value.trim(); return v===''? null : Math.max(0, parseInt(v,10)); })(),
-      numCourtsT: asInt('#numCourtsT'), numTeams: asInt('#numTeams')
-    };
-    state.cfg = cfg;
-    // Also capture textareas
-    const playersTxt = $('#players').value||''; const teamsTxt = $('#teams').value||'';
-    const players = playersTxt.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    const teams   = teamsTxt.split(/\n+/).map(s=>s.trim()).filter(Boolean);
-    saveState({ cfg, players, teams });
-  }
+      for (const m of schedule) {
+        if (!m.is_counted) continue;
+        if (!results[m.match_id]) continue;
 
-  // Init
-  applyLoaded(loadState());
-  if(!state.mode){ saveState({mode:'americano'}); $('#mode').value='americano'; toggleModePanels(); }
+        const [pa, pb] = results[m.match_id];
+        const [a1, a2] = m.A;
+        const [b1, b2] = m.B;
+
+        [a1, a2, b1, b2].forEach(p => table[p].played++);
+        table[a1].points_for += pa;
+        table[a2].points_for += pa;
+        table[b1].points_for += pb;
+        table[b2].points_for += pb;
+
+        if (pa > pb) {
+          table[a1].wins++;
+          table[a2].wins++;
+          table[b1].losses++;
+          table[b2].losses++;
+        } else if (pb > pa) {
+          table[b1].wins++;
+          table[b2].wins++;
+          table[a1].losses++;
+          table[a2].losses++;
+        } else {
+          table[a1].draws++;
+          table[a2].draws++;
+          table[b1].draws++;
+          table[b2].draws++;
+        }
+      }
+
+      return table;
+    }
+
+    function computeRRTable(teams, matches, results) {
+      const table = Object.fromEntries(teams.map(t => [t, { played: 0, points_for: 0, wins: 0, draws: 0, losses: 0 }]));
+
+      for (const [a, b] of matches) {
+        const key = keyFor(a, b);
+        if (!results[key]) continue;
+
+        const [pa, pb] = orientScore(a, b, results[key]);
+        table[a].played++;
+        table[b].played++;
+        table[a].points_for += pa;
+        table[b].points_for += pb;
+
+        if (pa > pb) {
+          table[a].wins++;
+          table[b].losses++;
+        } else if (pb > pa) {
+          table[b].wins++;
+          table[a].losses++;
+        } else {
+          table[a].draws++;
+          table[b].draws++;
+        }
+      }
+
+      return table;
+    }
+
+    function orderTable(entries) {
+      return entries.sort((A, B) => {
+        const a = A[1];
+        const b = B[1];
+        return (b.points_for - a.points_for)
+          || (b.wins - a.wins)
+          || (b.draws - a.draws)
+          || (a.losses - b.losses)
+          || byName(A[0], B[0]);
+      });
+    }
+
+    function collectAndSaveCfg() {
+      state.cfg = {
+        timeCapA: asInt('#timeCapA', 12),
+        bufferA: asInt('#bufferA', 3),
+        totalEventA: asInt('#totalEventA', 120),
+        maxPointsA: readOptionalNumber('#maxPointsA'),
+        numCourtsA: Math.max(1, asInt('#numCourtsA', 2)),
+        numPlayers: Math.max(4, asInt('#numPlayers', 8)),
+        timeCapT: asInt('#timeCapT', 10),
+        bufferT: asInt('#bufferT', 2),
+        maxPointsT: readOptionalNumber('#maxPointsT'),
+        numCourtsT: Math.max(1, asInt('#numCourtsT', 3)),
+        numTeams: Math.max(2, asInt('#numTeams', 8))
+      };
+
+      const players = ($('#players').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+      const teams = ($('#teams').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+      saveState({ cfg: state.cfg, players, teams, masterOpen: state.masterOpen, mode: state.mode });
+    }
+
+    function readOptionalNumber(sel) {
+      const v = $(sel).value.trim();
+      if (v === '') return null;
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? Math.max(0, n) : null;
+    }
+
+    function buildSchedule() {
+      state.mode = $('#mode').value;
+      collectCurrentCfgNoSave();
+      state.scheduleNote = '';
+
+      if (state.mode === 'americano') {
+        const players = genPlayers();
+        const blocks = totalBlocksA(state.cfg);
+        const result = buildIndividualAmericano(players, state.cfg.numCourtsA, blocks);
+
+        state.players = players;
+        state.schedule = result.schedule;
+        state.target = result.target;
+        state.resultsA = {};
+        state.scheduleNote = result.note;
+
+        saveState({
+          mode: state.mode,
+          players: state.players,
+          schedule: state.schedule,
+          target: state.target,
+          resultsA: {},
+          scheduleNote: state.scheduleNote,
+          cfg: state.cfg,
+          masterOpen: state.masterOpen
+        });
+      } else {
+        const teams = genTeams();
+        const matches = allRRMatches(teams);
+        const blocks = buildBlocks(matches, state.cfg.numCourtsT);
+
+        state.teams = teams;
+        state.matches = matches;
+        state.blocks = blocks;
+        state.resultsT = {};
+        state.scheduleNote = 'Schedule built. Scores were reset.';
+
+        saveState({
+          mode: state.mode,
+          teams: state.teams,
+          matches: state.matches,
+          blocks: state.blocks,
+          resultsT: {},
+          scheduleNote: state.scheduleNote,
+          cfg: state.cfg,
+          masterOpen: state.masterOpen
+        });
+      }
+
+      renderAll();
+    }
+
+    function collectCurrentCfgNoSave() {
+      state.cfg.timeCapA = asInt('#timeCapA', 12);
+      state.cfg.bufferA = asInt('#bufferA', 3);
+      state.cfg.totalEventA = asInt('#totalEventA', 120);
+      state.cfg.maxPointsA = readOptionalNumber('#maxPointsA');
+      state.cfg.numCourtsA = Math.max(1, asInt('#numCourtsA', 2));
+      state.cfg.numPlayers = Math.max(4, asInt('#numPlayers', 8));
+      state.cfg.timeCapT = asInt('#timeCapT', 10);
+      state.cfg.bufferT = asInt('#bufferT', 2);
+      state.cfg.maxPointsT = readOptionalNumber('#maxPointsT');
+      state.cfg.numCourtsT = Math.max(1, asInt('#numCourtsT', 3));
+      state.cfg.numTeams = Math.max(2, asInt('#numTeams', 8));
+    }
+
+    function updateMasterSettingsUI() {
+      $('#master-americano').classList.toggle('open', state.masterOpen && state.mode === 'americano');
+      $('#master-rr').classList.toggle('open', state.masterOpen && state.mode === 'roundrobin');
+      $('#btn-master').textContent = state.masterOpen ? 'Hide Master Settings' : 'Show Master Settings';
+    }
+
+    function toggleModePanels() {
+      state.mode = $('#mode').value;
+      $('#cfg-americano').style.display = state.mode === 'americano' ? '' : 'none';
+      $('#cfg-rr').style.display = state.mode === 'roundrobin' ? '' : 'none';
+      updateMasterSettingsUI();
+    }
+
+    function renderAll() {
+      renderSummary();
+      renderFixtures();
+      renderTable();
+    }
+
+    function renderSummary() {
+      const k = $('#kpis');
+      const notice = $('#scheduleNotice');
+      k.innerHTML = '';
+
+      if (state.scheduleNote) {
+        notice.style.display = '';
+        notice.className = /stopped|No fair|Not enough/i.test(state.scheduleNote) ? 'notice warn' : 'notice';
+        notice.textContent = state.scheduleNote;
+      } else {
+        notice.style.display = 'none';
+        notice.textContent = '';
+      }
+
+      if (state.mode === 'americano') {
+        const roundsUsed = state.schedule.length ? Math.max(...state.schedule.map(m => m.block)) : 0;
+
+        k.appendChild(kpi('Players', state.players.length));
+        k.appendChild(kpi('Courts', state.cfg.numCourtsA));
+        k.appendChild(kpi('Rounds', roundsUsed));
+        k.appendChild(kpi('Matches', state.schedule.length));
+
+        if (state.masterOpen) {
+          const blocks = totalBlocksA(state.cfg);
+          const slot = slotLenA(state.cfg);
+          k.appendChild(kpi('Possible Rounds', blocks));
+          k.appendChild(kpi('Target/Player', state.target));
+          k.appendChild(kpi('Slot', `${slot} min`));
+          k.appendChild(kpi('Budget', fmtMM(state.cfg.totalEventA || 0)));
+        }
+
+        $('#timingHint').textContent = state.masterOpen
+          ? 'Master settings shown. Americano creates counted matches only and stops before forcing repeats.'
+          : 'Americano creates counted matches only. It will stop instead of forcing repeat games.';
+      } else {
+        const slot = (state.cfg.timeCapT || 0) + (state.cfg.bufferT || 0);
+
+        k.appendChild(kpi('Teams', state.teams.length));
+        k.appendChild(kpi('Courts', state.cfg.numCourtsT));
+        k.appendChild(kpi('Rounds', state.blocks.length));
+        k.appendChild(kpi('Matches', state.matches.length));
+
+        if (state.masterOpen) {
+          k.appendChild(kpi('Slot', slot ? `${slot} min` : '—'));
+          k.appendChild(kpi('Total', slot ? fmtMM(state.blocks.length * slot) : '—'));
+        }
+
+        $('#timingHint').textContent = state.masterOpen
+          ? 'Master settings shown. Round Robin creates every team matchup once.'
+          : 'Round Robin creates every team matchup once.';
+      }
+    }
+
+    function kpi(label, value) {
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `<div class="k">${escapeHtml(label)}</div><div class="v">${escapeHtml(String(value))}</div>`;
+      return el;
+    }
+
+    function renderFixtures() {
+      const root = $('#fixtures');
+      root.innerHTML = '';
+
+      if (state.mode === 'americano') {
+        if (!state.schedule.length) {
+          root.innerHTML = '<div class="empty">No Americano fixtures yet. Add players and click Build Schedule.</div>';
+          return;
+        }
+
+        const byBlock = groupBy(state.schedule, m => m.block);
+
+        Object.keys(byBlock).sort((a, b) => a - b).forEach(blockNo => {
+          const block = document.createElement('div');
+          block.className = 'block';
+          block.innerHTML = `
+            <div class="block-header">
+              <div>Round ${blockNo}</div>
+              <div class="tag">${state.cfg.maxPointsA == null ? 'Free entry' : 'Max ' + state.cfg.maxPointsA}</div>
+            </div>
+          `;
+
+          const content = document.createElement('div');
+          content.className = 'content';
+
+          byBlock[blockNo]
+            .sort((x, y) => x.court - y.court)
+            .forEach(m => content.appendChild(matchRowA(m)));
+
+          block.appendChild(content);
+          root.appendChild(block);
+        });
+      } else {
+        if (!state.blocks.length) {
+          root.innerHTML = '<div class="empty">No Round Robin fixtures yet. Add teams and click Build Schedule.</div>';
+          return;
+        }
+
+        state.blocks.forEach((blk, idx) => {
+          const block = document.createElement('div');
+          block.className = 'block';
+          block.innerHTML = `
+            <div class="block-header">
+              <div>Round ${idx + 1}</div>
+              <div class="tag">${state.cfg.maxPointsT == null ? 'Free entry' : 'Max ' + state.cfg.maxPointsT}</div>
+            </div>
+          `;
+
+          const content = document.createElement('div');
+          content.className = 'content';
+          blk.forEach((pair, ci) => content.appendChild(matchRowT(ci, pair)));
+          block.appendChild(content);
+          root.appendChild(block);
+        });
+      }
+    }
+
+    function matchRowA(m) {
+      const el = document.createElement('div');
+      el.className = 'rowline';
+
+      const [pa, pb] = state.resultsA[m.match_id] || ['', ''];
+      const mp = state.cfg.maxPointsA;
+
+      el.innerHTML = `
+        <div class="muted">Court ${m.court}</div>
+        <div class="right">${escapeHtml(m.A[0])} &amp; ${escapeHtml(m.A[1])}</div>
+        <div class="muted small nowrap">vs</div>
+        <div>${escapeHtml(m.B[0])} &amp; ${escapeHtml(m.B[1])}</div>
+        <div class="flex">
+          <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
+          <span class="muted">-</span>
+          <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
+        </div>
+        <div class="right"><span class="pill ok">COUNTING</span></div>
+      `;
+
+      const [aIn, bIn] = el.querySelectorAll('input');
+
+      function persist() {
+        const A = aIn.value === '' ? '' : valInt(aIn.value);
+        const B = bIn.value === '' ? '' : valInt(bIn.value);
+
+        if (A === '' || B === '') delete state.resultsA[m.match_id];
+        else state.resultsA[m.match_id] = [A, B];
+
+        saveState({ resultsA: state.resultsA });
+      }
+
+      function onChange() {
+        let A = valInt(aIn.value);
+        let B = valInt(bIn.value);
+
+        if (mp != null) {
+          if (aIn === document.activeElement && aIn.value !== '' && bIn.value === '') {
+            B = mp - A;
+            bIn.value = String(B);
+          }
+
+          if (bIn === document.activeElement && bIn.value !== '' && aIn.value === '') {
+            A = mp - B;
+            aIn.value = String(A);
+          }
+        }
+
+        persist();
+        renderTable();
+      }
+
+      aIn.addEventListener('input', onChange);
+      bIn.addEventListener('input', onChange);
+      aIn.addEventListener('change', onChange);
+      bIn.addEventListener('change', onChange);
+
+      return el;
+    }
+
+    function matchRowT(courtIndex, pair) {
+      const [Ateam, Bteam] = pair;
+      const el = document.createElement('div');
+      el.className = 'rowline';
+
+      const key = keyFor(Ateam, Bteam);
+      const mp = state.cfg.maxPointsT;
+      const [pa, pb] = orientScore(Ateam, Bteam, state.resultsT[key] || ['', '']);
+
+      el.innerHTML = `
+        <div class="muted">Court ${courtIndex + 1}</div>
+        <div class="right">${escapeHtml(Ateam)}</div>
+        <div class="muted small nowrap">vs</div>
+        <div>${escapeHtml(Bteam)}</div>
+        <div class="flex">
+          <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
+          <span class="muted">-</span>
+          <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
+        </div>
+        <div class="right"><button class="ghost small" type="button">Draw</button></div>
+      `;
+
+      const [aIn, bIn] = el.querySelectorAll('input');
+      const drawBtn = el.querySelector('button');
+
+      function persist() {
+        const Aval = aIn.value === '' ? '' : valInt(aIn.value);
+        const Bval = bIn.value === '' ? '' : valInt(bIn.value);
+
+        if (Aval === '' || Bval === '') {
+          delete state.resultsT[key];
+        } else {
+          const [x] = JSON.parse(key);
+          state.resultsT[key] = Ateam === x ? [Aval, Bval] : [Bval, Aval];
+        }
+
+        saveState({ resultsT: state.resultsT });
+      }
+
+      function onChange() {
+        let A = valInt(aIn.value);
+        let B = valInt(bIn.value);
+
+        if (mp != null) {
+          if (aIn === document.activeElement && aIn.value !== '' && bIn.value === '') {
+            B = mp - A;
+            bIn.value = String(B);
+          }
+
+          if (bIn === document.activeElement && bIn.value !== '' && aIn.value === '') {
+            A = mp - B;
+            aIn.value = String(A);
+          }
+        }
+
+        persist();
+        renderTable();
+      }
+
+      drawBtn.addEventListener('click', () => {
+        if (mp != null && mp % 2 === 0) {
+          aIn.value = String(mp / 2);
+          bIn.value = String(mp / 2);
+        } else {
+          aIn.value = '0';
+          bIn.value = '0';
+        }
+        persist();
+        renderTable();
+      });
+
+      aIn.addEventListener('input', onChange);
+      bIn.addEventListener('input', onChange);
+      aIn.addEventListener('change', onChange);
+      bIn.addEventListener('change', onChange);
+
+      return el;
+    }
+
+    function renderTable() {
+      const tbl = $('#table');
+
+      if (state.mode === 'americano') {
+        if (!state.players.length) {
+          tbl.innerHTML = '<tr><td class="muted">No players yet.</td></tr>';
+          return;
+        }
+
+        const table = computeAmericanoTable(state.players, state.schedule, state.resultsA);
+        const rows = orderTable(Object.entries(table));
+
+        tbl.innerHTML = `
+          <tr>
+            <th>Player</th>
+            <th class="right">P</th>
+            <th class="right">Pts</th>
+            <th class="right">W</th>
+            <th class="right">D</th>
+            <th class="right">L</th>
+          </tr>
+          ${rows.map(([name, r]) => `
+            <tr>
+              <td>${escapeHtml(name)}</td>
+              <td class="right">${r.played}</td>
+              <td class="right">${r.points_for}</td>
+              <td class="right">${r.wins}</td>
+              <td class="right">${r.draws}</td>
+              <td class="right">${r.losses}</td>
+            </tr>
+          `).join('')}
+        `;
+      } else {
+        if (!state.teams.length) {
+          tbl.innerHTML = '<tr><td class="muted">No teams yet.</td></tr>';
+          return;
+        }
+
+        const table = computeRRTable(state.teams, state.matches, state.resultsT);
+        const rows = orderTable(Object.entries(table));
+
+        tbl.innerHTML = `
+          <tr>
+            <th>Team</th>
+            <th class="right">P</th>
+            <th class="right">Pts</th>
+            <th class="right">W</th>
+            <th class="right">D</th>
+            <th class="right">L</th>
+          </tr>
+          ${rows.map(([name, r]) => `
+            <tr>
+              <td>${escapeHtml(name)}</td>
+              <td class="right">${r.played}</td>
+              <td class="right">${r.points_for}</td>
+              <td class="right">${r.wins}</td>
+              <td class="right">${r.draws}</td>
+              <td class="right">${r.losses}</td>
+            </tr>
+          `).join('')}
+        `;
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function applyLoaded(loaded) {
+      if (!loaded || !Object.keys(loaded).length) {
+        $('#mode').value = state.mode;
+        toggleModePanels();
+        renderAll();
+        return;
+      }
+
+      Object.assign(state, loaded);
+      state.cfg = { ...state.cfg, ...(loaded.cfg || {}) };
+      state.scheduleNote = state.scheduleNote || '';
+      state.masterOpen = !!state.masterOpen;
+      state.resultsA = state.resultsA || {};
+      state.resultsT = state.resultsT || {};
+      state.players = state.players || [];
+      state.teams = state.teams || [];
+      state.schedule = state.schedule || [];
+      state.matches = state.matches || [];
+      state.blocks = state.blocks || [];
+
+      $('#mode').value = state.mode || 'americano';
+      $('#players').value = (state.players || []).join('\n');
+      $('#teams').value = (state.teams || []).join('\n');
+
+      $('#numPlayers').value = state.cfg.numPlayers ?? 8;
+      $('#numCourtsA').value = state.cfg.numCourtsA ?? 2;
+      $('#timeCapA').value = state.cfg.timeCapA ?? 12;
+      $('#bufferA').value = state.cfg.bufferA ?? 3;
+      $('#totalEventA').value = state.cfg.totalEventA ?? 120;
+      $('#maxPointsA').value = state.cfg.maxPointsA ?? 12;
+
+      $('#numTeams').value = state.cfg.numTeams ?? 8;
+      $('#numCourtsT').value = state.cfg.numCourtsT ?? 3;
+      $('#timeCapT').value = state.cfg.timeCapT ?? 10;
+      $('#bufferT').value = state.cfg.bufferT ?? 2;
+      $('#maxPointsT').value = state.cfg.maxPointsT ?? '';
+
+      toggleModePanels();
+      renderAll();
+    }
+
+    $('#mode').addEventListener('change', () => {
+      state.mode = $('#mode').value;
+      toggleModePanels();
+      saveState({ mode: state.mode, masterOpen: state.masterOpen });
+      renderAll();
+    });
+
+    $('#btn-build').addEventListener('click', buildSchedule);
+
+    $('#btn-clear-scores').addEventListener('click', () => {
+      if (state.mode === 'americano') {
+        state.resultsA = {};
+        saveState({ resultsA: {} });
+      } else {
+        state.resultsT = {};
+        saveState({ resultsT: {} });
+      }
+      renderTable();
+    });
+
+    $('#btn-master').addEventListener('click', () => {
+      state.masterOpen = !state.masterOpen;
+      saveState({ masterOpen: state.masterOpen });
+      updateMasterSettingsUI();
+      renderSummary();
+    });
+
+    $('#btn-new').addEventListener('click', () => {
+      if (confirm('Start a brand new event? This clears names, fixtures, scores and standings.')) {
+        clearState();
+        location.reload();
+      }
+    });
+
+    $$('#config input, #config textarea').forEach(el => {
+      el.addEventListener('change', collectAndSaveCfg);
+      el.addEventListener('input', collectAndSaveCfg);
+    });
+
+    applyLoaded(loadState());
   </script>
 </body>
 </html>
+"""
+
+out = Path("pringle_padel_logic_rewrite.html")
+out.write_text(HTML, encoding="utf-8")
+print(f"Created {out.resolve()}")
