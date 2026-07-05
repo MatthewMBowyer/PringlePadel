@@ -1,6 +1,6 @@
 from pathlib import Path
 
-HTML = r"""<!DOCTYPE html>
+HTML = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -55,13 +55,8 @@ HTML = r"""<!DOCTYPE html>
     .flex { display: flex; gap: 8px; align-items: center; }
     .grid { display: grid; gap: 14px; }
     .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
-    select,
-    input[type="number"],
-    input[type="text"],
-    textarea,
-    button {
+    select, input[type="number"], input[type="text"], textarea, button {
       background: var(--panel);
       color: var(--text);
       border: 1px solid var(--border);
@@ -75,15 +70,9 @@ HTML = r"""<!DOCTYPE html>
     button.primary { background: linear-gradient(180deg, #3b82f6, #2563eb); border-color: #1d4ed8; }
     button.ghost { background: transparent; }
     button.warn { background: linear-gradient(180deg, #f59e0b, #d97706); border-color: #b45309; }
-    button.danger { background: linear-gradient(180deg, #ef4444, #dc2626); border-color: #b91c1c; }
     button:disabled { opacity: .5; cursor: not-allowed; }
 
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-    }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 16px; }
 
     .pill {
       padding: 4px 8px;
@@ -116,15 +105,7 @@ HTML = r"""<!DOCTYPE html>
     .table th { color: var(--muted); font-weight: 700; }
 
     .block { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
-    .block > .block-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 12px;
-      background: #0b0e13;
-      border-bottom: 1px solid var(--border);
-    }
-
+    .block > .block-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #0b0e13; border-bottom: 1px solid var(--border); }
     .block .content { padding: 8px 12px; }
 
     .rowline {
@@ -139,20 +120,9 @@ HTML = r"""<!DOCTYPE html>
     .rowline:last-child { border-bottom: 0; }
     .rowline > * { min-width: 0; }
 
-    .score {
-      width: 90px;
-      padding: 6px 8px;
-      font-size: 16px;
-      text-align: center;
-    }
+    .score { width: 90px; padding: 6px 8px; font-size: 16px; text-align: center; }
 
-    .master-settings {
-      display: none;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
+    .master-settings { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
     .master-settings.open { display: grid; }
     .simple-settings { margin-top: 12px; }
 
@@ -166,40 +136,22 @@ HTML = r"""<!DOCTYPE html>
       font-size: 13px;
     }
 
-    .notice.warn {
-      background: rgba(245, 158, 11, 0.10);
-      border-color: #78350f;
-      color: #fde68a;
-    }
-
-    .empty {
-      color: var(--muted);
-      border: 1px dashed var(--border);
-      border-radius: 14px;
-      padding: 14px;
-      background: rgba(11, 14, 19, 0.35);
-    }
-
+    .notice.warn { background: rgba(245, 158, 11, 0.10); border-color: #78350f; color: #fde68a; }
+    .empty { color: var(--muted); border: 1px dashed var(--border); border-radius: 14px; padding: 14px; background: rgba(11, 14, 19, 0.35); }
     .footer { color: var(--muted); font-size: 12px; padding-top: 16px; }
 
     @media (max-width: 900px) {
       .wrap { padding: 14px 12px; }
-      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      .grid.two { grid-template-columns: 1fr; }
       select, input[type="number"], input[type="text"], textarea, button { width: 100%; }
       h1 { font-size: 20px; line-height: 1.2; }
       .kpi .item { flex: 1 1 45%; }
       .table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
       .rowline {
         grid-template-columns: 1fr minmax(180px, 1fr);
-        grid-template-areas:
-          "court tag"
-          "a     a"
-          "vs    vs"
-          "b     score";
+        grid-template-areas: "court tag" "a a" "vs vs" "b score";
         gap: 6px 10px;
       }
-
       .rowline > :nth-child(1) { grid-area: court; }
       .rowline > :nth-child(2) { grid-area: a; text-align: left; }
       .rowline > :nth-child(3) { grid-area: vs; text-align: left; }
@@ -253,14 +205,12 @@ HTML = r"""<!DOCTYPE html>
           <label class="small">Player Names</label>
           <textarea id="players" placeholder="Player 1&#10;Player 2&#10;Player 3 ..."></textarea>
         </div>
-
         <div>
           <div class="grid two simple-settings">
             <label>Courts
               <input id="numCourtsA" type="number" min="1" step="1" value="2" />
             </label>
           </div>
-
           <div id="master-americano" class="grid two master-settings">
             <label>Auto Player Count
               <input id="numPlayers" type="number" min="4" step="1" value="8" />
@@ -286,14 +236,12 @@ HTML = r"""<!DOCTYPE html>
           <label class="small">Team Names</label>
           <textarea id="teams" placeholder="Team 1&#10;Team 2&#10;Team 3 ..."></textarea>
         </div>
-
         <div>
           <div class="grid two simple-settings">
             <label>Courts
               <input id="numCourtsT" type="number" min="1" step="1" value="3" />
             </label>
           </div>
-
           <div id="master-rr" class="grid two master-settings">
             <label>Auto Team Count
               <input id="numTeams" type="number" min="2" step="1" value="8" />
@@ -315,9 +263,8 @@ HTML = r"""<!DOCTYPE html>
         <button id="btn-build" class="primary" type="button">Build Schedule</button>
         <button id="btn-clear-scores" class="ghost" type="button">Clear Scores</button>
         <button id="btn-master" class="ghost" type="button">Show Master Settings</button>
-        <span class="hint">Building a new schedule resets scores automatically.</span>
+        <span class="hint">Basic Americano builds the full partner rotation. Scores reset when a new schedule is built.</span>
       </div>
-
       <div id="scheduleNotice" class="notice" style="display:none;"></div>
     </section>
 
@@ -343,8 +290,7 @@ HTML = r"""<!DOCTYPE html>
   <script>
     const $ = (s, r = document) => r.querySelector(s);
     const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-
-    const STORE_KEY = 'pringle-padel-scheduler-v2';
+    const STORE_KEY = 'pringle-padel-scheduler-v3-fixed';
 
     const state = {
       mode: 'americano',
@@ -388,16 +334,11 @@ HTML = r"""<!DOCTYPE html>
     }
 
     function loadState() {
-      try {
-        return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
-      } catch {
-        return {};
-      }
+      try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+      catch { return {}; }
     }
 
-    function clearState() {
-      localStorage.removeItem(STORE_KEY);
-    }
+    function clearState() { localStorage.removeItem(STORE_KEY); }
 
     function setStatus(text) {
       $('#status').textContent = text;
@@ -417,12 +358,11 @@ HTML = r"""<!DOCTYPE html>
       return Number.isFinite(n) ? n : 0;
     }
 
-    function validScore(a, b, maxPoints) {
-      return Number.isFinite(a)
-        && Number.isFinite(b)
-        && a >= 0
-        && b >= 0
-        && (maxPoints == null || (a <= maxPoints && b <= maxPoints && a + b === maxPoints));
+    function readOptionalNumber(sel) {
+      const v = $(sel).value.trim();
+      if (v === '') return null;
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? Math.max(0, n) : null;
     }
 
     function groupBy(arr, fn) {
@@ -441,13 +381,9 @@ HTML = r"""<!DOCTYPE html>
       return arr;
     }
 
-    function byName(a, b) {
-      return a.localeCompare(b);
-    }
+    function byName(a, b) { return a.localeCompare(b); }
 
-    function slotLenA(cfg) {
-      return (cfg.timeCapA || 0) + (cfg.bufferA || 0);
-    }
+    function slotLenA(cfg) { return (cfg.timeCapA || 0) + (cfg.bufferA || 0); }
 
     function totalBlocksA(cfg) {
       const slot = slotLenA(cfg);
@@ -455,186 +391,133 @@ HTML = r"""<!DOCTYPE html>
     }
 
     function genPlayers() {
-      const raw = ($('#players').value || '')
-        .split(/\n+/)
-        .map(s => s.trim())
-        .filter(Boolean);
-
+      const raw = ($('#players').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
       if (raw.length) return [...raw];
-
       const n = Math.max(4, asInt('#numPlayers', 8));
       return Array.from({ length: n }, (_, i) => `Player ${i + 1}`);
     }
 
     function genTeams() {
-      const raw = ($('#teams').value || '')
-        .split(/\n+/)
-        .map(s => s.trim())
-        .filter(Boolean);
-
+      const raw = ($('#teams').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
       if (raw.length) return [...raw];
-
       const n = Math.max(2, asInt('#numTeams', 8));
       return Array.from({ length: n }, (_, i) => `Team ${i + 1}`);
     }
 
-    function buildIndividualAmericano(players, nCourts, blocks) {
-      const P = players.length;
+    function buildIndividualAmericano(players, nCourts, roundLimit = null) {
+      const cleanPlayers = [...players];
 
-      if (P < 4 || nCourts < 1 || blocks < 1) {
-        return {
-          schedule: [],
-          target: 0,
-          note: 'Not enough players, courts or time to build a schedule.'
-        };
+      if (cleanPlayers.length < 4 || nCourts < 1) {
+        return { schedule: [], target: 0, note: 'Not enough players or courts to build a schedule.' };
       }
 
-      const maxMatchesPerBlock = Math.min(nCourts, Math.floor(P / 4));
-      const totalCapacityMatches = blocks * maxMatchesPerBlock;
-      const totalPlayerSlots = totalCapacityMatches * 4;
-      const target = Math.max(1, Math.floor(totalPlayerSlots / P));
-
-      const playedCount = Object.fromEntries(players.map(p => [p, 0]));
-      const partnerPairs = new Set();
-      const opponentPairs = new Set();
-      const courtGroups = new Set();
+      const hasBye = cleanPlayers.length % 2 === 1;
+      const rotationPlayers = hasBye ? [...cleanPlayers, '__BYE__'] : [...cleanPlayers];
+      const n = rotationPlayers.length;
+      const totalPartnerRounds = n - 1;
+      const maxRounds = roundLimit == null ? totalPartnerRounds : Math.min(totalPartnerRounds, Math.max(0, roundLimit));
       const schedule = [];
+      const previousCourtGroups = new Set();
+      const previousOpponents = new Set();
       let matchId = 1;
-      let stoppedBlock = null;
 
       const pairKey = (a, b) => [a, b].sort().join('|||');
-      const groupKey = (arr) => [...arr].sort().join('|||');
+      const groupKey = (aPair, bPair) => [...aPair, ...bPair].sort().join('|||');
 
-      function splitFour(a, b, c, d) {
-        return [
-          { A: [a, b], B: [c, d] },
-          { A: [a, c], B: [b, d] },
-          { A: [a, d], B: [b, c] }
-        ];
+      function rememberOpponents(aPair, bPair) {
+        for (const a of aPair) for (const b of bPair) previousOpponents.add(pairKey(a, b));
       }
 
-      function isValidMatch(match, usedThisBlock) {
-        const all = [...match.A, ...match.B];
-
-        if (new Set(all).size !== 4) return false;
-        if (all.some(p => usedThisBlock.has(p))) return false;
-        if (courtGroups.has(groupKey(all))) return false;
-        if (partnerPairs.has(pairKey(match.A[0], match.A[1]))) return false;
-        if (partnerPairs.has(pairKey(match.B[0], match.B[1]))) return false;
-
-        for (const a of match.A) {
-          for (const b of match.B) {
-            if (opponentPairs.has(pairKey(a, b))) return false;
+      function opponentRepeatCount(aPair, bPair) {
+        let count = 0;
+        for (const a of aPair) {
+          for (const b of bPair) {
+            if (previousOpponents.has(pairKey(a, b))) count++;
           }
         }
-
-        return true;
+        return count;
       }
 
-      function scoreMatch(match) {
-        const all = [...match.A, ...match.B];
-        const needScore = all.reduce((sum, p) => sum + Math.max(0, target - playedCount[p]), 0);
-        const totalPlayed = all.reduce((sum, p) => sum + playedCount[p], 0);
-        const maxAfter = Math.max(...all.map(p => playedCount[p] + 1));
-        const minAfter = Math.min(...all.map(p => playedCount[p] + 1));
-        const fairnessGap = maxAfter - minAfter;
+      function makePartnerRounds() {
+        let arr = [...rotationPlayers];
+        const rounds = [];
 
-        return (needScore * 1000) - (fairnessGap * 150) - totalPlayed + Math.random();
+        for (let r = 0; r < totalPartnerRounds; r++) {
+          const pairs = [];
+          for (let i = 0; i < n / 2; i++) {
+            const a = arr[i];
+            const b = arr[n - 1 - i];
+            if (a !== '__BYE__' && b !== '__BYE__') pairs.push([a, b]);
+          }
+          rounds.push(pairs);
+          arr = [arr[0], arr[n - 1], ...arr.slice(1, n - 1)];
+        }
+        return rounds;
       }
 
-      function findBestMatch(available, usedThisBlock) {
-        let best = null;
-        let bestScore = -Infinity;
+      const partnerRounds = makePartnerRounds();
 
-        for (let i = 0; i < available.length; i++) {
-          for (let j = i + 1; j < available.length; j++) {
-            for (let k = j + 1; k < available.length; k++) {
-              for (let l = k + 1; l < available.length; l++) {
-                const four = [available[i], available[j], available[k], available[l]];
+      for (let r = 0; r < maxRounds; r++) {
+        const pairs = partnerRounds[r];
+        const usedIndexes = new Set();
+        const maxMatchesThisRound = Math.min(nCourts, Math.floor(pairs.length / 2));
+        let court = 1;
 
-                for (const match of splitFour(four[0], four[1], four[2], four[3])) {
-                  if (!isValidMatch(match, usedThisBlock)) continue;
+        while (court <= maxMatchesThisRound) {
+          let best = null;
+          let bestScore = Infinity;
 
-                  const score = scoreMatch(match);
-                  if (score > bestScore) {
-                    best = match;
-                    bestScore = score;
-                  }
-                }
+          for (let i = 0; i < pairs.length; i++) {
+            if (usedIndexes.has(i)) continue;
+            for (let j = i + 1; j < pairs.length; j++) {
+              if (usedIndexes.has(j)) continue;
+              const aPair = pairs[i];
+              const bPair = pairs[j];
+              const sameCourtGroupPenalty = previousCourtGroups.has(groupKey(aPair, bPair)) ? 1000 : 0;
+              const opponentPenalty = opponentRepeatCount(aPair, bPair) * 10;
+              const score = sameCourtGroupPenalty + opponentPenalty;
+
+              if (score < bestScore) {
+                bestScore = score;
+                best = { i, j, A: aPair, B: bPair };
               }
             }
           }
-        }
 
-        return best;
-      }
+          if (!best) break;
 
-      for (let block = 1; block <= blocks; block++) {
-        const usedThisBlock = new Set();
-        let matchesInBlock = 0;
-
-        while (matchesInBlock < maxMatchesPerBlock) {
-          const available = players
-            .filter(p => !usedThisBlock.has(p))
-            .sort((a, b) => playedCount[a] - playedCount[b] || a.localeCompare(b));
-
-          const match = findBestMatch(available, usedThisBlock);
-          if (!match) break;
-
-          const all = [...match.A, ...match.B];
+          usedIndexes.add(best.i);
+          usedIndexes.add(best.j);
+          previousCourtGroups.add(groupKey(best.A, best.B));
+          rememberOpponents(best.A, best.B);
 
           schedule.push({
-            block,
-            court: matchesInBlock + 1,
-            A: match.A,
-            B: match.B,
+            block: r + 1,
+            court,
+            A: best.A,
+            B: best.B,
             is_counted: true,
             match_id: matchId++
           });
 
-          partnerPairs.add(pairKey(match.A[0], match.A[1]));
-          partnerPairs.add(pairKey(match.B[0], match.B[1]));
-
-          for (const a of match.A) {
-            for (const b of match.B) {
-              opponentPairs.add(pairKey(a, b));
-            }
-          }
-
-          courtGroups.add(groupKey(all));
-
-          all.forEach(p => {
-            playedCount[p]++;
-            usedThisBlock.add(p);
-          });
-
-          matchesInBlock++;
-        }
-
-        if (matchesInBlock === 0) {
-          stoppedBlock = block;
-          break;
+          court++;
         }
       }
 
       let note = '';
-      if (schedule.length === 0) {
-        note = 'No fair non-repeat matches could be created. Add more players or reduce the number of courts/rounds.';
-      } else if (stoppedBlock) {
-        note = `Schedule stopped before Round ${stoppedBlock} because no fair non-repeat matches were available. No fun matches were added.`;
-      } else {
-        note = 'Schedule built using only counted non-repeat matches.';
-      }
+      if (roundLimit == null) note = `Basic mode built the full Americano partner rotation: ${maxRounds} rounds.`;
+      else note = `Master mode built ${maxRounds} of ${totalPartnerRounds} possible Americano rounds.`;
 
-      return { schedule, target, note };
+      if (hasBye) note += ' Odd player count detected, so one partner pair may sit each round.';
+      if (nCourts < Math.floor(cleanPlayers.length / 4)) note += ' Not enough courts for every player to play every round.';
+
+      return { schedule, target: maxRounds, note };
     }
 
     function allRRMatches(teams) {
       const matches = [];
       for (let i = 0; i < teams.length; i++) {
-        for (let j = i + 1; j < teams.length; j++) {
-          matches.push([teams[i], teams[j]]);
-        }
+        for (let j = i + 1; j < teams.length; j++) matches.push([teams[i], teams[j]]);
       }
       return shuffle(matches);
     }
@@ -643,24 +526,15 @@ HTML = r"""<!DOCTYPE html>
       const remaining = [...matches];
       const playedCount = {};
       const countTeam = t => playedCount[t] || 0;
-
       function inc(a, b) {
         playedCount[a] = (playedCount[a] || 0) + 1;
         playedCount[b] = (playedCount[b] || 0) + 1;
       }
-
       const blocks = [];
-
       while (remaining.length) {
         const block = [];
         const used = new Set();
-
-        remaining.sort((m1, m2) => {
-          const [a1, b1] = m1;
-          const [a2, b2] = m2;
-          return (countTeam(a1) + countTeam(b1)) - (countTeam(a2) + countTeam(b2));
-        });
-
+        remaining.sort((m1, m2) => (countTeam(m1[0]) + countTeam(m1[1])) - (countTeam(m2[0]) + countTeam(m2[1])));
         for (const [a, b] of remaining) {
           if (block.length >= numCourts) break;
           if (!used.has(a) && !used.has(b)) {
@@ -669,24 +543,18 @@ HTML = r"""<!DOCTYPE html>
             used.add(b);
           }
         }
-
         if (!block.length) break;
-
         block.forEach(([a, b]) => {
           inc(a, b);
           const idx = remaining.findIndex(x => (x[0] === a && x[1] === b) || (x[0] === b && x[1] === a));
           if (idx > -1) remaining.splice(idx, 1);
         });
-
         blocks.push(block);
       }
-
       return blocks;
     }
 
-    function keyFor(a, b) {
-      return JSON.stringify([a, b].sort());
-    }
+    function keyFor(a, b) { return JSON.stringify([a, b].sort()); }
 
     function orientScore(a, b, arr) {
       const [x] = JSON.parse(keyFor(a, b));
@@ -695,21 +563,16 @@ HTML = r"""<!DOCTYPE html>
 
     function computeAmericanoTable(players, schedule, results) {
       const table = Object.fromEntries(players.map(p => [p, { played: 0, points_for: 0, wins: 0, draws: 0, losses: 0 }]));
-
       for (const m of schedule) {
-        if (!m.is_counted) continue;
-        if (!results[m.match_id]) continue;
-
+        if (!m.is_counted || !results[m.match_id]) continue;
         const [pa, pb] = results[m.match_id];
         const [a1, a2] = m.A;
         const [b1, b2] = m.B;
-
         [a1, a2, b1, b2].forEach(p => table[p].played++);
         table[a1].points_for += pa;
         table[a2].points_for += pa;
         table[b1].points_for += pb;
         table[b2].points_for += pb;
-
         if (pa > pb) {
           table[a1].wins++;
           table[a2].wins++;
@@ -727,35 +590,23 @@ HTML = r"""<!DOCTYPE html>
           table[b2].draws++;
         }
       }
-
       return table;
     }
 
     function computeRRTable(teams, matches, results) {
       const table = Object.fromEntries(teams.map(t => [t, { played: 0, points_for: 0, wins: 0, draws: 0, losses: 0 }]));
-
       for (const [a, b] of matches) {
         const key = keyFor(a, b);
         if (!results[key]) continue;
-
         const [pa, pb] = orientScore(a, b, results[key]);
         table[a].played++;
         table[b].played++;
         table[a].points_for += pa;
         table[b].points_for += pb;
-
-        if (pa > pb) {
-          table[a].wins++;
-          table[b].losses++;
-        } else if (pb > pa) {
-          table[b].wins++;
-          table[a].losses++;
-        } else {
-          table[a].draws++;
-          table[b].draws++;
-        }
+        if (pa > pb) { table[a].wins++; table[b].losses++; }
+        else if (pb > pa) { table[b].wins++; table[a].losses++; }
+        else { table[a].draws++; table[b].draws++; }
       }
-
       return table;
     }
 
@@ -763,92 +614,8 @@ HTML = r"""<!DOCTYPE html>
       return entries.sort((A, B) => {
         const a = A[1];
         const b = B[1];
-        return (b.points_for - a.points_for)
-          || (b.wins - a.wins)
-          || (b.draws - a.draws)
-          || (a.losses - b.losses)
-          || byName(A[0], B[0]);
+        return (b.points_for - a.points_for) || (b.wins - a.wins) || (b.draws - a.draws) || (a.losses - b.losses) || byName(A[0], B[0]);
       });
-    }
-
-    function collectAndSaveCfg() {
-      state.cfg = {
-        timeCapA: asInt('#timeCapA', 12),
-        bufferA: asInt('#bufferA', 3),
-        totalEventA: asInt('#totalEventA', 120),
-        maxPointsA: readOptionalNumber('#maxPointsA'),
-        numCourtsA: Math.max(1, asInt('#numCourtsA', 2)),
-        numPlayers: Math.max(4, asInt('#numPlayers', 8)),
-        timeCapT: asInt('#timeCapT', 10),
-        bufferT: asInt('#bufferT', 2),
-        maxPointsT: readOptionalNumber('#maxPointsT'),
-        numCourtsT: Math.max(1, asInt('#numCourtsT', 3)),
-        numTeams: Math.max(2, asInt('#numTeams', 8))
-      };
-
-      const players = ($('#players').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
-      const teams = ($('#teams').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
-
-      saveState({ cfg: state.cfg, players, teams, masterOpen: state.masterOpen, mode: state.mode });
-    }
-
-    function readOptionalNumber(sel) {
-      const v = $(sel).value.trim();
-      if (v === '') return null;
-      const n = parseInt(v, 10);
-      return Number.isFinite(n) ? Math.max(0, n) : null;
-    }
-
-    function buildSchedule() {
-      state.mode = $('#mode').value;
-      collectCurrentCfgNoSave();
-      state.scheduleNote = '';
-
-      if (state.mode === 'americano') {
-        const players = genPlayers();
-        const blocks = totalBlocksA(state.cfg);
-        const result = buildIndividualAmericano(players, state.cfg.numCourtsA, blocks);
-
-        state.players = players;
-        state.schedule = result.schedule;
-        state.target = result.target;
-        state.resultsA = {};
-        state.scheduleNote = result.note;
-
-        saveState({
-          mode: state.mode,
-          players: state.players,
-          schedule: state.schedule,
-          target: state.target,
-          resultsA: {},
-          scheduleNote: state.scheduleNote,
-          cfg: state.cfg,
-          masterOpen: state.masterOpen
-        });
-      } else {
-        const teams = genTeams();
-        const matches = allRRMatches(teams);
-        const blocks = buildBlocks(matches, state.cfg.numCourtsT);
-
-        state.teams = teams;
-        state.matches = matches;
-        state.blocks = blocks;
-        state.resultsT = {};
-        state.scheduleNote = 'Schedule built. Scores were reset.';
-
-        saveState({
-          mode: state.mode,
-          teams: state.teams,
-          matches: state.matches,
-          blocks: state.blocks,
-          resultsT: {},
-          scheduleNote: state.scheduleNote,
-          cfg: state.cfg,
-          masterOpen: state.masterOpen
-        });
-      }
-
-      renderAll();
     }
 
     function collectCurrentCfgNoSave() {
@@ -865,6 +632,47 @@ HTML = r"""<!DOCTYPE html>
       state.cfg.numTeams = Math.max(2, asInt('#numTeams', 8));
     }
 
+    function collectAndSaveCfg() {
+      collectCurrentCfgNoSave();
+      const players = ($('#players').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+      const teams = ($('#teams').value || '').split(/\n+/).map(s => s.trim()).filter(Boolean);
+      saveState({ cfg: state.cfg, players, teams, masterOpen: state.masterOpen, mode: state.mode });
+    }
+
+    function buildSchedule() {
+      state.mode = $('#mode').value;
+      collectCurrentCfgNoSave();
+      state.scheduleNote = '';
+
+      if (state.mode === 'americano') {
+        const players = genPlayers();
+        const roundLimit = state.masterOpen ? totalBlocksA(state.cfg) : null;
+        const result = buildIndividualAmericano(players, state.cfg.numCourtsA, roundLimit);
+
+        state.players = players;
+        state.schedule = result.schedule;
+        state.target = result.target;
+        state.resultsA = {};
+        state.scheduleNote = result.note;
+
+        saveState({ mode: state.mode, players: state.players, schedule: state.schedule, target: state.target, resultsA: {}, scheduleNote: state.scheduleNote, cfg: state.cfg, masterOpen: state.masterOpen });
+      } else {
+        const teams = genTeams();
+        const matches = allRRMatches(teams);
+        const blocks = buildBlocks(matches, state.cfg.numCourtsT);
+
+        state.teams = teams;
+        state.matches = matches;
+        state.blocks = blocks;
+        state.resultsT = {};
+        state.scheduleNote = 'Schedule built. Scores were reset.';
+
+        saveState({ mode: state.mode, teams: state.teams, matches: state.matches, blocks: state.blocks, resultsT: {}, scheduleNote: state.scheduleNote, cfg: state.cfg, masterOpen: state.masterOpen });
+      }
+
+      renderAll();
+    }
+
     function updateMasterSettingsUI() {
       $('#master-americano').classList.toggle('open', state.masterOpen && state.mode === 'americano');
       $('#master-rr').classList.toggle('open', state.masterOpen && state.mode === 'roundrobin');
@@ -878,11 +686,7 @@ HTML = r"""<!DOCTYPE html>
       updateMasterSettingsUI();
     }
 
-    function renderAll() {
-      renderSummary();
-      renderFixtures();
-      renderTable();
-    }
+    function renderAll() { renderSummary(); renderFixtures(); renderTable(); }
 
     function renderSummary() {
       const k = $('#kpis');
@@ -891,7 +695,7 @@ HTML = r"""<!DOCTYPE html>
 
       if (state.scheduleNote) {
         notice.style.display = '';
-        notice.className = /stopped|No fair|Not enough/i.test(state.scheduleNote) ? 'notice warn' : 'notice';
+        notice.className = /Not enough|Odd player|Not enough courts/i.test(state.scheduleNote) ? 'notice warn' : 'notice';
         notice.textContent = state.scheduleNote;
       } else {
         notice.style.display = 'none';
@@ -900,40 +704,30 @@ HTML = r"""<!DOCTYPE html>
 
       if (state.mode === 'americano') {
         const roundsUsed = state.schedule.length ? Math.max(...state.schedule.map(m => m.block)) : 0;
-
         k.appendChild(kpi('Players', state.players.length));
         k.appendChild(kpi('Courts', state.cfg.numCourtsA));
         k.appendChild(kpi('Rounds', roundsUsed));
         k.appendChild(kpi('Matches', state.schedule.length));
-
         if (state.masterOpen) {
           const blocks = totalBlocksA(state.cfg);
           const slot = slotLenA(state.cfg);
-          k.appendChild(kpi('Possible Rounds', blocks));
+          k.appendChild(kpi('Time Rounds', blocks));
           k.appendChild(kpi('Target/Player', state.target));
           k.appendChild(kpi('Slot', `${slot} min`));
           k.appendChild(kpi('Budget', fmtMM(state.cfg.totalEventA || 0)));
         }
-
-        $('#timingHint').textContent = state.masterOpen
-          ? 'Master settings shown. Americano creates counted matches only and stops before forcing repeats.'
-          : 'Americano creates counted matches only. It will stop instead of forcing repeat games.';
+        $('#timingHint').textContent = state.masterOpen ? 'Master settings shown. Americano is time-limited.' : 'Basic Americano ignores time and builds the full partner rotation.';
       } else {
         const slot = (state.cfg.timeCapT || 0) + (state.cfg.bufferT || 0);
-
         k.appendChild(kpi('Teams', state.teams.length));
         k.appendChild(kpi('Courts', state.cfg.numCourtsT));
         k.appendChild(kpi('Rounds', state.blocks.length));
         k.appendChild(kpi('Matches', state.matches.length));
-
         if (state.masterOpen) {
           k.appendChild(kpi('Slot', slot ? `${slot} min` : '—'));
           k.appendChild(kpi('Total', slot ? fmtMM(state.blocks.length * slot) : '—'));
         }
-
-        $('#timingHint').textContent = state.masterOpen
-          ? 'Master settings shown. Round Robin creates every team matchup once.'
-          : 'Round Robin creates every team matchup once.';
+        $('#timingHint').textContent = 'Round Robin creates every team matchup once.';
       }
     }
 
@@ -953,26 +747,14 @@ HTML = r"""<!DOCTYPE html>
           root.innerHTML = '<div class="empty">No Americano fixtures yet. Add players and click Build Schedule.</div>';
           return;
         }
-
         const byBlock = groupBy(state.schedule, m => m.block);
-
         Object.keys(byBlock).sort((a, b) => a - b).forEach(blockNo => {
           const block = document.createElement('div');
           block.className = 'block';
-          block.innerHTML = `
-            <div class="block-header">
-              <div>Round ${blockNo}</div>
-              <div class="tag">${state.cfg.maxPointsA == null ? 'Free entry' : 'Max ' + state.cfg.maxPointsA}</div>
-            </div>
-          `;
-
+          block.innerHTML = `<div class="block-header"><div>Round ${blockNo}</div><div class="tag">${state.cfg.maxPointsA == null ? 'Free entry' : 'Max ' + state.cfg.maxPointsA}</div></div>`;
           const content = document.createElement('div');
           content.className = 'content';
-
-          byBlock[blockNo]
-            .sort((x, y) => x.court - y.court)
-            .forEach(m => content.appendChild(matchRowA(m)));
-
+          byBlock[blockNo].sort((x, y) => x.court - y.court).forEach(m => content.appendChild(matchRowA(m)));
           block.appendChild(content);
           root.appendChild(block);
         });
@@ -981,17 +763,10 @@ HTML = r"""<!DOCTYPE html>
           root.innerHTML = '<div class="empty">No Round Robin fixtures yet. Add teams and click Build Schedule.</div>';
           return;
         }
-
         state.blocks.forEach((blk, idx) => {
           const block = document.createElement('div');
           block.className = 'block';
-          block.innerHTML = `
-            <div class="block-header">
-              <div>Round ${idx + 1}</div>
-              <div class="tag">${state.cfg.maxPointsT == null ? 'Free entry' : 'Max ' + state.cfg.maxPointsT}</div>
-            </div>
-          `;
-
+          block.innerHTML = `<div class="block-header"><div>Round ${idx + 1}</div><div class="tag">${state.cfg.maxPointsT == null ? 'Free entry' : 'Max ' + state.cfg.maxPointsT}</div></div>`;
           const content = document.createElement('div');
           content.className = 'content';
           blk.forEach((pair, ci) => content.appendChild(matchRowT(ci, pair)));
@@ -1004,51 +779,33 @@ HTML = r"""<!DOCTYPE html>
     function matchRowA(m) {
       const el = document.createElement('div');
       el.className = 'rowline';
-
       const [pa, pb] = state.resultsA[m.match_id] || ['', ''];
       const mp = state.cfg.maxPointsA;
-
       el.innerHTML = `
         <div class="muted">Court ${m.court}</div>
         <div class="right">${escapeHtml(m.A[0])} &amp; ${escapeHtml(m.A[1])}</div>
         <div class="muted small nowrap">vs</div>
         <div>${escapeHtml(m.B[0])} &amp; ${escapeHtml(m.B[1])}</div>
-        <div class="flex">
-          <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
-          <span class="muted">-</span>
-          <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
-        </div>
+        <div class="flex"><input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" /><span class="muted">-</span><input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" /></div>
         <div class="right"><span class="pill ok">COUNTING</span></div>
       `;
-
       const [aIn, bIn] = el.querySelectorAll('input');
 
       function persist() {
         const A = aIn.value === '' ? '' : valInt(aIn.value);
         const B = bIn.value === '' ? '' : valInt(bIn.value);
-
         if (A === '' || B === '') delete state.resultsA[m.match_id];
         else state.resultsA[m.match_id] = [A, B];
-
         saveState({ resultsA: state.resultsA });
       }
 
       function onChange() {
         let A = valInt(aIn.value);
         let B = valInt(bIn.value);
-
         if (mp != null) {
-          if (aIn === document.activeElement && aIn.value !== '' && bIn.value === '') {
-            B = mp - A;
-            bIn.value = String(B);
-          }
-
-          if (bIn === document.activeElement && bIn.value !== '' && aIn.value === '') {
-            A = mp - B;
-            aIn.value = String(A);
-          }
+          if (aIn === document.activeElement && aIn.value !== '' && bIn.value === '') { B = mp - A; bIn.value = String(B); }
+          if (bIn === document.activeElement && bIn.value !== '' && aIn.value === '') { A = mp - B; aIn.value = String(A); }
         }
-
         persist();
         renderTable();
       }
@@ -1057,7 +814,6 @@ HTML = r"""<!DOCTYPE html>
       bIn.addEventListener('input', onChange);
       aIn.addEventListener('change', onChange);
       bIn.addEventListener('change', onChange);
-
       return el;
     }
 
@@ -1065,69 +821,45 @@ HTML = r"""<!DOCTYPE html>
       const [Ateam, Bteam] = pair;
       const el = document.createElement('div');
       el.className = 'rowline';
-
       const key = keyFor(Ateam, Bteam);
       const mp = state.cfg.maxPointsT;
       const [pa, pb] = orientScore(Ateam, Bteam, state.resultsT[key] || ['', '']);
-
       el.innerHTML = `
         <div class="muted">Court ${courtIndex + 1}</div>
         <div class="right">${escapeHtml(Ateam)}</div>
         <div class="muted small nowrap">vs</div>
         <div>${escapeHtml(Bteam)}</div>
-        <div class="flex">
-          <input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" />
-          <span class="muted">-</span>
-          <input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" />
-        </div>
+        <div class="flex"><input class="score" type="number" min="0" step="1" placeholder="A" value="${pa}" /><span class="muted">-</span><input class="score" type="number" min="0" step="1" placeholder="B" value="${pb}" /></div>
         <div class="right"><button class="ghost small" type="button">Draw</button></div>
       `;
-
       const [aIn, bIn] = el.querySelectorAll('input');
       const drawBtn = el.querySelector('button');
 
       function persist() {
         const Aval = aIn.value === '' ? '' : valInt(aIn.value);
         const Bval = bIn.value === '' ? '' : valInt(bIn.value);
-
-        if (Aval === '' || Bval === '') {
-          delete state.resultsT[key];
-        } else {
+        if (Aval === '' || Bval === '') delete state.resultsT[key];
+        else {
           const [x] = JSON.parse(key);
           state.resultsT[key] = Ateam === x ? [Aval, Bval] : [Bval, Aval];
         }
-
         saveState({ resultsT: state.resultsT });
       }
 
       function onChange() {
         let A = valInt(aIn.value);
         let B = valInt(bIn.value);
-
         if (mp != null) {
-          if (aIn === document.activeElement && aIn.value !== '' && bIn.value === '') {
-            B = mp - A;
-            bIn.value = String(B);
-          }
-
-          if (bIn === document.activeElement && bIn.value !== '' && aIn.value === '') {
-            A = mp - B;
-            aIn.value = String(A);
-          }
+          if (aIn === document.activeElement && aIn.value !== '' && bIn.value === '') { B = mp - A; bIn.value = String(B); }
+          if (bIn === document.activeElement && bIn.value !== '' && aIn.value === '') { A = mp - B; aIn.value = String(A); }
         }
-
         persist();
         renderTable();
       }
 
       drawBtn.addEventListener('click', () => {
-        if (mp != null && mp % 2 === 0) {
-          aIn.value = String(mp / 2);
-          bIn.value = String(mp / 2);
-        } else {
-          aIn.value = '0';
-          bIn.value = '0';
-        }
+        if (mp != null && mp % 2 === 0) { aIn.value = String(mp / 2); bIn.value = String(mp / 2); }
+        else { aIn.value = '0'; bIn.value = '0'; }
         persist();
         renderTable();
       });
@@ -1136,81 +868,26 @@ HTML = r"""<!DOCTYPE html>
       bIn.addEventListener('input', onChange);
       aIn.addEventListener('change', onChange);
       bIn.addEventListener('change', onChange);
-
       return el;
     }
 
     function renderTable() {
       const tbl = $('#table');
-
       if (state.mode === 'americano') {
-        if (!state.players.length) {
-          tbl.innerHTML = '<tr><td class="muted">No players yet.</td></tr>';
-          return;
-        }
-
+        if (!state.players.length) { tbl.innerHTML = '<tr><td class="muted">No players yet.</td></tr>'; return; }
         const table = computeAmericanoTable(state.players, state.schedule, state.resultsA);
         const rows = orderTable(Object.entries(table));
-
-        tbl.innerHTML = `
-          <tr>
-            <th>Player</th>
-            <th class="right">P</th>
-            <th class="right">Pts</th>
-            <th class="right">W</th>
-            <th class="right">D</th>
-            <th class="right">L</th>
-          </tr>
-          ${rows.map(([name, r]) => `
-            <tr>
-              <td>${escapeHtml(name)}</td>
-              <td class="right">${r.played}</td>
-              <td class="right">${r.points_for}</td>
-              <td class="right">${r.wins}</td>
-              <td class="right">${r.draws}</td>
-              <td class="right">${r.losses}</td>
-            </tr>
-          `).join('')}
-        `;
+        tbl.innerHTML = `<tr><th>Player</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>${rows.map(([name, r]) => `<tr><td>${escapeHtml(name)}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join('')}`;
       } else {
-        if (!state.teams.length) {
-          tbl.innerHTML = '<tr><td class="muted">No teams yet.</td></tr>';
-          return;
-        }
-
+        if (!state.teams.length) { tbl.innerHTML = '<tr><td class="muted">No teams yet.</td></tr>'; return; }
         const table = computeRRTable(state.teams, state.matches, state.resultsT);
         const rows = orderTable(Object.entries(table));
-
-        tbl.innerHTML = `
-          <tr>
-            <th>Team</th>
-            <th class="right">P</th>
-            <th class="right">Pts</th>
-            <th class="right">W</th>
-            <th class="right">D</th>
-            <th class="right">L</th>
-          </tr>
-          ${rows.map(([name, r]) => `
-            <tr>
-              <td>${escapeHtml(name)}</td>
-              <td class="right">${r.played}</td>
-              <td class="right">${r.points_for}</td>
-              <td class="right">${r.wins}</td>
-              <td class="right">${r.draws}</td>
-              <td class="right">${r.losses}</td>
-            </tr>
-          `).join('')}
-        `;
+        tbl.innerHTML = `<tr><th>Team</th><th class="right">P</th><th class="right">Pts</th><th class="right">W</th><th class="right">D</th><th class="right">L</th></tr>${rows.map(([name, r]) => `<tr><td>${escapeHtml(name)}</td><td class="right">${r.played}</td><td class="right">${r.points_for}</td><td class="right">${r.wins}</td><td class="right">${r.draws}</td><td class="right">${r.losses}</td></tr>`).join('')}`;
       }
     }
 
     function escapeHtml(value) {
-      return String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function applyLoaded(loaded) {
@@ -1220,7 +897,6 @@ HTML = r"""<!DOCTYPE html>
         renderAll();
         return;
       }
-
       Object.assign(state, loaded);
       state.cfg = { ...state.cfg, ...(loaded.cfg || {}) };
       state.scheduleNote = state.scheduleNote || '';
@@ -1232,24 +908,20 @@ HTML = r"""<!DOCTYPE html>
       state.schedule = state.schedule || [];
       state.matches = state.matches || [];
       state.blocks = state.blocks || [];
-
       $('#mode').value = state.mode || 'americano';
       $('#players').value = (state.players || []).join('\n');
       $('#teams').value = (state.teams || []).join('\n');
-
       $('#numPlayers').value = state.cfg.numPlayers ?? 8;
       $('#numCourtsA').value = state.cfg.numCourtsA ?? 2;
       $('#timeCapA').value = state.cfg.timeCapA ?? 12;
       $('#bufferA').value = state.cfg.bufferA ?? 3;
       $('#totalEventA').value = state.cfg.totalEventA ?? 120;
       $('#maxPointsA').value = state.cfg.maxPointsA ?? 12;
-
       $('#numTeams').value = state.cfg.numTeams ?? 8;
       $('#numCourtsT').value = state.cfg.numCourtsT ?? 3;
       $('#timeCapT').value = state.cfg.timeCapT ?? 10;
       $('#bufferT').value = state.cfg.bufferT ?? 2;
       $('#maxPointsT').value = state.cfg.maxPointsT ?? '';
-
       toggleModePanels();
       renderAll();
     }
@@ -1264,13 +936,8 @@ HTML = r"""<!DOCTYPE html>
     $('#btn-build').addEventListener('click', buildSchedule);
 
     $('#btn-clear-scores').addEventListener('click', () => {
-      if (state.mode === 'americano') {
-        state.resultsA = {};
-        saveState({ resultsA: {} });
-      } else {
-        state.resultsT = {};
-        saveState({ resultsT: {} });
-      }
+      if (state.mode === 'americano') { state.resultsA = {}; saveState({ resultsA: {} }); }
+      else { state.resultsT = {}; saveState({ resultsT: {} }); }
       renderTable();
     });
 
@@ -1297,8 +964,8 @@ HTML = r"""<!DOCTYPE html>
   </script>
 </body>
 </html>
-"""
+'''
 
-out = Path("pringle_padel_logic_rewrite.html")
-out.write_text(HTML, encoding="utf-8")
-print(f"Created {out.resolve()}")
+out = Path('pringle_padel_logic_FIXED.html')
+out.write_text(HTML, encoding='utf-8')
+print(f'Created {out.resolve()}')
