@@ -1,6 +1,4 @@
-from pathlib import Path
-
-HTML = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -263,7 +261,7 @@ HTML = r'''<!DOCTYPE html>
         <button id="btn-build" class="primary" type="button">Build Schedule</button>
         <button id="btn-clear-scores" class="ghost" type="button">Clear Scores</button>
         <button id="btn-master" class="ghost" type="button">Show Master Settings</button>
-        <span class="hint">Basic Americano builds the full partner rotation. Scores reset when a new schedule is built.</span>
+        <span class="hint">Basic Americano builds a mathematically balanced rotation. Scores reset when a new schedule is built.</span>
       </div>
       <div id="scheduleNotice" class="notice" style="display:none;"></div>
     </section>
@@ -411,107 +409,181 @@ HTML = r'''<!DOCTYPE html>
         return { schedule: [], target: 0, note: 'Not enough players or courts to build a schedule.' };
       }
 
-      const hasBye = cleanPlayers.length % 2 === 1;
-      const rotationPlayers = hasBye ? [...cleanPlayers, '__BYE__'] : [...cleanPlayers];
-      const n = rotationPlayers.length;
-      const totalPartnerRounds = n - 1;
-      const maxRounds = roundLimit == null ? totalPartnerRounds : Math.min(totalPartnerRounds, Math.max(0, roundLimit));
-      const schedule = [];
-      const previousCourtGroups = new Set();
-      const previousOpponents = new Set();
-      let matchId = 1;
-
+      const playerCount = cleanPlayers.length;
       const pairKey = (a, b) => [a, b].sort().join('|||');
-      const groupKey = (aPair, bPair) => [...aPair, ...bPair].sort().join('|||');
+      const groupKey = players4 => [...players4].sort().join('|||');
 
-      function rememberOpponents(aPair, bPair) {
-        for (const a of aPair) for (const b of bPair) previousOpponents.add(pairKey(a, b));
-      }
-
-      function opponentRepeatCount(aPair, bPair) {
-        let count = 0;
-        for (const a of aPair) {
-          for (const b of bPair) {
-            if (previousOpponents.has(pairKey(a, b))) count++;
-          }
-        }
-        return count;
-      }
-
-      function makePartnerRounds() {
-        let arr = [...rotationPlayers];
-        const rounds = [];
-
-        for (let r = 0; r < totalPartnerRounds; r++) {
-          const pairs = [];
-          for (let i = 0; i < n / 2; i++) {
-            const a = arr[i];
-            const b = arr[n - 1 - i];
-            if (a !== '__BYE__' && b !== '__BYE__') pairs.push([a, b]);
-          }
-          rounds.push(pairs);
-          arr = [arr[0], arr[n - 1], ...arr.slice(1, n - 1)];
-        }
-        return rounds;
-      }
-
-      const partnerRounds = makePartnerRounds();
-
-      for (let r = 0; r < maxRounds; r++) {
-        const pairs = partnerRounds[r];
-        const usedIndexes = new Set();
-        const maxMatchesThisRound = Math.min(nCourts, Math.floor(pairs.length / 2));
-        let court = 1;
-
-        while (court <= maxMatchesThisRound) {
-          let best = null;
-          let bestScore = Infinity;
-
-          for (let i = 0; i < pairs.length; i++) {
-            if (usedIndexes.has(i)) continue;
-            for (let j = i + 1; j < pairs.length; j++) {
-              if (usedIndexes.has(j)) continue;
-              const aPair = pairs[i];
-              const bPair = pairs[j];
-              const sameCourtGroupPenalty = previousCourtGroups.has(groupKey(aPair, bPair)) ? 1000 : 0;
-              const opponentPenalty = opponentRepeatCount(aPair, bPair) * 10;
-              const score = sameCourtGroupPenalty + opponentPenalty;
-
-              if (score < bestScore) {
-                bestScore = score;
-                best = { i, j, A: aPair, B: bPair };
+      function allPossibleMatches() {
+        const candidates = [];
+        for (let a = 0; a < playerCount - 3; a++) {
+          for (let b = a + 1; b < playerCount - 2; b++) {
+            for (let c = b + 1; c < playerCount - 1; c++) {
+              for (let d = c + 1; d < playerCount; d++) {
+                const p = [cleanPlayers[a], cleanPlayers[b], cleanPlayers[c], cleanPlayers[d]];
+                candidates.push({ A: [p[0], p[1]], B: [p[2], p[3]], players: p });
+                candidates.push({ A: [p[0], p[2]], B: [p[1], p[3]], players: p });
+                candidates.push({ A: [p[0], p[3]], B: [p[1], p[2]], players: p });
               }
             }
           }
+        }
+        return candidates;
+      }
 
-          if (!best) break;
+      const candidates = allPossibleMatches();
+      const maximumUniquePartnerTarget = playerCount - 1;
+      const maximumRounds = roundLimit == null ? Number.POSITIVE_INFINITY : Math.max(0, roundLimit);
+      const matchCapacity = Number.isFinite(maximumRounds) ? maximumRounds * nCourts : Number.POSITIVE_INFINITY;
 
-          usedIndexes.add(best.i);
-          usedIndexes.add(best.j);
-          previousCourtGroups.add(groupKey(best.A, best.B));
-          rememberOpponents(best.A, best.B);
+      function validTarget(target) {
+        if (target < 1) return false;
+        const appearances = playerCount * target;
+        if (appearances % 4 !== 0) return false;
+        const matchesNeeded = appearances / 4;
+        if (matchesNeeded > matchCapacity) return false;
+        const minimumRounds = Math.ceil(matchesNeeded / Math.max(1, Math.min(nCourts, Math.floor(playerCount / 4))));
+        return minimumRounds <= maximumRounds;
+      }
 
-          schedule.push({
-            block: r + 1,
-            court,
-            A: best.A,
-            B: best.B,
-            is_counted: true,
-            match_id: matchId++
+      let target = maximumUniquePartnerTarget;
+      while (target > 0 && !validTarget(target)) target--;
+
+      if (target < 1) {
+        return {
+          schedule: [],
+          target: 0,
+          note: 'The selected time and court limits cannot give every player the same number of Americano matches.'
+        };
+      }
+
+      const matchesNeeded = (playerCount * target) / 4;
+      const maxAttempts = 3000;
+      let bestSchedule = null;
+
+      for (let attempt = 0; attempt < maxAttempts && !bestSchedule; attempt++) {
+        const counts = Object.fromEntries(cleanPlayers.map(p => [p, 0]));
+        const partnerCounts = new Map();
+        const opponentCounts = new Map();
+        const groupCounts = new Map();
+        const schedule = [];
+        let block = 1;
+        let court = 1;
+        let usedThisRound = new Set();
+        let failed = false;
+
+        function pairCount(map, a, b) { return map.get(pairKey(a, b)) || 0; }
+        function addPair(map, a, b) {
+          const key = pairKey(a, b);
+          map.set(key, (map.get(key) || 0) + 1);
+        }
+
+        while (schedule.length < matchesNeeded && !failed) {
+          const remainingMatches = matchesNeeded - schedule.length;
+          const requireUniquePartners = attempt < Math.floor(maxAttempts * 0.85);
+          const available = candidates.filter(m => {
+            if (m.players.some(p => counts[p] >= target || usedThisRound.has(p))) return false;
+            if (requireUniquePartners && (
+              pairCount(partnerCounts, m.A[0], m.A[1]) > 0 ||
+              pairCount(partnerCounts, m.B[0], m.B[1]) > 0
+            )) return false;
+            const totalDeficit = m.players.reduce((sum, p) => sum + (target - counts[p]), 0);
+            return totalDeficit > 0;
           });
 
+          if (!available.length) {
+            if (court > 1) {
+              block++;
+              court = 1;
+              usedThisRound = new Set();
+              if (block > maximumRounds) failed = true;
+              continue;
+            }
+            failed = true;
+            break;
+          }
+
+          const scored = available.map(m => {
+            const deficits = m.players.map(p => target - counts[p]);
+            const minDeficit = Math.min(...deficits);
+            const totalDeficit = deficits.reduce((a, b) => a + b, 0);
+            const spread = Math.max(...m.players.map(p => counts[p])) - Math.min(...m.players.map(p => counts[p]));
+            const partnerRepeats = pairCount(partnerCounts, m.A[0], m.A[1]) + pairCount(partnerCounts, m.B[0], m.B[1]);
+            let opponentRepeats = 0;
+            for (const a of m.A) for (const b of m.B) opponentRepeats += pairCount(opponentCounts, a, b);
+            const sameGroup = groupCounts.get(groupKey(m.players)) || 0;
+            const completionBonus = m.players.filter(p => counts[p] + 1 === target).length;
+            const randomNoise = Math.random() * 4;
+
+            const score =
+              minDeficit * 1000 +
+              totalDeficit * 100 -
+              spread * 80 -
+              partnerRepeats * 500 -
+              opponentRepeats * 18 -
+              sameGroup * 35 +
+              completionBonus * 30 +
+              randomNoise;
+
+            return { m, score };
+          }).sort((x, y) => y.score - x.score);
+
+          const choicePool = scored.slice(0, Math.min(8, scored.length));
+          const chosen = choicePool[Math.floor(Math.random() * choicePool.length)].m;
+
+          schedule.push({
+            block,
+            court,
+            A: [...chosen.A],
+            B: [...chosen.B],
+            is_counted: true,
+            match_id: schedule.length + 1
+          });
+
+          chosen.players.forEach(p => {
+            counts[p]++;
+            usedThisRound.add(p);
+          });
+          addPair(partnerCounts, chosen.A[0], chosen.A[1]);
+          addPair(partnerCounts, chosen.B[0], chosen.B[1]);
+          for (const a of chosen.A) for (const b of chosen.B) addPair(opponentCounts, a, b);
+          const gk = groupKey(chosen.players);
+          groupCounts.set(gk, (groupCounts.get(gk) || 0) + 1);
+
           court++;
+          const usableCourts = Math.min(nCourts, Math.floor(playerCount / 4));
+          if (court > usableCourts || schedule.length === matchesNeeded) {
+            block++;
+            court = 1;
+            usedThisRound = new Set();
+          }
+
+          if (Number.isFinite(maximumRounds) && block > maximumRounds + 1 && schedule.length < matchesNeeded) failed = true;
+          if (remainingMatches > 0 && schedule.length > matchesNeeded) failed = true;
+        }
+
+        const balanced = cleanPlayers.every(p => counts[p] === target);
+        const roundsUsed = schedule.length ? Math.max(...schedule.map(m => m.block)) : 0;
+        if (!failed && balanced && schedule.length === matchesNeeded && roundsUsed <= maximumRounds) {
+          bestSchedule = schedule;
         }
       }
 
-      let note = '';
-      if (roundLimit == null) note = `Basic mode built the full Americano partner rotation: ${maxRounds} rounds.`;
-      else note = `Master mode built ${maxRounds} of ${totalPartnerRounds} possible Americano rounds.`;
+      if (!bestSchedule) {
+        return {
+          schedule: [],
+          target: 0,
+          note: 'A balanced Americano schedule could not be produced with these limits. Add more rounds or courts.'
+        };
+      }
 
-      if (hasBye) note += ' Odd player count detected, so one partner pair may sit each round.';
-      if (nCourts < Math.floor(cleanPlayers.length / 4)) note += ' Not enough courts for every player to play every round.';
+      const roundsUsed = Math.max(...bestSchedule.map(m => m.block));
+      let note = `Balanced Americano built: every player plays ${target} matches across ${roundsUsed} rounds.`;
+      if (target < maximumUniquePartnerTarget) {
+        note += ` The schedule stops at ${target} matches per player because ${maximumUniquePartnerTarget} each is not mathematically divisible into four-player matches.`;
+      }
+      if (roundLimit != null && roundsUsed < roundLimit) note += ' Unneeded time rounds were left empty rather than giving players unequal match totals.';
 
-      return { schedule, target: maxRounds, note };
+      return { schedule: bestSchedule, target, note };
     }
 
     function allRRMatches(teams) {
@@ -716,7 +788,7 @@ HTML = r'''<!DOCTYPE html>
           k.appendChild(kpi('Slot', `${slot} min`));
           k.appendChild(kpi('Budget', fmtMM(state.cfg.totalEventA || 0)));
         }
-        $('#timingHint').textContent = state.masterOpen ? 'Master settings shown. Americano is time-limited.' : 'Basic Americano ignores time and builds the full partner rotation.';
+        $('#timingHint').textContent = state.masterOpen ? 'Master settings shown. Americano is time-limited.' : 'Basic Americano ignores time and gives every player the same number of matches.';
       } else {
         const slot = (state.cfg.timeCapT || 0) + (state.cfg.bufferT || 0);
         k.appendChild(kpi('Teams', state.teams.length));
@@ -964,8 +1036,3 @@ HTML = r'''<!DOCTYPE html>
   </script>
 </body>
 </html>
-'''
-
-out = Path('pringle_padel_logic_FIXED.html')
-out.write_text(HTML, encoding='utf-8')
-print(f'Created {out.resolve()}')
