@@ -253,7 +253,7 @@
 									name="padelRank"
 									id="padelRank"
 									placeholder="e.g. 4.5"
-									min="1"
+									min="0"
 									max="10"
 									step="0.1"
 									inputmode="decimal"
@@ -440,7 +440,7 @@
 				}
 
 				const rankPattern =
-					/^(10(?:\.0)?|[1-9](?:\.\d)?)$/;
+					/^(10(?:\.0)?|[0-9](?:\.\d)?)$/;
 
 				if (!rankPattern.test(value)) {
 					padelRankInput.setCustomValidity(
