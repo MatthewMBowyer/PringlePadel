@@ -1,0 +1,583 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license
+-->
+<html>
+	<head>
+		<title>Book | Pringle Padel</title>
+		<meta charset="utf-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, user-scalable=no"
+		/>
+
+		<link rel="stylesheet" href="assets/css/main.css" />
+
+		<noscript>
+			<link rel="stylesheet" href="assets/css/noscript.css" />
+		</noscript>
+
+		<style>
+			.booking-container {
+				max-width: 850px;
+				margin: 0 auto;
+			}
+
+			.booking-intro {
+				text-align: center;
+				margin-bottom: 3rem;
+			}
+
+			.booking-form .field {
+				margin-bottom: 1.5rem;
+			}
+
+			.booking-form label {
+				font-weight: bold;
+			}
+
+			.required {
+				color: #d9534f;
+			}
+
+			.helper-text {
+				font-size: 0.85rem;
+				opacity: 0.75;
+				margin-top: 0.4rem;
+			}
+
+			.consent-wrapper {
+				display: flex;
+				align-items: flex-start;
+				gap: 0.75rem;
+				margin: 2rem 0;
+			}
+
+			.consent-wrapper input[type="checkbox"] {
+				margin-top: 0.35rem;
+				flex-shrink: 0;
+			}
+
+			.consent-wrapper label {
+				margin: 0;
+				font-weight: normal;
+			}
+
+			#formMessage {
+				display: none;
+				padding: 1.25rem;
+				margin-top: 2rem;
+				text-align: center;
+				border: 1px solid;
+			}
+
+			#formMessage.success {
+				display: block;
+				border-color: #28a745;
+			}
+
+			#formMessage.error {
+				display: block;
+				border-color: #dc3545;
+			}
+
+			#submitButton:disabled {
+				opacity: 0.6;
+				cursor: not-allowed;
+			}
+		</style>
+	</head>
+
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+		<div id="wrapper" class="fade-in">
+
+			<!-- Header -->
+			<header id="header">
+				<a href="index.html" class="logo">Pringle Padel</a>
+			</header>
+
+			<!-- Nav -->
+			<nav id="nav">
+
+				<ul class="links">
+					<li>
+						<a href="Court-side.html">Coach Lea</a>
+					</li>
+
+					<li>
+						<a href="index.html">Coaching</a>
+					</li>
+
+					<li>
+						<a href="socials.html">Socials</a>
+					</li>
+
+					<li>
+						<a href="tournaments.html">Tournaments</a>
+					</li>
+
+					<li class="active">
+						<a href="booking.html">Book</a>
+					</li>
+				</ul>
+
+				<ul class="icons">
+
+					<li>
+						<a
+							href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA=="
+							target="_blank"
+							class="icon brands alt fa-instagram"
+						>
+							<span class="label">Instagram</span>
+						</a>
+					</li>
+
+					<li>
+						<a
+							href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr"
+							target="_blank"
+							class="icon brands alt fa-facebook-f"
+						>
+							<span class="label">Facebook</span>
+						</a>
+					</li>
+
+					<li>
+						<a
+							href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1"
+							target="_blank"
+							class="icon brands alt fa-tiktok"
+						>
+							<span class="label">TikTok</span>
+						</a>
+					</li>
+
+				</ul>
+			</nav>
+
+			<!-- Main -->
+			<div id="main">
+
+				<section class="post">
+
+					<div class="booking-container">
+
+						<header class="major booking-intro">
+							<h1>Book Your Spot</h1>
+
+							<p>
+								Complete the form below and the Pringle Padel team
+								will get back to you as soon as possible.
+							</p>
+						</header>
+
+						<form
+							id="bookingForm"
+							class="booking-form"
+							novalidate
+						>
+
+							<!-- Event -->
+							<div class="field">
+								<label for="event">
+									Event
+									<span class="required">*</span>
+								</label>
+
+								<select
+									name="event"
+									id="event"
+									required
+								>
+									<option value="">
+										Select an event
+									</option>
+
+									<option value="Date with Matthew">
+										Date with Matthew
+									</option>
+
+									<option value="Padelton">
+										Padelton
+									</option>
+								</select>
+							</div>
+
+							<!-- Name -->
+							<div class="field">
+								<label for="name">
+									Name
+									<span class="required">*</span>
+								</label>
+
+								<input
+									type="text"
+									name="name"
+									id="name"
+									placeholder="Your first name"
+									autocomplete="given-name"
+									required
+								/>
+							</div>
+
+							<!-- Surname -->
+							<div class="field">
+								<label for="surname">
+									Surname
+									<span class="required">*</span>
+								</label>
+
+								<input
+									type="text"
+									name="surname"
+									id="surname"
+									placeholder="Your surname"
+									autocomplete="family-name"
+									required
+								/>
+							</div>
+
+							<!-- Padel Rank -->
+							<div class="field">
+								<label for="padelRank">
+									Padel Rank
+								</label>
+
+								<input
+									type="number"
+									name="padelRank"
+									id="padelRank"
+									placeholder="e.g. 4.5"
+									min="1"
+									max="10"
+									step="0.1"
+									inputmode="decimal"
+								/>
+
+								<div class="helper-text">
+									Enter a ranking between 1 and 10.
+								</div>
+							</div>
+
+							<!-- Mobile -->
+							<div class="field">
+								<label for="mobile">
+									Mobile Number
+									<span class="required">*</span>
+								</label>
+
+								<input
+									type="tel"
+									name="mobile"
+									id="mobile"
+									placeholder="e.g. 0821234567"
+									autocomplete="tel"
+									required
+								/>
+
+								<div class="helper-text">
+									We will use this number to contact you about your booking.
+								</div>
+							</div>
+
+							<!-- Email -->
+							<div class="field">
+								<label for="email">
+									Email
+								</label>
+
+								<input
+									type="email"
+									name="email"
+									id="email"
+									placeholder="you@example.com"
+									autocomplete="email"
+								/>
+							</div>
+
+							<!-- Consent -->
+							<div class="consent-wrapper">
+
+								<input
+									type="checkbox"
+									id="consent"
+									name="consent"
+									required
+								/>
+
+								<label for="consent">
+									I confirm that the information provided is correct
+									and consent to Pringle Padel contacting me regarding
+									this booking.
+									<span class="required">*</span>
+								</label>
+
+							</div>
+
+							<!-- Submit -->
+							<ul class="actions special">
+								<li>
+									<button
+										type="submit"
+										id="submitButton"
+										class="button primary large"
+									>
+										Submit Booking
+									</button>
+								</li>
+							</ul>
+
+							<div
+								id="formMessage"
+								role="alert"
+								aria-live="polite"
+							></div>
+
+						</form>
+
+					</div>
+
+				</section>
+
+			</div>
+
+			<!-- Footer -->
+			<footer id="footer">
+
+					</a>
+				</section>
+
+				<section class="split contact">
+
+					<section class="alt">
+						<h3>Padel Address</h3>
+
+						<p>
+							Indoor Padel Revolution<br />
+							2 Picaroon Street<br />
+							Johannesburg 1724
+						</p>
+					</section>
+
+	
+
+					<section>
+						<h3>Email</h3>
+
+						<p>
+							<a href="mailto:Pringlepadel@gmail.com">
+								Pringlepadel@gmail.com
+							</a>
+						</p>
+					</section>
+
+				</section>
+
+			</footer>
+
+			<!-- Copyright -->
+			<div id="copyright">
+				<ul>
+					<li>&copy; Pringle Padel</li>
+					<li>
+						Design:
+						<a href="https://html5up.net">
+							HTML5 UP
+						</a>
+					</li>
+				</ul>
+			</div>
+
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+
+		<script>
+			const GOOGLE_SCRIPT_URL =
+				"https://script.google.com/macros/s/AKfycbxNtsClPBK_G1QPzT5A2de7e-b6flk2qg2IL6c4RHtfW4riUOns1NMvnXREBjuC2LMJgw/exec";
+
+			const bookingForm =
+				document.getElementById("bookingForm");
+
+			const submitButton =
+				document.getElementById("submitButton");
+
+			const formMessage =
+				document.getElementById("formMessage");
+
+			const padelRankInput =
+				document.getElementById("padelRank");
+
+			function showMessage(message, type) {
+				formMessage.textContent = message;
+				formMessage.className = type;
+			}
+
+			function clearMessage() {
+				formMessage.textContent = "";
+				formMessage.className = "";
+				formMessage.style.display = "none";
+			}
+
+			function validatePadelRank() {
+				const value = padelRankInput.value.trim();
+
+				if (value === "") {
+					padelRankInput.setCustomValidity("");
+					return true;
+				}
+
+				const rankPattern =
+					/^(10(?:\.0)?|[1-9](?:\.\d)?)$/;
+
+				if (!rankPattern.test(value)) {
+					padelRankInput.setCustomValidity(
+						"Please enter a padel rank between 1 and 10 with no more than one decimal place."
+					);
+
+					return false;
+				}
+
+				padelRankInput.setCustomValidity("");
+				return true;
+			}
+
+			padelRankInput.addEventListener(
+				"input",
+				validatePadelRank
+			);
+
+			bookingForm.addEventListener(
+				"submit",
+				async function (event) {
+
+					event.preventDefault();
+
+					clearMessage();
+
+					validatePadelRank();
+
+					if (!bookingForm.checkValidity()) {
+						bookingForm.reportValidity();
+						return;
+					}
+
+					const formData = {
+						event:
+							document
+								.getElementById("event")
+								.value,
+
+						name:
+							document
+								.getElementById("name")
+								.value
+								.trim(),
+
+						surname:
+							document
+								.getElementById("surname")
+								.value
+								.trim(),
+
+						padelRank:
+							document
+								.getElementById("padelRank")
+								.value
+								.trim(),
+
+						mobile:
+							document
+								.getElementById("mobile")
+								.value
+								.trim(),
+
+						email:
+							document
+								.getElementById("email")
+								.value
+								.trim(),
+
+						consent:
+							document
+								.getElementById("consent")
+								.checked
+					};
+
+					submitButton.disabled = true;
+					submitButton.textContent = "Submitting...";
+
+					try {
+
+						const response = await fetch(
+							GOOGLE_SCRIPT_URL,
+							{
+								method: "POST",
+								headers: {
+									"Content-Type":
+										"text/plain;charset=utf-8"
+								},
+								body: JSON.stringify(formData)
+							}
+						);
+
+						if (!response.ok) {
+							throw new Error(
+								"Submission failed."
+							);
+						}
+
+						const result =
+							await response.json();
+
+						if (!result.success) {
+							throw new Error(
+								result.message ||
+								"Submission failed."
+							);
+						}
+
+						showMessage(
+							"Thanks " +
+							formData.name +
+							"! Your booking for " +
+							formData.event +
+							" has been received. We will get back to you ASAP.",
+							"success"
+						);
+
+						bookingForm.reset();
+
+					} catch (error) {
+
+						console.error(error);
+
+						showMessage(
+            	"Sorry, something went wrong while submitting your booking. Please try again.",
+            	"error"
+            );
+
+					} finally {
+
+						submitButton.disabled = false;
+						submitButton.textContent =
+							"Submit Booking";
+					}
+				}
+			);
+		</script>
+
+	</body>
+</html>
