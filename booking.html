@@ -10,7 +10,7 @@
 		<meta charset="utf-8" />
 		<meta
 			name="viewport"
-			content="width=device-width, initial-scale=1, user-scalable=no"
+			content="width=device-width, initial-scale=1"
 		/>
 
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -87,6 +87,36 @@
 				opacity: 0.6;
 				cursor: not-allowed;
 			}
+
+
+
+	@media screen and (max-width: 736px) {
+
+		.booking-container {
+			width: 100%;
+		}
+
+		.booking-intro {
+			margin-bottom: 2rem;
+		}
+
+		.booking-form input,
+		.booking-form select {
+			font-size: 16px;
+		}
+
+		.consent-wrapper {
+			gap: 0.5rem;
+		}
+
+		#submitButton {
+			width: 100%;
+		}
+
+		.booking-form .actions li {
+			width: 100%;
+		}
+	}
 		</style>
 	</head>
 
@@ -260,7 +290,7 @@
 								/>
 
 								<div class="helper-text">
-									Enter a ranking between 1 and 10.
+									Enter your ranking
 								</div>
 							</div>
 
@@ -349,8 +379,7 @@
 			<!-- Footer -->
 			<footer id="footer">
 
-					</a>
-				</section>
+				
 
 				<section class="split contact">
 
@@ -423,6 +452,7 @@
 			function showMessage(message, type) {
 				formMessage.textContent = message;
 				formMessage.className = type;
+				formMessage.style.display = "block";
 			}
 
 			function clearMessage() {
@@ -444,7 +474,7 @@
 
 				if (!rankPattern.test(value)) {
 					padelRankInput.setCustomValidity(
-						"Please enter a padel rank between 1 and 10 with no more than one decimal place."
+						"Please enter a padel rank between 0 and 10 with no more than one decimal place."
 					);
 
 					return false;
@@ -559,6 +589,11 @@
 						);
 
 						bookingForm.reset();
+
+						formMessage.scrollIntoView({
+							behavior: "smooth",
+							block: "center"
+						});
 
 					} catch (error) {
 
