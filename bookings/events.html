@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Events — Pringle Padel</title>
+<meta name="description" content="Pringle Padel tournaments and events open for entry." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="testbar">Test site · 2 sample events <span>— not the live site</span></div>
+
+<header class="nav" id="nav"></header>
+
+<section class="page-head">
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html">Home</a> / Events</div>
+    <p class="kicker">Season calendar</p>
+    <h1>Events</h1>
+    <p class="lead">
+      Everything currently open for entry. Hit <strong>Enter</strong> to go
+      straight to the booking form for that event, or <strong>Details</strong>
+      for the full run sheet and confirmed entry list.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="stat-strip reveal" id="statStrip"></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="wrap">
+    <div class="grid grid-2 stagger" id="eventCards"></div>
+  </div>
+</section>
+
+<section class="section-tight" style="padding-bottom:80px">
+  <div class="wrap">
+    <hr class="rule" />
+    <div style="margin-top:52px" class="reveal">
+      <p class="kicker">Not sure which one</p>
+      <h2 style="margin-bottom:14px">Pick by what you want out of it</h2>
+      <div class="grid grid-3" style="margin-top:26px">
+        <div class="panel">
+          <h3>A relaxed evening</h3>
+          <p class="muted" style="font-size:.92rem;margin:0">
+            Round-robin with rotating partners, music on and a social after.
+            Go for <strong style="color:#fff">Luxea Invitational</strong>.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>A proper competition</h3>
+          <p class="muted" style="font-size:.92rem;margin:0">
+            Knockout, cash on the line, consolation plate so you play more than
+            once. Go for <strong style="color:#fff">Mamma Mia Mixed Cup</strong>.
+          </p>
+        </div>
+        <div class="panel">
+          <h3>Not sure yet</h3>
+          <p class="muted" style="font-size:.92rem;margin:0">
+            Enter either one and message us on WhatsApp — we'll move you if the
+            level isn't right.
+          </p>
+          <p style="margin:16px 0 0">
+            <a class="btn btn-ghost btn-sm" href="https://wa.me/27832630908" target="_blank" rel="noopener">WhatsApp us</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" id="footer"></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  initChrome('events');
+
+  const totals = EVENTS.reduce((a, ev) => {
+    const s = statusOf(ev);
+    a.paid += s.paid; a.pending += s.pending; a.left += s.left; a.cap += ev.capacity;
+    return a;
+  }, { paid: 0, pending: 0, left: 0, cap: 0 });
+
+  document.getElementById('statStrip').innerHTML = `
+    <div class="stat"><div class="n">${EVENTS.length}</div><div class="l">Events open</div></div>
+    <div class="stat"><div class="n">${totals.paid}</div><div class="l">Confirmed entries</div></div>
+    <div class="stat"><div class="n">${totals.pending}</div><div class="l">Awaiting payment</div></div>
+    <div class="stat"><div class="n">${totals.left}</div><div class="l">Spots left</div></div>`;
+
+  document.getElementById('eventCards').innerHTML = EVENTS.map(ev => {
+    const s = statusOf(ev);
+    const confirmed = bookingsFor(ev.id).filter(b => b.paid).map(b => b.name);
+    return `
+      <article class="card">
+        <div class="card-stripe"></div>
+        <div class="card-body">
+          <div class="card-head">
+            <div>
+              <h3>${esc(ev.name)}</h3>
+              <div class="when">${esc(ev.date)} · ${esc(ev.time)}</div>
+            </div>
+            <span class="badge ${s.cls}">${s.label}</span>
+          </div>
+
+          <p class="blurb">${esc(ev.blurb)}</p>
+
+          <ul class="facts" style="margin-top:16px">
+            <li><span class="k">Format</span><span class="v">${esc(ev.format)}</span></li>
+            <li><span class="k">Division</span><span class="v">${esc(ev.division)}</span></li>
+            <li><span class="k">Venue</span><span class="v">Indoor Padel Revolution</span></li>
+            <li><span class="k">Entry fee</span><span class="v">${money(ev.price)} per pair</span></li>
+          </ul>
+
+          <div class="bar ${s.left <= 4 ? 'few' : ''}"><i style="width:${pct(s.paid, ev.capacity)}%"></i></div>
+          <div class="bar-label"><span>${s.paid} of ${ev.capacity} confirmed</span><span>${s.left} left</span></div>
+
+          <p class="muted" style="font-size:.84rem;margin:14px 0 0">
+            ${confirmed.length
+              ? 'In so far: ' + confirmed.slice(0, 3).map(esc).join(', ') +
+                (confirmed.length > 3 ? ' +' + (confirmed.length - 3) + ' more' : '')
+              : 'No confirmed entries yet — be first.'}
+          </p>
+
+          <div class="card-actions">
+            <a class="btn btn-primary" href="bookings.html?event=${ev.id}">Enter — ${money(ev.price)}</a>
+            <a class="btn btn-ghost" href="event.html?id=${ev.id}">Details</a>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+</script>
+</body>
+</html>

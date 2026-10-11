@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Enter an event — Pringle Padel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="testbar">Test site · entries stored in this browser <span>— not the live site</span></div>
+
+<header class="nav" id="nav"></header>
+
+<section class="page-head">
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html">Home</a> / <a href="events.html">Events</a> / Enter</div>
+    <p class="kicker" id="formKicker">Book your spot</p>
+    <h1 id="formTitle">Enter an event</h1>
+    <p class="lead" id="formLead">
+      Fill this in and you get a booking code straight away. Pay by EFT using
+      that code as your reference — that is what lets us match your payment to
+      your entry.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap split">
+
+    <!-- ------------------------------------------------------------ form -->
+    <div class="reveal" id="formPane">
+      <div class="alert alert-err" id="errBox" style="display:none"></div>
+
+      <form id="entryForm" novalidate>
+        <div class="panel">
+          <h3 style="margin-bottom:20px">Your entry</h3>
+
+          <div class="form-grid">
+            <div class="field full">
+              <label for="event">Event <span class="req">*</span></label>
+              <select id="event" name="event" required></select>
+              <span class="hint" id="eventHint"></span>
+            </div>
+
+            <div class="field full">
+              <label for="name">Your name and surname <span class="req">*</span></label>
+              <input type="text" id="name" name="name" required autocomplete="name" placeholder="e.g. Chloe Smith" />
+              <span class="hint">As it should appear on the entry list.</span>
+            </div>
+
+            <div class="field">
+              <label for="partner">Partner's name</label>
+              <input type="text" id="partner" name="partner" autocomplete="off" placeholder="Leave blank if we should pair you" />
+              <span class="hint">Doubles events — we can find you a partner.</span>
+            </div>
+
+            <div class="field">
+              <label for="rank">Padel rank / level</label>
+              <input type="text" id="rank" name="rank" inputmode="decimal" placeholder="e.g. 3.2 or Intermediate" />
+              <span class="hint">Playtomic rating or just a word.</span>
+            </div>
+
+            <div class="field">
+              <label for="mobile">Mobile number <span class="req">*</span></label>
+              <input type="tel" id="mobile" name="mobile" required autocomplete="tel" inputmode="tel" placeholder="082 123 4567" />
+              <span class="hint">Only used to contact you about this entry.</span>
+            </div>
+
+            <div class="field">
+              <label for="email">Email <span class="req">*</span></label>
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com" />
+              <span class="hint">Where your booking code is confirmed.</span>
+            </div>
+
+            <div class="field full">
+              <label for="notes">Anything we should know</label>
+              <textarea id="notes" name="notes" rows="2" placeholder="Dietary, injuries, late arrival, partner requests…"></textarea>
+            </div>
+
+            <div class="field full">
+              <label class="check">
+                <input type="checkbox" id="consent" required />
+                <span>
+                  I confirm the details are correct and consent to Pringle Padel
+                  contacting me about this entry. <span class="req">*</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="field full" style="position:absolute;left:-9999px" aria-hidden="true">
+              <label for="website">Website</label>
+              <input type="text" id="website" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+          </div>
+
+          <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap">
+            <button class="btn btn-primary" type="submit" id="submitBtn">Submit entry</button>
+            <a class="btn btn-ghost" href="events.html">Back to events</a>
+          </div>
+          <p class="muted" style="font-size:.8rem;margin:16px 0 0">
+            You are not paying on this page. Submitting gives you a reference
+            code and the bank details for the EFT.
+          </p>
+        </div>
+      </form>
+    </div>
+
+    <!-- ------------------------------------------------------- side panel -->
+    <aside>
+      <div class="panel panel-sticky reveal" id="sidePanel">
+        <h3 id="sideTitle">What happens next</h3>
+        <ol class="steps" style="margin-top:6px">
+          <li><strong>Submit the form</strong><span>You get a unique code on screen — something like LUX-104.</span></li>
+          <li><strong>Pay by EFT</strong><span>Use that exact code as the payment reference. No code, no match.</span></li>
+          <li><strong>We confirm it</strong><span>Lea checks the bank, marks it paid, and your name appears on the event page.</span></li>
+          <li><strong>Turn up and play</strong><span>Fixtures are posted the day before.</span></li>
+        </ol>
+        <hr class="rule" style="margin:22px 0" />
+        <h3 style="font-size:.95rem">Why a reference code</h3>
+        <p class="muted" style="font-size:.87rem;margin:0">
+          Bank transfers don't say who paid. The code makes reconciliation one
+          search instead of a list of names to read through.
+        </p>
+      </div>
+    </aside>
+
+  </div>
+</section>
+
+<footer class="footer" id="footer"></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  initChrome('bookings');
+
+  const sel       = document.getElementById('event');
+  const form      = document.getElementById('entryForm');
+  const errBox    = document.getElementById('errBox');
+  const submitBtn = document.getElementById('submitBtn');
+  const sidePanel = document.getElementById('sidePanel');
+  const formPane  = document.getElementById('formPane');
+
+  /* event dropdown, with sold-out entries disabled */
+  sel.innerHTML = '<option value="">Select an event</option>' + EVENTS.map(ev => {
+    const s = statusOf(ev);
+    return `<option value="${ev.id}" ${s.left === 0 ? 'disabled' : ''}>
+      ${esc(ev.name)} — ${esc(ev.date)} — ${money(ev.price)}${s.left === 0 ? ' (FULL)' : ''}
+    </option>`;
+  }).join('');
+
+  function hint() {
+    const ev = eventById(sel.value);
+    const el = document.getElementById('eventHint');
+    if (!ev) { el.textContent = ''; return; }
+    const s = statusOf(ev);
+    el.innerHTML = `${esc(ev.date)} · ${esc(ev.time)} · ${esc(ev.division)} · ` +
+      `<strong style="color:${s.left === 0 ? '#f2607a' : '#d4f24e'}">${s.left} spots left</strong>`;
+  }
+  sel.addEventListener('change', hint);
+
+  /* deep link: bookings.html?event=luxea-invitational */
+  const pre = qs('event');
+  if (pre && eventById(pre)) { sel.value = pre; }
+  hint();
+
+  /* keep the form in sync with the chosen event */
+  function syncPane() {
+    const ev = eventById(sel.value);
+    if (!ev) return;
+    document.getElementById('formTitle').textContent = 'Enter ' + ev.name;
+    document.getElementById('formKicker').textContent = ev.tagline;
+    document.getElementById('formLead').innerHTML =
+      `${esc(ev.date)} · ${esc(ev.time)} · ${esc(ev.format)}. ` +
+      `Entry is <strong style="color:#fff">${money(ev.price)} per pair</strong>, paid by EFT.`;
+  }
+  sel.addEventListener('change', syncPane);
+  syncPane();
+
+  function fail(msg, focusId) {
+    errBox.style.display = 'block';
+    errBox.textContent = msg;
+    if (focusId) {
+      const f = document.getElementById(focusId);
+      if (f) f.focus();
+    }
+    errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errBox.style.display = 'none';
+
+    if (document.getElementById('website').value) return; // honeypot
+
+    const ev = eventById(sel.value);
+    const name    = document.getElementById('name').value.trim();
+    const partner = document.getElementById('partner').value.trim();
+    const rank    = document.getElementById('rank').value.trim();
+    const mobile  = document.getElementById('mobile').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const notes   = document.getElementById('notes').value.trim();
+    const consent = document.getElementById('consent').checked;
+
+    if (!ev)            return fail('Please choose which event you are entering.', 'event');
+    if (name.length < 2) return fail('Please enter your name and surname.', 'name');
+    if (!/^[0-9+()\s-]{9,}$/.test(mobile)) return fail('Please enter a valid mobile number.', 'mobile');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fail('Please enter a valid email address.', 'email');
+    if (!consent)       return fail('Please tick the consent box so we can contact you about this entry.', 'consent');
+
+    const s = statusOf(ev);
+    if (s.left === 0)   return fail('That event has just filled up. Message us on WhatsApp to join the reserve list.');
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting…';
+
+    const booking = {
+      id: 'b-' + Date.now() + '-' + rand(),
+      eventId: ev.id,
+      ref: nextRef(ev.refPrefix),
+      name: partner ? name + ' & ' + partner : name,
+      partner: partner,
+      rank: rank || '—',
+      mobile: mobile,
+      email: email,
+      notes: notes,
+      paid: false,
+      createdAt: new Date().toISOString()
+    };
+
+    addBooking(booking);
+
+    // Optional mirror to a Google Sheet (the production path).
+    if (CONFIG.scriptUrl) {
+      try {
+        await fetch(CONFIG.scriptUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(booking)
+        });
+      } catch (err) {
+        console.warn('Sheet mirror failed — entry is still saved locally.', err);
+      }
+    }
+
+    showConfirmation(booking, ev);
+  });
+
+  /* ------------------------------------------------------- confirmation */
+  function showConfirmation(b, ev) {
+    const waText = encodeURIComponent(
+      `Hi Pringle Padel! I've entered ${ev.name}. My booking reference is ${b.ref}. ` +
+      `Name: ${b.name}.`
+    );
+
+    formPane.innerHTML = `
+      <div class="panel">
+        <span class="badge badge-pend" style="margin-bottom:16px"><span class="dot"></span>Awaiting payment</span>
+        <h2 style="margin-bottom:8px">You're on the list, ${esc(b.name.split(' ')[0])}</h2>
+        <p class="muted" style="margin-bottom:0">
+          Entry received for <strong style="color:#fff">${esc(ev.name)}</strong> —
+          ${esc(ev.date)}. Nothing is confirmed until your EFT lands, so please
+          pay now using the reference below.
+        </p>
+
+        <div class="ref-hero">
+          <div class="lbl">Your booking reference</div>
+          <div class="code">${esc(b.ref)}</div>
+          <div class="sub">Put this exact code in the payment reference field.</div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px">
+          <button class="btn btn-ghost btn-sm" id="copyRef" type="button">Copy reference</button>
+          <a class="btn btn-ghost btn-sm" href="https://wa.me/27832630908?text=${waText}" target="_blank" rel="noopener">Send proof on WhatsApp</a>
+          <a class="btn btn-ghost btn-sm" href="event.html?id=${ev.id}">View the event</a>
+        </div>
+
+        <hr class="rule" />
+
+        <h3 style="margin-top:26px">Pay by EFT</h3>
+        <p class="muted" style="font-size:.9rem">
+          Amount due: <strong style="color:#fff">${money(ev.price)}</strong> per pair.
+        </p>
+        <div class="bank">
+          <div><span class="k">Account name</span><span class="v">${CONFIG.bank.accountName}</span></div>
+          <div><span class="k">Bank</span><span class="v">${CONFIG.bank.bank}</span></div>
+          <div><span class="k">Account number</span><span class="v">${CONFIG.bank.accountNumber}</span></div>
+          <div><span class="k">Branch code</span><span class="v">${CONFIG.bank.branch}</span></div>
+          <div><span class="k">Amount</span><span class="v">${money(ev.price)}</span></div>
+          <div><span class="k">Reference</span><span class="v" style="color:#d4f24e">${esc(b.ref)}</span></div>
+        </div>
+        <p class="muted" style="font-size:.8rem;margin:12px 0 0">
+          Bank details are placeholders in this test build.
+        </p>
+
+        <h3 style="margin-top:30px">After you pay</h3>
+        <ol class="steps">
+          <li><strong>We check the bank</strong><span>Lea searches the account for your reference code.</span></li>
+          <li><strong>You get marked paid</strong><span>One tap on the organiser page.</span></li>
+          <li><strong>Your name goes public</strong><span>It appears on the confirmed entry list for ${esc(ev.name)}.</span></li>
+        </ol>
+
+        <div style="margin-top:28px;display:flex;gap:12px;flex-wrap:wrap">
+          <a class="btn btn-primary" href="event.html?id=${ev.id}">See the entry list</a>
+          <a class="btn btn-ghost" href="events.html">Enter another event</a>
+        </div>
+
+        <p class="note" style="margin-top:26px">
+          <strong>Test build.</strong> This entry is saved in your browser only.
+          The organiser page in this same browser will show it so you can try the
+          full flow.
+        </p>
+      </div>`;
+
+    const copy = document.getElementById('copyRef');
+    copy.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.ref);
+        copy.textContent = 'Copied ✓';
+        setTimeout(() => { copy.textContent = 'Copy reference'; }, 1800);
+      } catch (err) {
+        copy.textContent = b.ref;
+      }
+    });
+
+    /* right-hand panel switches to a status card */
+    sidePanel.innerHTML = `
+      <h3>Your entry</h3>
+      <ul class="facts">
+        <li><span class="k">Event</span><span class="v">${esc(ev.name)}</span></li>
+        <li><span class="k">Date</span><span class="v">${esc(shortDate(ev))}</span></li>
+        <li><span class="k">Reference</span><span class="v" style="color:#d4f24e">${esc(b.ref)}</span></li>
+        <li><span class="k">Amount</span><span class="v">${money(ev.price)}</span></li>
+        <li><span class="k">Status</span><span class="v"><span class="badge badge-pend"><span class="dot pulse"></span>Awaiting payment</span></span></li>
+      </ul>
+      <hr class="rule" style="margin:20px 0" />
+      <p class="muted" style="font-size:.86rem;margin:0">
+        Try it: open the <a href="organiser.html">organiser page</a> in this same
+        browser, mark this entry paid, then come back to the
+        <a href="event.html?id=${ev.id}">event page</a> — your name will be on the
+        confirmed list.
+      </p>`;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>

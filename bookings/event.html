@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Event — Pringle Padel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+
+<div class="testbar">Test site · sample event <span>— not the live site</span></div>
+
+<header class="nav" id="nav"></header>
+
+<div id="page"></div>
+
+<footer class="footer" id="footer"></footer>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+  initChrome('events');
+
+  const ev = eventById(qs('id') || EVENTS[0].id);
+  const root = document.getElementById('page');
+
+  if (!ev) {
+    root.innerHTML = `
+      <section class="page-head"><div class="wrap">
+        <h1>Event not found</h1>
+        <p class="lead">That event is not in this test build.</p>
+        <p style="margin-top:20px"><a class="btn btn-primary" href="events.html">Back to events</a></p>
+      </div></section>`;
+  } else {
+    document.title = ev.name + ' — Pringle Padel';
+
+    const s = statusOf(ev);
+    const all = bookingsFor(ev.id);
+    const confirmed = all.filter(b => b.paid);
+    const pending = all.filter(b => !b.paid);
+    const full = s.left === 0;
+
+    root.innerHTML = `
+      <section class="page-head">
+        <div class="wrap">
+          <div class="crumbs"><a href="index.html">Home</a> / <a href="events.html">Events</a> / ${esc(ev.name)}</div>
+          <p class="kicker">${esc(ev.tagline)}</p>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap">
+            <div>
+              <h1>${esc(ev.name)}</h1>
+              <p class="lead" style="margin-top:14px">${esc(ev.blurb)}</p>
+            </div>
+            <span class="badge ${s.cls}" style="font-size:.76rem;padding:9px 15px">
+              <span class="dot pulse"></span>${s.label}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap split">
+
+          <div class="prose reveal">
+            <h3 style="margin-top:0">The run sheet</h3>
+            <ul class="facts" style="margin-bottom:26px">
+              <li><span class="k">Date</span><span class="v">${esc(ev.date)}</span></li>
+              <li><span class="k">Time</span><span class="v">${esc(ev.time)}</span></li>
+              <li><span class="k">Format</span><span class="v">${esc(ev.format)}</span></li>
+              <li><span class="k">Division</span><span class="v">${esc(ev.division)}</span></li>
+              <li><span class="k">Capacity</span><span class="v">${ev.capacity} players (${ev.capacity / 2} pairs)</span></li>
+              <li><span class="k">Venue</span><span class="v">${esc(ev.venue)}</span></li>
+            </ul>
+
+            <h3>What's included</h3>
+            <ul>${ev.includes.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
+
+            <h3>Prizes</h3>
+            <p class="muted">${esc(ev.prize)}</p>
+
+            <h3>Confirmed entry list</h3>
+            <p class="muted" style="font-size:.9rem;margin-bottom:14px">
+              Only players whose EFT has been confirmed by the organiser appear
+              here. Names update the moment Lea marks a payment received.
+            </p>
+            <div class="tbl-wrap">
+              ${confirmed.length ? `
+              <table>
+                <thead><tr><th style="width:56px">#</th><th>Pair</th><th>Division</th><th>Status</th></tr></thead>
+                <tbody>
+                  ${confirmed.map((b, i) => `
+                    <tr>
+                      <td class="muted">${i + 1}</td>
+                      <td class="name">${esc(b.name)}</td>
+                      <td class="muted">${esc(b.rank || '—')}</td>
+                      <td><span class="badge badge-paid"><span class="dot"></span>Confirmed</span></td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>` : `
+              <div class="empty">No confirmed entries yet — the first paid entry shows up here.</div>`}
+            </div>
+
+            ${pending.length ? `
+            <p class="note">
+              <strong>${pending.length} ${pending.length === 1 ? 'entry is' : 'entries are'} awaiting payment.</strong>
+              They appear above automatically once Lea confirms the EFT.
+            </p>` : ''}
+          </div>
+
+          <aside>
+            <div class="panel panel-sticky reveal">
+              <div class="price-tag">${money(ev.price)}<br /><small>per pair</small></div>
+              <p class="muted" style="font-size:.88rem;margin:12px 0 0">
+                ${s.left} of ${ev.capacity} spots left · ${s.paid} confirmed
+              </p>
+              <div class="bar ${s.left <= 4 ? 'few' : ''}" style="margin-top:14px">
+                <i style="width:${pct(s.paid, ev.capacity)}%"></i>
+              </div>
+              <div class="bar-label"><span>${pct(s.paid, ev.capacity)}% full</span><span>${ev.capacity - s.paid} left</span></div>
+
+              <div style="margin-top:22px">
+                ${full
+                  ? `<button class="btn btn-ghost btn-block" disabled>Event full</button>
+                     <p class="muted" style="font-size:.84rem;margin:12px 0 0">Message us on WhatsApp to join the reserve list.</p>`
+                  : `<a class="btn btn-primary btn-block" href="bookings.html?event=${ev.id}">Enter this event</a>`}
+              </div>
+
+              <hr class="rule" style="margin:22px 0" />
+
+              <h3 style="font-size:.95rem">Payment</h3>
+              <p class="muted" style="font-size:.86rem">
+                EFT only. You get a unique reference code when you enter — put it
+                in the payment reference so we can match your money to your entry.
+              </p>
+              <div class="bank">
+                <div><span class="k">Account</span><span class="v">${CONFIG.bank.accountName}</span></div>
+                <div><span class="k">Bank</span><span class="v">${CONFIG.bank.bank}</span></div>
+                <div><span class="k">Acc number</span><span class="v">${CONFIG.bank.accountNumber}</span></div>
+                <div><span class="k">Branch</span><span class="v">${CONFIG.bank.branch}</span></div>
+                <div><span class="k">Reference</span><span class="v todo">your booking code</span></div>
+              </div>
+              <p class="muted" style="font-size:.8rem;margin:12px 0 0">
+                Bank details are placeholders in this test build.
+              </p>
+            </div>
+          </aside>
+
+        </div>
+      </section>
+
+      <section class="section-tight" style="padding-bottom:80px">
+        <div class="wrap">
+          <hr class="rule" />
+          <div style="margin-top:48px;display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;align-items:center" class="reveal">
+            <div>
+              <h3 style="margin-bottom:6px">The other event</h3>
+              <p class="muted" style="margin:0;font-size:.92rem">
+                ${EVENTS.filter(e => e.id !== ev.id).map(e => `${esc(e.name)} — ${esc(e.date)}`).join('')}
+              </p>
+            </div>
+            <a class="btn btn-ghost" href="event.html?id=${EVENTS.find(e => e.id !== ev.id).id}">View it →</a>
+          </div>
+        </div>
+      </section>`;
+  }
+</script>
+</body>
+</html>
