@@ -29,7 +29,6 @@
 							<li><a href="index.html">Coaching</a></li>
 							<li><a href="socials.html">Socials</a></li>
 							<li class="active"><a href="tournaments.html">Tournaments</a></li>
-							<li><a href="bookings/events.html">Enter an event</a></li>
 						</ul>
 						<ul class="icons">
 <li>
@@ -66,6 +65,26 @@
 
 <script>
   // Add your tournaments here
+  // Entries are open for these two. They are TEST events: the Enter
+  // button works, the tournament itself has not happened yet.
+  const openEvents = [
+    {
+      name: 'Luxea Invitational - 14 Nov 2026',
+      image: 'images/Luxea-padel-team-photo.jpeg',
+      url: '/luxea-invitational.html',
+      enter: '/booking.html?event=luxea-invitational',
+      open: true
+    },
+    {
+      name: 'Mamma Mia Mixed Cup - 28 Nov 2026',
+      image: 'images/mamma_mia_tournament_logo.jpg',
+      url: '/mamma-mia-mixed-cup.html',
+      enter: '/booking.html?event=mamma-mia-mixed-cup',
+      open: true
+    }
+  ];
+
+  // Past tournaments and the running league.
   const tournaments = [
     {
       name: '10 Aug 2025 - Venue: IPR',
@@ -88,17 +107,26 @@
     // Render cards
   const container = document.getElementById('tournaments');
 
-  container.innerHTML = tournaments.map(t => `
+  // Same card markup as before; open events get an extra Enter button.
+  function card(t) {
+    return `
     <article class="tournament-card">
       <div class="thumb">
         <img src="${t.image}" alt="${t.name}">
       </div>
       <h3>${t.name}</h3>
-      <a class="button ${t.specialClass || ''}" href="${t.url}" aria-label="Open page for ${t.name}">
-        View results
-      </a>
-    </article>
-  `).join('');
+      <div class="card-actions">
+        ${t.open
+          ? `<a class="button primary" href="${t.enter}" aria-label="Enter ${t.name}">Enter</a>`
+          : ''}
+        <a class="button ${t.specialClass || ''}" href="${t.url}" aria-label="Open page for ${t.name}">
+          ${t.open ? 'Details' : 'View results'}
+        </a>
+      </div>
+    </article>`;
+  }
+
+  container.innerHTML = openEvents.map(card).join('') + tournaments.map(card).join('');
 </script>
 
 <style>
@@ -125,6 +153,16 @@
   text-align: center;           /* centers the text itself */
   width: fit-content;           /* shrink background to text width */
   border-radius: 6px;           /* optional: slight rounding */
+}
+.tournament-card .card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.75rem 1rem 1rem;
+}
+.tournament-card .card-actions .button {
+  margin: 0;
 }
 .tournament-card .button {
   margin: 0.75rem auto 1rem;      /* center the button horizontally */

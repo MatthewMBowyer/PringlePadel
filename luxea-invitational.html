@@ -1,0 +1,225 @@
+<!DOCTYPE HTML>
+<!--
+	Massively by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Luxea Invitational | Pringle Padel</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+		<style>
+			.pp-note {
+				font-size: 0.95rem;
+				opacity: 0.8;
+			}
+			.pp-cards {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+				gap: 1.25rem;
+				margin-top: 1rem;
+			}
+			.pp-card {
+				border: 1px solid rgba(0,0,0,.1);
+				border-radius: 12px;
+				overflow: hidden;
+				background: #fff;
+				display: flex;
+				flex-direction: column;
+			}
+			.pp-card .thumb { aspect-ratio: 16/9; overflow: hidden; margin-top: 10px; }
+			.pp-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transform: translateY(10%); }
+			.pp-card h3 {
+				font-size: 1.05rem; margin: 0.5rem auto; padding: 0.5rem 1rem;
+				background: rgba(255,255,255,0.9); color: #000; text-align: center;
+				width: fit-content; border-radius: 6px;
+			}
+			.pp-card .actions {
+				display: flex; flex-wrap: wrap; justify-content: center;
+				gap: 0.5rem; margin: 0.75rem 1rem 1rem;
+			}
+			.pp-card .actions .button { margin: 0; }
+			.pp-facts { margin: 0 0 2rem 0; }
+			.pp-facts li {
+				display: flex; justify-content: space-between; gap: 1rem;
+				padding: 0.6rem 0; border-bottom: 1px solid rgba(0,0,0,.1);
+			}
+			.pp-facts li:last-child { border-bottom: 0; }
+			.pp-facts .k { opacity: 0.7; }
+			.pp-facts .v { font-weight: 600; }
+			.pp-ref {
+				font-family: "Courier New", monospace; font-weight: 700;
+				font-size: 1.4rem; letter-spacing: 0.08em;
+			}
+			.pp-bank {
+				border: 1px solid rgba(0,0,0,.15); padding: 1.25rem 1.5rem;
+				margin: 0 0 2rem 0; background: rgba(0,0,0,.02);
+			}
+			.pp-bank div {
+				display: flex; justify-content: space-between; gap: 1rem;
+				padding: 0.4rem 0; border-bottom: 1px dashed rgba(0,0,0,.12);
+			}
+			.pp-bank div:last-child { border-bottom: 0; }
+			.pp-bank .k { opacity: 0.7; }
+			.pp-bank .v { font-weight: 600; }
+			.pp-status { font-size: 0.9rem; font-weight: 600; }
+			.pp-status.paid { color: #1c7c4a; }
+			.pp-status.pending { color: #b5651d; }
+			@media screen and (max-width: 736px) {
+				.pp-card .actions .button { width: 100%; }
+			}
+		</style>
+	</head>
+	<body class="is-preload">
+
+		<div id="wrapper">
+
+			<!-- Header -->
+			<header id="header">
+				<a href="#footer" class="logo scrolly">Game, Set, Chat!</a>
+			</header>
+
+				<!-- Nav -->
+				<nav id="nav">
+					<ul class="links">
+							<li><a href="Court-side.html">Coach Lea</a></li>
+							<li><a href="index.html">Coaching</a></li>
+							<li><a href="socials.html">Socials</a></li>
+							<li class="active"><a href="tournaments.html">Tournaments</a></li>
+					</ul>
+					<ul class="icons">
+						<li><a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" target="_blank" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+						<li><a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" target="_blank" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+						<li><a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" target="_blank" class="icon brands alt fa-tiktok"><span class="label">TikTok</span></a></li>
+					</ul>
+				</nav>
+
+			<!-- Main -->
+			<div id="main">
+
+				<!-- Post -->
+				<section class="post">
+					<header class="major">
+						<h1>Luxea Invitational</h1>
+						<p>Winter doubles league night. Enter below and we will confirm your spot once payment lands.</p>
+					</header>
+
+					<ul class="actions special">
+						<li><a href="booking.html?event=luxea-invitational" class="button primary large">Enter this event</a></li>
+						<li><a href="tournaments.html" class="button large">Back to tournaments</a></li>
+					</ul>
+				</section>
+
+				<!-- Details -->
+				<section class="post">
+					<h2>Details</h2>
+					<ul class="pp-facts" id="facts"></ul>
+				</section>
+
+				<!-- Confirmed entries -->
+				<section class="post">
+					<h2>Confirmed entries</h2>
+					<p class="pp-note" id="note"></p>
+					<div class="table-wrapper">
+						<table id="entries">
+							<thead>
+								<tr><th>Ref</th><th>Player</th><th>Rank</th><th>Entered</th></tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+				</section>
+
+			</div>
+
+				<!-- Footer -->
+				<footer id="footer">
+					<section>
+						<h3>Want to book or ask a question?</h3>
+						<p>Click below to chat with us directly on WhatsApp 👇</p>
+						<a href="https://wa.me/27832630908?text=Hi%20there!%20I%27m%20interested%20in%20padel%20coaching." target="_blank" class="button primary fit">📱 WhatsApp Us</a>
+					</section>
+					<section class="split contact">
+						<section class="alt">
+							<h3>Padel address:</h3>
+							<p>Indoor Padel Revolution<br />
+							2 Picaroon Street Johannesburg 1724</p>
+						</section>
+						<section>
+							<h3>Phone</h3>
+							<p><a href="https://wa.me/27832630908" target="_blank">+27 83 263 0908</a></p>
+						</section>
+						<section>
+							<h3>Email</h3>
+							<p><a href="mailto:Pringlepadel@gmail.com">Pringlepadel@gmail.com</a></p>
+						</section>
+						<section>
+							<ul class="icons alt">
+								<li><a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" target="_blank" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
+								<li><a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" target="_blank" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
+								<li><a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" target="_blank" class="icon brands alt fa-tiktok"><span class="label">TikTok</span></a></li>
+							</ul>
+						</section>
+					</section>
+				</footer>
+
+				<!-- Copyright -->
+				<div id="copyright">
+					<ul><li>&copy; Pringle Padel</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+				</div>
+
+		</div>
+
+		<!-- Scripts -->
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/jquery.scrollex.min.js"></script>
+		<script src="assets/js/jquery.scrolly.min.js"></script>
+		<script src="assets/js/browser.min.js"></script>
+		<script src="assets/js/breakpoints.min.js"></script>
+		<script src="assets/js/util.js"></script>
+		<script src="assets/js/main.js"></script>
+		<script src="assets/js/entries.js"></script>
+
+		<script>
+			const ev = ppEvent('luxea-invitational');
+			const c  = ppCounts('luxea-invitational');
+
+			document.getElementById('facts').innerHTML = [
+				['Date', ev.date],
+				['Venue', ev.venue],
+				['Format', ev.format],
+				['Entry fee', ppMoney(ev.price) + ' per pair'],
+				['Capacity', c.capacity + ' players'],
+				['Spots left', c.full ? 'Full — waiting list only' : (c.left + ' of ' + c.capacity)]
+			].map(function (r) {
+				return '<li><span class="k">' + ppEsc(r[0]) + '</span>' +
+				       '<span class="v">' + ppEsc(r[1]) + '</span></li>';
+			}).join('');
+
+			const paid = ppForEvent('luxea-invitational', true);
+			const pending = ppForEvent('luxea-invitational', false).length - paid.length;
+
+			document.getElementById('note').textContent = pending
+				? pending + ' ' + (pending === 1 ? 'entry is' : 'entries are') +
+				  ' awaiting payment. ' +
+				  (pending === 1 ? 'It appears' : 'They appear') +
+				  ' above automatically once Lea confirms the EFT.'
+				: 'All confirmed entries are listed below.';
+
+			if (paid.length) {
+				document.querySelector('#entries tbody').innerHTML = paid.map(function (b) {
+					return '<tr><td>' + ppEsc(b.ref) + '</td>' +
+					       '<td>' + ppEsc(b.name) + '</td>' +
+					       '<td>' + ppEsc(b.rank || '—') + '</td>' +
+					       '<td>' + ppEsc((b.paidAt || '').slice(0, 10)) + '</td></tr>';
+				}).join('');
+			} else {
+				document.getElementById('entries').style.display = 'none';
+			}
+		</script>
+
+	</body>
+</html>

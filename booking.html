@@ -15,6 +15,8 @@
 
 		<link rel="stylesheet" href="assets/css/main.css" />
 
+		<script src="assets/js/entries.js"></script>
+
 		<noscript>
 			<link rel="stylesheet" href="assets/css/noscript.css" />
 		</noscript>
@@ -87,6 +89,38 @@
 				opacity: 0.6;
 				cursor: not-allowed;
 			}
+
+			#receipt {
+				display: none;
+				margin-top: 2rem;
+			}
+
+			#receipt .pp-ref {
+				font-family: "Courier New", monospace;
+				font-weight: 700;
+				font-size: 1.5rem;
+				letter-spacing: 0.08em;
+			}
+
+			.pp-bank {
+				border: 1px solid rgba(0, 0, 0, 0.15);
+				padding: 1.25rem 1.5rem;
+				margin: 1.5rem 0 0 0;
+				background: rgba(0, 0, 0, 0.02);
+				text-align: left;
+			}
+
+			.pp-bank div {
+				display: flex;
+				justify-content: space-between;
+				gap: 1rem;
+				padding: 0.4rem 0;
+				border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+			}
+
+			.pp-bank div:last-child { border-bottom: 0; }
+			.pp-bank .k { opacity: 0.7; }
+			.pp-bank .v { font-weight: 600; }
 
 
 
@@ -235,6 +269,14 @@
 									<option value="Padelton">
 										Padelton
 									</option>
+
+											<option value="luxea-invitational">
+												Luxea Invitational — 14 Nov 2026
+											</option>
+
+											<option value="mamma-mia-mixed-cup">
+												Mamma Mia Mixed Cup — 28 Nov 2026
+											</option>
 								</select>
 							</div>
 
@@ -367,6 +409,31 @@
 								role="alert"
 								aria-live="polite"
 							></div>
+
+						<!-- Shown after a successful entry -->
+						<div id="receipt">
+							<h3>Your payment reference</h3>
+
+							<p>
+								Please pay by EFT and use this exact reference so we can
+								match your payment to your entry:
+							</p>
+
+							<p class="pp-ref" id="receiptRef"></p>
+
+							<div class="pp-bank">
+								<div><span class="k">Account name</span><span class="v" id="bkName"></span></div>
+								<div><span class="k">Bank</span><span class="v" id="bkBank"></span></div>
+								<div><span class="k">Account number</span><span class="v" id="bkAcc"></span></div>
+								<div><span class="k">Branch code</span><span class="v" id="bkBranch"></span></div>
+								<div><span class="k">Amount</span><span class="v" id="bkAmount"></span></div>
+							</div>
+
+							<p>
+								Your spot is confirmed and your name appears on the event
+								page as soon as Lea checks the payment off.
+							</p>
+						</div>
 
 						</form>
 
@@ -588,6 +655,44 @@
 							"success"
 						);
 
+								// Record the entry locally and issue the EFT reference
+								// Lea matches the incoming payment against.
+								var chosen = ppEvent(formData.event);
+
+								if (chosen) {
+
+									var booking = ppAddBooking({
+										ref: ppNextRef(chosen),
+										eventId: chosen.id,
+										eventName: chosen.name,
+										name: formData.name + ' ' + formData.surname,
+										surname: formData.surname,
+										rank: formData.padelRank,
+										mobile: formData.mobile,
+										email: formData.email
+									});
+
+									document.getElementById('receiptRef').textContent = booking.ref;
+									document.getElementById('bkName').textContent = PP_ENTRIES.bank.accountName;
+									document.getElementById('bkBank').textContent = PP_ENTRIES.bank.bank;
+									document.getElementById('bkAcc').textContent = PP_ENTRIES.bank.accountNumber;
+									document.getElementById('bkBranch').textContent = PP_ENTRIES.bank.branch;
+									document.getElementById('bkAmount').textContent = ppMoney(chosen.price);
+									document.getElementById('receipt').style.display = 'block';
+
+									ppMirrorToSheet({
+										action: 'entry',
+										ref: booking.ref,
+										event: chosen.name,
+										name: booking.name,
+										rank: booking.rank,
+										mobile: booking.mobile,
+										email: booking.email,
+										amount: chosen.price,
+										paid: false
+									});
+								}
+
 						bookingForm.reset();
 
 						formMessage.scrollIntoView({
@@ -612,7 +717,25 @@
 					}
 				}
 			);
-		</script>
+		
+
+					// Arriving from a tournament card: ?event=<id>
+					var wanted = new URLSearchParams(location.search).get('event');
+
+					if (wanted && ppEvent(wanted)) {
+						document.getElementById('event').value = wanted;
+					}
+
+					// Bring the reference into view once it exists.
+					var receiptEl = document.getElementById('receipt');
+
+					new MutationObserver(function (muts, obs) {
+						if (receiptEl.style.display === 'block') {
+							receiptEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+							obs.disconnect();
+						}
+					}).observe(receiptEl, { attributes: true, attributeFilter: ['style'] });
+				</script>
 
 	</body>
 </html>
