@@ -65,21 +65,13 @@
 
 <script>
   // Add your tournaments here
-  // Entries are open for these two. They are TEST events: the Enter
-  // button works, the tournament itself has not happened yet.
+  // Entry is open for this one. The Enter button is live.
   const openEvents = [
     {
-      name: 'Luxea Invitational - 14 Nov 2026',
-      image: 'images/Luxea-padel-team-photo.jpeg',
-      url: '/luxea-invitational.html',
-      enter: '/booking.html?event=luxea-invitational',
-      open: true
-    },
-    {
-      name: 'Mamma Mia Mixed Cup - 28 Nov 2026',
-      image: 'images/mamma_mia_tournament_logo.jpg',
-      url: '/mamma-mia-mixed-cup.html',
-      enter: '/booking.html?event=mamma-mia-mixed-cup',
+      name: 'Sunday Social - 18 Oct 2026',
+      image: 'images/pic02.jpg',
+      url: '/sunday-social.html',
+      enter: '/booking.html?event=sunday-social',
       open: true
     }
   ];
@@ -163,6 +155,18 @@
 }
 .tournament-card .card-actions .button {
   margin: 0;
+}
+/* The card's white button background would otherwise cancel the theme's
+   dark primary fill and leave white text on white. */
+.tournament-card .card-actions .button.primary {
+  background: #212931;
+  color: #fff;
+  border-color: #212931;
+}
+.tournament-card .card-actions .button.primary:hover {
+  background: #18bfef;
+  color: #fff;
+  border-color: #18bfef;
 }
 .tournament-card .button {
   margin: 0.75rem auto 1rem;      /* center the button horizontally */

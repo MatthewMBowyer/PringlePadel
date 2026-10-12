@@ -29,33 +29,21 @@ const PP_ENTRIES = {
   }
 };
 
-/* ----------------------------------------------------------- test events
-   Marked as test events on the tournaments page so they are never
-   confused with the real tournament history. */
+/* ----------------------------------------------------------- open events
+   Events currently accepting entries. They appear on the tournaments page
+   with an Enter button. */
 const PP_EVENTS = [
   {
-    id: 'luxea-invitational',
-    name: 'Luxea Invitational',
-    refPrefix: 'LUX',
-    date: 'Saturday 14 November 2026',
+    id: 'sunday-social',
+    name: 'Sunday Social',
+    refPrefix: 'SUN',
+    date: 'Sunday 18 October 2026',
     venue: 'Indoor Padel Revolution',
-    format: 'Mixed doubles, round robin then knockout',
-    price: 380,
+    format: 'Social play, mixed pairs, rotate partners',
+    price: 250,
     capacity: 16,
-    image: 'images/Luxea-padel-team-photo.jpeg',
-    url: 'luxea-invitational.html'
-  },
-  {
-    id: 'mamma-mia-mixed-cup',
-    name: 'Mamma Mia Mixed Cup',
-    refPrefix: 'MAM',
-    date: 'Saturday 28 November 2026',
-    venue: 'Indoor Padel Revolution',
-    format: 'Mixed doubles, group stage',
-    price: 380,
-    capacity: 12,
-    image: 'images/mamma_mia_tournament_logo.jpg',
-    url: 'mamma-mia-mixed-cup.html'
+    image: 'images/pic02.jpg',
+    url: 'sunday-social.html'
   }
 ];
 
@@ -186,28 +174,22 @@ function ppSeed() {
   if (ppLoad().length) return;
   ppSave([
     {
-      id: 'seed-lux-1', ref: 'LUX-101', eventId: 'luxea-invitational',
-      eventName: 'Luxea Invitational', name: 'Charisca & KayCee',
-      partner: 'KayCee', rank: '3.0', mobile: '', email: '',
-      paid: true, paidAt: '2026-10-02T09:15:00.000Z', enteredAt: '2026-10-01T18:02:00.000Z'
+      id: 'seed-sun-1', ref: 'SUN-101', eventId: 'sunday-social',
+      eventName: 'Sunday Social', name: 'Charisca & KayCee',
+      rank: '3.0', mobile: '', email: '',
+      paid: true, paidAt: '2026-10-09T09:15:00.000Z', enteredAt: '2026-10-08T18:02:00.000Z'
     },
     {
-      id: 'seed-lux-2', ref: 'LUX-102', eventId: 'luxea-invitational',
-      eventName: 'Luxea Invitational', name: 'Lauren & Magda',
-      partner: 'Magda', rank: '3.5', mobile: '', email: '',
-      paid: true, paidAt: '2026-10-03T07:40:00.000Z', enteredAt: '2026-10-01T19:31:00.000Z'
+      id: 'seed-sun-2', ref: 'SUN-102', eventId: 'sunday-social',
+      eventName: 'Sunday Social', name: 'Lauren & Magda',
+      rank: '3.5', mobile: '', email: '',
+      paid: true, paidAt: '2026-10-10T07:40:00.000Z', enteredAt: '2026-10-08T19:31:00.000Z'
     },
     {
-      id: 'seed-mam-1', ref: 'MAM-101', eventId: 'mamma-mia-mixed-cup',
-      eventName: 'Mamma Mia Mixed Cup', name: 'Debbie & Eleasha',
-      partner: 'Eleasha', rank: '2.5', mobile: '', email: '',
-      paid: true, paidAt: '2026-10-04T11:05:00.000Z', enteredAt: '2026-10-02T12:00:00.000Z'
-    },
-    {
-      id: 'seed-lux-3', ref: 'LUX-103', eventId: 'luxea-invitational',
-      eventName: 'Luxea Invitational', name: 'Lynn & Tracey',
-      partner: 'Tracey', rank: '2.0', mobile: '0821234567', email: '',
-      paid: false, paidAt: '', enteredAt: '2026-10-05T16:45:00.000Z'
+      id: 'seed-sun-3', ref: 'SUN-103', eventId: 'sunday-social',
+      eventName: 'Sunday Social', name: 'Lynn & Tracey',
+      rank: '2.0', mobile: '0821234567', email: '',
+      paid: false, paidAt: '', enteredAt: '2026-10-11T16:45:00.000Z'
     }
   ]);
 }

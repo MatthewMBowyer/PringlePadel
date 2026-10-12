@@ -6,7 +6,7 @@
 -->
 <html>
 	<head>
-		<title>Mamma Mia Mixed Cup | Pringle Padel</title>
+		<title>Sunday Social | Pringle Padel</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 		<link rel="stylesheet" href="assets/css/main.css" />
@@ -103,12 +103,12 @@
 				<!-- Post -->
 				<section class="post">
 					<header class="major">
-						<h1>Mamma Mia Mixed Cup</h1>
-						<p>Mixed doubles, group stage. Enter below and we will confirm your spot once payment lands.</p>
+						<h1>Sunday Social</h1>
+						<p>Social play this Sunday. Enter below and we will confirm your spot once payment lands.</p>
 					</header>
 
 					<ul class="actions special">
-						<li><a href="booking.html?event=mamma-mia-mixed-cup" class="button primary large">Enter this event</a></li>
+						<li><a href="booking.html?event=sunday-social" class="button primary large">Enter this event</a></li>
 						<li><a href="tournaments.html" class="button large">Back to tournaments</a></li>
 					</ul>
 				</section>
@@ -184,8 +184,8 @@
 		<script src="assets/js/entries.js"></script>
 
 		<script>
-			const ev = ppEvent('mamma-mia-mixed-cup');
-			const c  = ppCounts('mamma-mia-mixed-cup');
+			const ev = ppEvent('sunday-social');
+			const c  = ppCounts('sunday-social');
 
 			document.getElementById('facts').innerHTML = [
 				['Date', ev.date],
@@ -199,8 +199,8 @@
 				       '<span class="v">' + ppEsc(r[1]) + '</span></li>';
 			}).join('');
 
-			const paid = ppForEvent('mamma-mia-mixed-cup', true);
-			const pending = ppForEvent('mamma-mia-mixed-cup', false).length - paid.length;
+			const paid = ppForEvent('sunday-social', true);
+			const pending = ppForEvent('sunday-social', false).length - paid.length;
 
 			document.getElementById('note').textContent = pending
 				? pending + ' ' + (pending === 1 ? 'entry is' : 'entries are') +
