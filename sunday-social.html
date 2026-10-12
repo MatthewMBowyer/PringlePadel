@@ -200,14 +200,9 @@
 			}).join('');
 
 			const paid = ppForEvent('sunday-social', true);
-			const pending = ppForEvent('sunday-social', false).length - paid.length;
 
-			document.getElementById('note').textContent = pending
-				? pending + ' ' + (pending === 1 ? 'entry is' : 'entries are') +
-				  ' awaiting payment. ' +
-				  (pending === 1 ? 'It appears' : 'They appear') +
-				  ' above automatically once Lea confirms the EFT.'
-				: 'All confirmed entries are listed below.';
+			document.getElementById('note').textContent =
+				'Confirmed entries appear here once the EFT payment has cleared.';
 
 			if (paid.length) {
 				document.querySelector('#entries tbody').innerHTML = paid.map(function (b) {

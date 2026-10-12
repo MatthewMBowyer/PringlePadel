@@ -17,10 +17,6 @@ const PP_ENTRIES = {
   storageKey: 'pp_entries_v1',
   counterKey: 'pp_ref_counter_v1',
 
-  // Organiser passcode for the Lea view. A speed bump, not security:
-  // this file is served publicly. See the note on organiser.html.
-  adminPasscode: '',
-
   bank: {
     accountName: 'Pringle Padel',
     bank: 'FNB',
@@ -118,16 +114,6 @@ function ppAddBooking(data) {
   return booking;
 }
 
-function ppSetPaid(id, paid) {
-  const list = ppLoad();
-  const b = list.find(function (x) { return x.id === id; });
-  if (!b) return false;
-  b.paid = !!paid;
-  b.paidAt = paid ? new Date().toISOString() : '';
-  ppSave(list);
-  return true;
-}
-
 function ppForEvent(eventId, paidOnly) {
   return ppLoad().filter(function (b) {
     return b.eventId === eventId && (!paidOnly || b.paid);
@@ -165,33 +151,3 @@ function ppMirrorToSheet(payload) {
     }).catch(function () { /* offline mirror is best-effort */ });
   } catch (e) {}
 }
-
-/* ------------------------------------------------------- sample entries
-
-   Two already-paid entries so the confirmed list and the organiser
-   screen are not empty on a first visit. */
-function ppSeed() {
-  if (ppLoad().length) return;
-  ppSave([
-    {
-      id: 'seed-sun-1', ref: 'SUN-101', eventId: 'sunday-social',
-      eventName: 'Sunday Social', name: 'Charisca & KayCee',
-      rank: '3.0', mobile: '', email: '',
-      paid: true, paidAt: '2026-10-09T09:15:00.000Z', enteredAt: '2026-10-08T18:02:00.000Z'
-    },
-    {
-      id: 'seed-sun-2', ref: 'SUN-102', eventId: 'sunday-social',
-      eventName: 'Sunday Social', name: 'Lauren & Magda',
-      rank: '3.5', mobile: '', email: '',
-      paid: true, paidAt: '2026-10-10T07:40:00.000Z', enteredAt: '2026-10-08T19:31:00.000Z'
-    },
-    {
-      id: 'seed-sun-3', ref: 'SUN-103', eventId: 'sunday-social',
-      eventName: 'Sunday Social', name: 'Lynn & Tracey',
-      rank: '2.0', mobile: '0821234567', email: '',
-      paid: false, paidAt: '', enteredAt: '2026-10-11T16:45:00.000Z'
-    }
-  ]);
-}
-
-ppSeed();
