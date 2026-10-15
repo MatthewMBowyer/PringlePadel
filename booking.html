@@ -123,7 +123,6 @@
 			.pp-bank .v { font-weight: 600; }
 
 
-
 	@media screen and (max-width: 736px) {
 
 		.booking-container {
@@ -270,7 +269,7 @@
 										Padelton
 									</option>
 
-									<option value="sunday-social">
+									<option value="Sunday Social">
 										Sunday Social — 18 Oct 2026
 									</option>
 								</select>
@@ -609,6 +608,13 @@
 								.checked
 					};
 
+					// Issued before the POST so the reference is stored in the Sheet
+					// alongside the entry, and Lea can match the EFT to it.
+					var chosen = ppEvent(formData.event);
+					var reference = chosen ? ppNextRef(chosen) : '';
+
+					formData.ref = reference;
+
 					submitButton.disabled = true;
 					submitButton.textContent = "Submitting...";
 
@@ -651,14 +657,10 @@
 							"success"
 						);
 
-								// Record the entry locally and issue the EFT reference
-								// Lea matches the incoming payment against.
-								var chosen = ppEvent(formData.event);
-
 								if (chosen) {
 
 									var booking = ppAddBooking({
-										ref: ppNextRef(chosen),
+										ref: reference,
 										eventId: chosen.id,
 										eventName: chosen.name,
 										name: formData.name + ' ' + formData.surname,
@@ -675,18 +677,6 @@
 									document.getElementById('bkBranch').textContent = PP_ENTRIES.bank.branch;
 									document.getElementById('bkAmount').textContent = ppMoney(chosen.price);
 									document.getElementById('receipt').style.display = 'block';
-
-									ppMirrorToSheet({
-										action: 'entry',
-										ref: booking.ref,
-										event: chosen.name,
-										name: booking.name,
-										rank: booking.rank,
-										mobile: booking.mobile,
-										email: booking.email,
-										amount: chosen.price,
-										paid: false
-									});
 								}
 
 						bookingForm.reset();
@@ -718,8 +708,10 @@
 					// Arriving from a tournament card: ?event=<id>
 					var wanted = new URLSearchParams(location.search).get('event');
 
-					if (wanted && ppEvent(wanted)) {
-						document.getElementById('event').value = wanted;
+					var matched = ppEvent(wanted);
+
+					if (matched) {
+						document.getElementById('event').value = matched.name;
 					}
 
 					// Bring the reference into view once it exists.

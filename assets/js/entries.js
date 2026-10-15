@@ -4,24 +4,20 @@
    the event list and the booking records, and nothing visual. All
    styling comes from assets/css/main.css like the rest of the site.
 
-   Storage is localStorage so the flow works end to end today. Set
-   PP_ENTRIES.scriptUrl to the Apps Script /exec URL to also write
-   each entry into the Google Sheet (the production path).
+   booking.html posts each entry straight to the Apps Script URL, which
+   is where the Sheet gets written. The records kept here are the visitor's
+   own copy, used to render the receipt and the confirmed list.
    ============================================================ */
 
 const PP_ENTRIES = {
 
-  // Apps Script web-app /exec URL. Leave empty to run offline.
-  scriptUrl: '',
-
   storageKey: 'pp_entries_v1',
-  counterKey: 'pp_ref_counter_v1',
 
   bank: {
-    accountName: 'Pringle Padel',
-    bank: 'FNB',
-    accountNumber: '62XXXXX4891',
-    branch: '250655'
+    accountName: 'L Smith',
+    bank: 'Discovery Bank',
+    accountNumber: '16418811292',
+    branch: '679000'
   }
 };
 
@@ -44,7 +40,7 @@ const PP_EVENTS = [
 ];
 
 function ppEvent(id) {
-  return PP_EVENTS.find(function (e) { return e.id === id; }) || null;
+  return PP_EVENTS.find(function (e) { return e.id === id || e.name === id; }) || null;
 }
 
 /* --------------------------------------------------------------- helpers */
@@ -81,23 +77,21 @@ function ppSave(list) {
   }
 }
 
-/* Reference codes are unique per event, e.g. LUX-104. The player puts
-   this in the EFT payment reference so Lea can match money to a name. */
-function ppNextRef(event) {
-  let n = 100;
-  try {
-    n = parseInt(localStorage.getItem(PP_ENTRIES.counterKey) || '100', 10);
-  } catch (e) {}
-  if (isNaN(n)) n = 100;
-  n += 1;
-  try { localStorage.setItem(PP_ENTRIES.counterKey, String(n)); } catch (e) {}
+/* Reference codes identify an entry, e.g. SUN-K3F9A. The player puts this in
+   the EFT payment reference so Lea can match money to a name.
 
+   The reference has to be unique across every visitor, not just this browser.
+   A per-browser counter cannot do that: each visitor starts from the same
+   value, so everyone is handed the same reference and Lea cannot tell two
+   payments apart. Derive it from the clock plus randomness instead. */
+function ppNextRef(event) {
   const taken = ppLoad().map(function (b) { return b.ref; });
-  let ref = event.refPrefix + '-' + n;
-  while (taken.indexOf(ref) !== -1) {
-    n += 1;
-    ref = event.refPrefix + '-' + n;
-  }
+  let ref;
+  do {
+    const t = Date.now().toString(36).slice(-3);
+    const r = Math.random().toString(36).slice(2, 5);
+    ref = event.refPrefix + '-' + (t + r).toUpperCase();
+  } while (taken.indexOf(ref) !== -1);
   return ref;
 }
 
@@ -134,20 +128,4 @@ function ppCounts(eventId) {
     full: paid >= capacity,
     pct: capacity ? Math.min(100, Math.round((paid / capacity) * 100)) : 0
   };
-}
-
-/* -------------------------------------------------- optional sheet mirror
-
-   Fire-and-forget POST so a Sheet can be kept in step. Deliberately not
-   awaited by the UI: a failure here must not lose the player's entry,
-   which is already saved locally. */
-function ppMirrorToSheet(payload) {
-  if (!PP_ENTRIES.scriptUrl) return;
-  try {
-    fetch(PP_ENTRIES.scriptUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    }).catch(function () { /* offline mirror is best-effort */ });
-  } catch (e) {}
 }
