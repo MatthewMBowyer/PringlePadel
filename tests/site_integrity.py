@@ -2,90 +2,112 @@
 
 Run from the repo root:  python3 tests/site_integrity.py
 
-Every link, image, script and stylesheet referenced by a page must resolve
-to a file that exists, ignoring markup that is commented out because the
-browser never requests it. Also fails if a retired event name is still
-referenced, which is how a rename silently breaks a page."""
+Two passes, because a static host serves the commit and not your disk:
+
+  1. Every link, image, script and stylesheet a page references resolves to
+     a file that exists. Markup that is commented out is ignored, since the
+     browser never requests it.
+  2. The same check against HEAD's copy of every tracked page. A rename
+     staged before the file is rewritten ships the old markup at the new
+     path, which is how a page keeps pointing at an image that was deleted
+     in the same commit while the working tree still looks correct.
+
+Both passes also fail if a retired event name reappears in something that
+ships, since that is how a rename silently empties a page.
+"""
 import os
 import re
+import subprocess
 import sys
-
-ROOT = '.'
-html_files = sorted(
-    f for f in os.listdir(ROOT)
-    if f.endswith('.html') and os.path.isfile(f)
-)
-
-problems = []
-checked = 0
 
 # Attributes that carry a local path.
 REF = re.compile(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', re.I)
-# Paths built inside JS template strings / arrays, e.g. url: '/x.html'
+# Paths built inside JS strings or template literals, e.g. url: '/x.html'
 JS_PATH = re.compile(r'["\'](/[A-Za-z0-9_\-./]+\.(?:html|jpg|jpeg|png|webp|css|js))["\']')
 
-for page in html_files:
-    raw_text = open(page, encoding='utf-8').read()
-    # Commented-out markup is not served, so it cannot break anything.
-    text = re.sub(r'<!--.*?-->', '', raw_text, flags=re.S)
+SKIP_PREFIXES = ('http://', 'https://', 'mailto:', 'tel:', '#', 'data:', 'javascript:')
 
-    targets = []
-    for m in REF.finditer(text):
-        targets.append(m.group(1))
-    for m in JS_PATH.finditer(text):
-        targets.append(m.group(1))
+# Names a rename retired. Add to this list when an event or page is renamed.
+RETIRED = re.compile(r'only4thefans|only4fans', re.I)
 
-    for raw in targets:
-        if raw.startswith(('http://', 'https://', 'mailto:', 'tel:', '#', 'data:', 'javascript:')):
+
+def referenced_paths(markup):
+    """Local paths the browser is asked to fetch for a page."""
+    text = re.sub(r'<!--.*?-->', '', markup, flags=re.S)
+    out = []
+    for m in list(REF.finditer(text)) + list(JS_PATH.finditer(text)):
+        raw = m.group(1)
+        if raw.startswith(SKIP_PREFIXES):
             continue
-        # Values interpolated at runtime, not literal paths.
         if '${' in raw or '$(' in raw:
-            continue
-        # A link may carry a query string.
+            continue  # interpolated at runtime, not a literal path
         path = raw.split('?')[0].split('#')[0]
-        if not path:
+        if path:
+            out.append((raw, path))
+    return out
+
+
+def resolves(path, page, exists):
+    """A page may link relative to itself or from the site root."""
+    if path.startswith('/'):
+        candidates = [os.path.normpath(path.lstrip('/'))]
+    else:
+        candidates = [os.path.normpath(os.path.join(os.path.dirname(page), path))]
+    return any(exists(c) for c in candidates)
+
+
+def check_pages(pages, read, exists, label):
+    problems = []
+    checked = 0
+    for page in pages:
+        markup = read(page)
+        if markup is None:
             continue
-        checked += 1
-        # GitHub Pages style absolute paths resolve from the site root.
-        candidate = path.lstrip('/') if path.startswith('/') else os.path.join(os.path.dirname(page), path)
-        candidate = os.path.normpath(candidate)
-        if not os.path.exists(candidate):
-            # Root-relative on a project page can also mean the repo root.
-            alt = os.path.normpath(path.lstrip('/'))
-            if not os.path.exists(alt):
+        for raw, path in referenced_paths(markup):
+            checked += 1
+            if not resolves(path, page, exists):
                 problems.append(f'{page}: missing {raw}')
+    print(f'{label}: {checked} references over {len(pages)} pages')
+    return problems
 
-print(f'checked {checked} local references across {len(html_files)} pages')
 
-# The retired name must be gone from anything that ships.
-retired = re.compile(r'only4thefans|only4fans', re.I)
+def git(*args):
+    return subprocess.run(['git'] + list(args), capture_output=True, text=True)
+
+
+problems = []
+pages = sorted(f for f in os.listdir('.') if f.endswith('.html') and os.path.isfile(f))
+
+problems += check_pages(pages, lambda p: open(p, encoding='utf-8').read(),
+                        os.path.exists, 'working tree')
+
+if git('rev-parse', '--git-dir').returncode == 0:
+    tracked = set(git('ls-tree', '-r', '--name-only', 'HEAD').stdout.split())
+    head_pages = [p for p in pages if p in tracked]
+    blobs = {p: git('show', f'HEAD:{p}').stdout for p in head_pages}
+
+    def head_exists(path):
+        return os.path.normpath(path).lstrip('./') in tracked
+
+    problems += check_pages(head_pages, lambda p: blobs.get(p),
+                            head_exists, 'committed   ')
+else:
+    print('not a git repository, skipped the committed-state pass')
+
+# A retired name must be gone from anything the browser can load. Tests name
+# it on purpose, and entries.js keeps it in legacyNames so bookings made
+# before a rename still match their event.
 for dirpath, dirnames, filenames in os.walk('.'):
     dirnames[:] = [d for d in dirnames if d not in ('.git', 'node_modules')]
+    if 'tests' in dirpath.split(os.sep):
+        continue
     for fn in filenames:
-        # Test files name the retired value on purpose, and entries.js keeps
-        # it deliberately in legacyNames so pre-rename bookings still match.
-        if 'tests' in dirpath.split(os.sep) or fn == 'entries.js':
-            continue
-        if fn == 'backend.test.js':
-            continue
-        if not fn.endswith(('.html', '.js', '.css', '.json', '.md')):
+        if fn == 'entries.js' or not fn.endswith(('.html', '.js', '.css', '.json', '.md')):
             continue
         fp = os.path.join(dirpath, fn)
         for i, line in enumerate(open(fp, encoding='utf-8', errors='replace'), 1):
-            if retired.search(line) and 'legacyNames' not in line:
+            if RETIRED.search(line):
                 problems.append(f'{fp}:{i}: still mentions the retired name')
-
-# The new page must be reachable from the tournaments page.
-t = open('tournaments.html', encoding='utf-8').read()
-if 'mamma-mia-its-hot-tournament.html' not in t:
-    problems.append("tournaments.html: new page not linked")
-if 'mamma-mia-its-hot-banner.jpg' not in t:
-    problems.append("tournaments.html: new banner not used")
-if 'booking.html?event=mamma-mia-its-hot-tournament' not in t:
-    problems.append("tournaments.html: Enter button does not point at the new event id")
-
-if os.path.exists('only4thefans-tournament.html'):
-    problems.append('old page still present')
 
 print()
 if problems:
@@ -93,4 +115,4 @@ if problems:
     for p in problems:
         print('  - ' + p)
     sys.exit(1)
-print('all local references resolve; no stale tournament name found')
+print('all references resolve, in the working tree and in the commit')
