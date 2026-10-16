@@ -27,7 +27,7 @@ var PROP_PASSCODE = 'ORGANISER_PASSCODE';
    "did my deploy take?" impossible to answer from the editor alone.
    Bump this whenever the backend changes, then curl action=public to see
    which build is actually live. */
-var BUILD = 'mobile-as-text';
+var BUILD = 'team-entry-validation';
 
 /* Column order matters: the public feed and the organiser page index into
    this list, so append new columns at the end rather than inserting them. */
@@ -184,12 +184,22 @@ function doPost(e) {
 
     for (var i = 0; i < entry.PlayerList.length; i++) {
       var p = entry.PlayerList[i];
-      if (!p.FirstName) return json({ success: false, message: 'Missing first name.' });
-      if (!p.Surname) return json({ success: false, message: 'Missing surname.' });
+      /* Name the player, so a rejection points at the field to fix instead
+         of leaving the entrant to work out which of the two is empty. */
+      var who = entry.PlayerList.length > 1
+        ? (i === 0 ? 'your own details' : "your partner's details")
+        : 'your details';
+      if (!p.FirstName) return json({ success: false, message: 'Missing first name in ' + who + '.' });
+      if (!p.Surname) return json({ success: false, message: 'Missing surname in ' + who + '.' });
     }
 
-    if (entry.EntryType === 'team' && !entry.TeamName) {
-      return json({ success: false, message: 'Missing team name.' });
+    if (entry.EntryType === 'team') {
+      if (!entry.TeamName) {
+        return json({ success: false, message: 'Missing team name.' });
+      }
+      if (entry.PlayerList.length < 2) {
+        return json({ success: false, message: "A team entry needs both players' details." });
+      }
     }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();

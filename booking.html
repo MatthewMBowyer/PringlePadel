@@ -823,6 +823,28 @@
 								.value
 								.trim(),
 
+						/* A team entry lists the partner second, so these have to be
+						   read here too. They were missing from this object, which sent
+						   an undefined first name for every team booking and made the
+						   server reject it as "Missing first name". */
+						partnerName:
+							document
+								.getElementById("partnerName")
+								.value
+								.trim(),
+
+						partnerSurname:
+							document
+								.getElementById("partnerSurname")
+								.value
+								.trim(),
+
+						partnerRank:
+							document
+								.getElementById("partnerRank")
+								.value
+								.trim(),
+
 						consent:
 							document
 								.getElementById("consent")
