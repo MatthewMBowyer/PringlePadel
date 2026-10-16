@@ -161,6 +161,7 @@
                                                                         </div>
                                                                 </div>
                                                                 <button type="button" class="button" id="refreshBtn">Refresh</button>
+                                                                <button type="button" class="button" id="lockBtn">Lock</button>
                                                         </div>
 
                                                         <div class="table-wrapper">
@@ -245,9 +246,9 @@
                                 el.style.display = text ? 'block' : 'none';
                         }
 
-                        /* The passcode is kept in sessionStorage so a refresh does
-                           not log Lea out, but it is gone when the tab closes. It
-                           is never written into the page source. */
+                        /* The passcode is kept in localStorage so Lea types it once
+                           per device rather than once per tab. It is never written
+                           into the page source. Use Lock to clear it. */
                         function openPanel() {
                                 gate.hidden = true;
                                 panel.hidden = false;
@@ -263,7 +264,7 @@
                                 gateMsg.textContent = 'Checking...';
 
                                 ppOrganiserList(passcode).then(function (entries) {
-                                        sessionStorage.setItem('pp_passcode', passcode);
+                                        localStorage.setItem('pp_passcode', passcode);
                                         allEntries = entries;
                                         openPanel();
                                 }).catch(function (err) {
@@ -437,9 +438,20 @@
                         document.getElementById('search').addEventListener('input', render);
                         document.getElementById('refreshBtn').addEventListener('click', load);
 
+                        document.getElementById('lockBtn').addEventListener('click', function () {
+                                localStorage.removeItem('pp_passcode');
+                                passcode = '';
+                                allEntries = [];
+                                panel.hidden = true;
+                                gate.hidden = false;
+                                document.getElementById('passcode').value = '';
+                                gateMsg.textContent = '';
+                                document.getElementById('passcode').focus();
+                        });
+
                         /* Resume a session without retyping the passcode. */
                         (function () {
-                                const saved = sessionStorage.getItem('pp_passcode');
+                                const saved = localStorage.getItem('pp_passcode');
                                 if (!saved) return;
 
                                 passcode = saved;
@@ -447,7 +459,7 @@
                                         allEntries = entries;
                                         openPanel();
                                 }).catch(function () {
-                                        sessionStorage.removeItem('pp_passcode');
+                                        localStorage.removeItem('pp_passcode');
                                         passcode = '';
                                 });
                         })();

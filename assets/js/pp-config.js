@@ -17,6 +17,6 @@ window.PP_CONFIG = {
 
   /* Apps Script web-app URL. Ends in /exec.
      Leave '' and the site stays in browser-only test mode. */
-  scriptUrl: ''
+  scriptUrl: 'https://script.google.com/macros/s/AKfycbyiOQ1B8MaFFmhAV3ICW63BU2vvhtSl0yX4sN0ENWWRq_fo_vy7CL9pnLpIpoc7jF19kQ/exec'
 
 };
