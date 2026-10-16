@@ -94,6 +94,11 @@ function ensureEntriesSheet_(ss) {
     sh.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
     sh.setFrozenRows(1);
   }
+  /* A mobile number is digits, and Sheets coerces a digit-only string to a
+     number — which silently drops the leading zero off every South African
+     number, so "0821234567" lands as 821234567 and Lea cannot dial it.
+     Force the column to text before any value reaches it. */
+  sh.getRange(1, HEADERS.indexOf('Mobile') + 1, sh.getMaxRows(), 1).setNumberFormat('@');
   return sh;
 }
 
@@ -322,7 +327,12 @@ function refBase_(entry) {
   if (String(entry.EntryType).toLowerCase() === 'team' && entry.TeamName) {
     return entry.TeamName;
   }
-  return entry.FirstName + ' ' + entry.Surname;
+  /* sanitise_ strips FirstName and Surname off the entry itself — for a
+     single entry they only exist inside PlayerList. Reading them off the
+     entry produced "undefined undefined" for every single booking, which
+     is the exact string Lea matches against the bank statement. */
+  var first = (entry.PlayerList && entry.PlayerList[0]) || {};
+  return ((first.FirstName || '') + ' ' + (first.Surname || '')).trim();
 }
 
 /* Names repeat, and two identical references make an EFT impossible to
