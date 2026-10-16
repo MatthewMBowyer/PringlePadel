@@ -27,7 +27,7 @@ var PROP_PASSCODE = 'ORGANISER_PASSCODE';
    "did my deploy take?" impossible to answer from the editor alone.
    Bump this whenever the backend changes, then curl action=public to see
    which build is actually live. */
-var BUILD = 'team-entry-validation';
+var BUILD = 'confirm-by-readback';
 
 /* Column order matters: the public feed and the organiser page index into
    this list, so append new columns at the end rather than inserting them. */
@@ -262,6 +262,12 @@ function doGet(e) {
   try {
     if (action === 'public') return json(publicPayload_());
 
+    /* An entrant's browser must be able to confirm its own booking without
+       holding the organiser passcode. Requiring the reference *and* the
+       mobile number keeps this from becoming a way to probe whether some
+       named person has entered. Only existence is revealed, never details. */
+    if (action === 'status') return json(statusPayload_(e));
+
     if (!passcodeOk_(e)) {
       return json({ success: false, message: 'Wrong or missing passcode.' });
     }
@@ -300,6 +306,55 @@ function publicPayload_() {
   });
 
   return { success: true, entries: entries, counts: counts };
+}
+
+/* Confirm that a specific entry reached the Sheet.
+
+   The browser cannot reliably read the response to its own POST: Apps
+   Script answers a POST with a redirect that the browser follows, and that
+   followed request often comes back as an error page even though the row
+   was written. So the client POSTs, then asks here over a plain GET, which
+   returns properly. Matching on reference *and* mobile means a caller must
+   already know both to get an answer, so this cannot be used to discover
+   whether a named person has entered. */
+function statusPayload_(e) {
+  var ref = String(e.parameter.ref || '').trim();
+  var mobile = mobileKey_(e.parameter.mobile);
+
+  if (!ref || !mobile) {
+    return { success: false, message: 'Missing reference or mobile.' };
+  }
+
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ENTRIES_SHEET);
+  if (!sh) return { success: true, found: false };
+
+  var rows = readRows_(sh);
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var r = rows[i];
+    var rowRef = String(r.Reference || '');
+    /* A duplicate name is stored as "Name 2", so a prefixed match still
+       identifies the entry the entrant just made. */
+    var refMatches = rowRef === ref || rowRef.indexOf(ref + ' ') === 0;
+    if (!refMatches) continue;
+    if (mobileKey_(r.Mobile) !== mobile) continue;
+
+    return {
+      success: true,
+      found: true,
+      reference: rowRef,
+      paid: String(r.Paid).toUpperCase() === 'YES'
+    };
+  }
+
+  return { success: true, found: false };
+}
+
+/* Digits only, leading zeros dropped, so an entry still matches even if
+   Sheets coerced the stored number and ate the leading zero. */
+function mobileKey_(v) {
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/\D/g, '')
+    .replace(/^0+/, '');
 }
 
 /* The organiser page needs contact details to chase people up. */

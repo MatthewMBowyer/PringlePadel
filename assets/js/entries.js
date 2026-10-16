@@ -115,10 +115,26 @@ function ppSaveLocal(list) {
    the script itself decides which columns leave the building. */
 function ppGet(params) {
   const url = ppScriptUrl() + '?' + new URLSearchParams(params).toString();
-  return fetch(url, { cache: 'no-store' }).then(function (r) {
-    if (!r.ok) throw new Error('Request failed (' + r.status + ')');
-    return r.json();
-  });
+
+  /* Reads are retried: the Apps Script redirect hop occasionally answers
+     with an error page before the real response. A GET is safe to repeat. */
+  function attempt(left) {
+    return fetch(url, { cache: 'no-store' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Request failed (' + r.status + ')');
+        return r.json();
+      })
+      .catch(function (err) {
+        if (left <= 1) throw err;
+        return new Promise(function (resolve) {
+          setTimeout(resolve, 700);
+        }).then(function () {
+          return attempt(left - 1);
+        });
+      });
+  }
+
+  return attempt(3);
 }
 
 /* POST as text/plain on purpose: it is a CORS-simple request, so the
@@ -129,9 +145,61 @@ function ppPost(payload) {
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   }).then(function (r) {
-    if (!r.ok) throw new Error('Request failed (' + r.status + ')');
-    return r.json();
+    if (!r.ok) return { unconfirmed: true };
+    return r.json().catch(function () {
+      return { unconfirmed: true };
+    });
+  }).catch(function () {
+    return { unconfirmed: true };
   });
+}
+
+/* Apps Script answers a POST with a redirect, and the response the browser
+   ends up reading is frequently an error page even though the row was
+   written. Treating that as failure made a saved booking look lost, and a
+   second click then booked the same people twice. An unreadable POST
+   response is therefore treated as unproven and checked over a plain GET,
+   which returns reliably. */
+function ppConfirmSaved(payload) {
+  /* Mirrors the server's rule for building a payment reference, which reads
+     the PlayerList rather than top-level name fields — those are not present
+     on a submitted entry, so reading them here produced "undefined". */
+  const first =
+    payload.PlayerList && payload.PlayerList[0] ? payload.PlayerList[0] : {};
+  const reference = String(
+    payload.TeamName || (first.FirstName + ' ' + first.Surname) || ''
+  ).trim();
+  const mobile = payload.Mobile || '';
+
+  function attempt(left) {
+    return ppGet({ action: 'status', ref: reference, mobile: mobile })
+      .then(function (res) {
+        if (res && res.found) {
+          return { success: true, reference: res.reference, paid: res.paid };
+        }
+        if (left <= 1) {
+          throw new Error(
+            'We could not confirm your booking was saved. Please check with ' +
+            'Pringle Padel before paying, so you are not charged twice.'
+          );
+        }
+        return new Promise(function (resolve) {
+          setTimeout(resolve, 1200);
+        }).then(function () {
+          return attempt(left - 1);
+        });
+      })
+      .catch(function (err) {
+        if (left <= 1) throw err;
+        return new Promise(function (resolve) {
+          setTimeout(resolve, 1200);
+        }).then(function () {
+          return attempt(left - 1);
+        });
+      });
+  }
+
+  return attempt(5);
 }
 
 /* --------------------------------------------------------------- entry API
@@ -181,7 +249,11 @@ function ppSubmitEntry(payload) {
   if (!ppIsLive()) {
     /* Offline mode: mirror the server's naming rule so the demo receipt
        looks the same as the real one. */
-    const ref = payload.TeamName || (payload.FirstName + ' ' + payload.Surname);
+    const localFirst =
+      payload.PlayerList && payload.PlayerList[0] ? payload.PlayerList[0] : {};
+    const ref = String(
+      payload.TeamName || (localFirst.FirstName + ' ' + localFirst.Surname) || ''
+    ).trim();
     const list = ppLoadLocal();
     list.push(Object.assign({}, payload, {
       Reference: ref,
@@ -193,10 +265,9 @@ function ppSubmitEntry(payload) {
   }
 
   return ppPost(payload).then(function (res) {
-    if (!res || !res.success) {
-      throw new Error((res && res.message) || 'Submission failed.');
-    }
-    return res;
+    if (res && res.success) return res;
+    if (res && res.unconfirmed) return ppConfirmSaved(payload);
+    throw new Error((res && res.message) || 'Submission failed.');
   });
 }
 
