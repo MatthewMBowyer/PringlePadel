@@ -22,6 +22,13 @@ var ENTRIES_SHEET = 'Entries';
 var CONFIRMED_SHEET = 'Confirmed';
 var PROP_PASSCODE = 'ORGANISER_PASSCODE';
 
+/* Every API response reports this string. Apps Script keeps serving the
+   last deployed version while the editor holds newer code, which makes
+   "did my deploy take?" impossible to answer from the editor alone.
+   Bump this whenever the backend changes, then curl action=public to see
+   which build is actually live. */
+var BUILD = 'mobile-as-text';
+
 /* Column order matters: the public feed and the organiser page index into
    this list, so append new columns at the end rather than inserting them. */
 var HEADERS = [
@@ -208,15 +215,18 @@ function doPost(e) {
           case 'PartnerName': return idx === 0 ? (entry.PlayerList[1] ? entry.PlayerList[1].FirstName : '') : '';
           case 'PartnerSurname': return idx === 0 ? (entry.PlayerList[1] ? entry.PlayerList[1].Surname : '') : '';
           case 'PartnerRank': return idx === 0 ? (entry.PlayerList[1] ? entry.PlayerList[1].Rank : '') : '';
+          /* Written separately below, as text. */
+          case 'Mobile': return '';
           default: return entry[h] === undefined ? '' : entry[h];
         }
       }));
 
-      /* Formatting the whole Mobile column is not enough — appendRow still
-         lets Sheets coerce a digit-only string to a number, so "0821234567"
-         is stored as 821234567 and Lea cannot dial it. Setting the text
-         format on the exact cell first, then writing the value, is what
-         holds the string. */
+      /* The mobile number must never pass through appendRow. appendRow
+         writes the value first and only then allows a format to be set, by
+         which point Sheets has already coerced "0821234567" to the number
+         821234567 and the leading zero is gone for good — re-writing the
+         cell afterwards cannot bring it back. Setting the text format on
+         the cell before the value ever reaches it is what holds the string. */
       var mobileCell = sh.getRange(sh.getLastRow(), HEADERS.indexOf('Mobile') + 1);
       mobileCell.setNumberFormat('@');
       mobileCell.setValue(String(entry.Mobile || ''));
@@ -432,6 +442,7 @@ function clean_(v) {
 }
 
 function json(obj) {
+  obj.build = BUILD;
   return ContentService
     .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
