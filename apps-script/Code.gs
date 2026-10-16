@@ -211,6 +211,15 @@ function doPost(e) {
           default: return entry[h] === undefined ? '' : entry[h];
         }
       }));
+
+      /* Formatting the whole Mobile column is not enough — appendRow still
+         lets Sheets coerce a digit-only string to a number, so "0821234567"
+         is stored as 821234567 and Lea cannot dial it. Setting the text
+         format on the exact cell first, then writing the value, is what
+         holds the string. */
+      var mobileCell = sh.getRange(sh.getLastRow(), HEADERS.indexOf('Mobile') + 1);
+      mobileCell.setNumberFormat('@');
+      mobileCell.setValue(String(entry.Mobile || ''));
     });
 
     return json({ success: true, reference: reference, rows: entry.PlayerList.length });
