@@ -126,7 +126,7 @@
 					<div class="table-wrapper">
 						<table id="entries">
 							<thead>
-								<tr><th>Ref</th><th>Player</th><th>Rank</th><th>Entered</th></tr>
+								<tr><th>Player</th><th>Division</th><th>Playtomic Ranking</th></tr>
 							</thead>
 							<tbody></tbody>
 						</table>
@@ -181,40 +181,63 @@
 		<script src="assets/js/breakpoints.min.js"></script>
 		<script src="assets/js/util.js"></script>
 		<script src="assets/js/main.js"></script>
-		<script src="assets/js/entries.js"></script>
+		<script src="assets/js/pp-config.js"></script>
+                <script src="assets/js/entries.js"></script>
 
 		<script>
-			const ev = ppEvent('sunday-social');
-			const c  = ppCounts('sunday-social');
+                        /* Sunday Social is not one of the configured open events yet.
+                           The page is driven by the shared event list, so when it is
+                           missing we show a neutral state rather than a broken one —
+                           and never invent a date, venue or fee. */
+                        const ev = ppEvent('sunday-social');
+                        const note = document.getElementById('note');
+                        const table = document.getElementById('entries');
+                        const facts = document.getElementById('facts');
+                        const enterBtn = document.querySelector('.actions.special a[href*="booking.html"]');
 
-			document.getElementById('facts').innerHTML = [
-				['Date', ev.date],
-				['Venue', ev.venue],
-				['Format', ev.format],
-				['Entry fee', ppMoney(ev.price) + ' per pair'],
-				['Capacity', c.capacity + ' players'],
-				['Spots left', c.full ? 'Full — waiting list only' : (c.left + ' of ' + c.capacity)]
-			].map(function (r) {
-				return '<li><span class="k">' + ppEsc(r[0]) + '</span>' +
-				       '<span class="v">' + ppEsc(r[1]) + '</span></li>';
-			}).join('');
+                        if (!ev) {
+                                facts.innerHTML = '';
+                                table.style.display = 'none';
+                                if (enterBtn) enterBtn.parentNode.style.display = 'none';
 
-			const paid = ppForEvent('sunday-social', true);
+                                note.textContent =
+                                        'This event is not open for online entries at the moment. ' +
+                                        'Message us on WhatsApp and we will add you.';
+                        } else {
+                                note.textContent =
+                                        'Players appear here once their payment has cleared.';
 
-			document.getElementById('note').textContent =
-				'Confirmed entries appear here once the EFT payment has cleared.';
+                                facts.innerHTML = [
+                                        ['Date', ev.date],
+                                        ['Venue', ev.venue],
+                                        ['Format', ev.format],
+                                        ['Entry fee', ppMoney(ev.price) + ' per person']
+                                ].map(function (r) {
+                                        return '<li><span class="k">' + ppEsc(r[0]) + '</span>' +
+                                               '<span class="v">' + ppEsc(r[1]) + '</span></li>';
+                                }).join('');
 
-			if (paid.length) {
-				document.querySelector('#entries tbody').innerHTML = paid.map(function (b) {
-					return '<tr><td>' + ppEsc(b.ref) + '</td>' +
-					       '<td>' + ppEsc(b.name) + '</td>' +
-					       '<td>' + ppEsc(b.rank || '—') + '</td>' +
-					       '<td>' + ppEsc((b.paidAt || '').slice(0, 10)) + '</td></tr>';
-				}).join('');
-			} else {
-				document.getElementById('entries').style.display = 'none';
-			}
-		</script>
+                                ppPaidEntries(ev).then(function (paid) {
+                                        if (!paid.length) {
+                                                table.style.display = 'none';
+                                                return;
+                                        }
+
+                                        document.querySelector('#entries tbody').innerHTML = paid.map(function (b) {
+                                                const name = [b.FirstName, b.Surname].filter(Boolean).join(' ') || b.TeamName;
+
+                                                return '<tr><td>' +
+                                                       ppEsc(name) + '</td>' +
+                                                       '<td>' + ppEsc(b.Division || '\u2014') + '</td>' +
+                                                       '<td>' + ppEsc(b.Rank || '\u2014') + '</td></tr>';
+                                        }).join('');
+                                }).catch(function (err) {
+                                        console.error(err);
+                                        note.textContent = 'The entry list is unavailable right now. Please try again shortly.';
+                                        table.style.display = 'none';
+                                });
+                        }
+                </script>
 
 	</body>
 </html>
