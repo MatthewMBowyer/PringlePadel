@@ -55,6 +55,13 @@ var PUBLIC_FIELDS = ['Event', 'TeamName', 'FirstName', 'Surname', 'Division', 'R
    creates what is missing and never deletes data. */
 function setupAll() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  if (!ss) {
+    throw new Error(
+      'No spreadsheet attached. Open this project from the Sheet via ' +
+      'Extensions -> Apps Script, not from a standalone script.'
+    );
+  }
+
   var sh = ensureEntriesSheet_(ss);
   ensureConfirmedSheet_(ss);
 
@@ -64,19 +71,28 @@ function setupAll() {
     PropertiesService.getScriptProperties().setProperty(PROP_PASSCODE, pass);
   }
 
-  SpreadsheetApp.getUi().alert(
-    'Setup complete.\n\n' +
-    'Organiser passcode:  ' + pass + '\n\n' +
-    'Write this down. Lea types it to open the organiser page. ' +
-    'Change it any time in Project Settings -> Script Properties.'
-  );
+  announce_('Setup complete. Organiser passcode: ' + pass);
 }
 
 /* Use this if the passcode is ever forgotten or shared too widely. */
 function resetPasscode() {
   var pass = generatePasscode_();
   PropertiesService.getScriptProperties().setProperty(PROP_PASSCODE, pass);
-  SpreadsheetApp.getUi().alert('New organiser passcode:  ' + pass);
+  announce_('New organiser passcode: ' + pass);
+}
+
+/* SpreadsheetApp.getUi() throws — rather than returning null — whenever
+   there is no Sheets UI to talk to, which includes running the function
+   from a web-app or trigger context. That made setupAll fail on its very
+   last line, after the tabs had already been created. The execution log
+   works in every context, so the passcode is always recoverable. */
+function announce_(message) {
+  console.log(message);
+  try {
+    SpreadsheetApp.getUi().alert(message);
+  } catch (uiErr) {
+    /* No UI available; the console.log above is the record. */
+  }
 }
 
 function generatePasscode_() {
