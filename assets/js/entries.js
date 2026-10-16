@@ -48,15 +48,20 @@ function ppIsLive() {
    with an Enter button. */
 const PP_EVENTS = [
   {
-    id: 'only4thefans-tournament',
-    name: 'Only4thefans Tournament',
+    id: 'mamma-mia-its-hot-tournament',
+    name: "Mamma Mia - It's Getting Hot In Here!",
     date: 'Saturday 7 November 2026',
     venue: 'Indoor Padel Revolution',
     format: 'Ladies, Mixed and Mens divisions',
     price: 300,
     divisions: true,
-    image: 'images/only4thefans-tournament-banner.jpg',
-    url: 'only4thefans-tournament.html'
+    image: 'images/mamma-mia-its-hot-banner.jpg',
+    url: 'mamma-mia-its-hot-tournament.html',
+    /* This event ran as "Only4thefans Tournament" before it was renamed.
+       Entries booked under the old name are still this event, and the name
+       is the value stored in the Sheet, so the old ones must keep matching
+       or a player who paid before the rename would vanish from the list. */
+    legacyNames: ['only4thefans-tournament', 'Only4thefans Tournament']
   }
 ];
 
@@ -71,8 +76,16 @@ function ppEntryPrice(event, isTeam) {
   return isTeam ? ppTeamPrice(event) : event.price;
 }
 
+/* Every handle an event answers to: its id, its name, and any name it was
+   previously known by. */
+function ppEventKeys(ev) {
+  return [ev.id, ev.name].concat(ev.legacyNames || []);
+}
+
 function ppEvent(id) {
-  return PP_EVENTS.find(function (e) { return e.id === id || e.name === id; }) || null;
+  return PP_EVENTS.find(function (e) {
+    return ppEventKeys(e).indexOf(id) !== -1;
+  }) || null;
 }
 
 /* --------------------------------------------------------------- helpers */
@@ -213,15 +226,17 @@ function ppPaidEntries(event) {
   const ev = typeof event === 'string' ? ppEvent(event) : event;
   if (!ev) return Promise.resolve([]);
 
+  const keys = ppEventKeys(ev);
+
   if (!ppIsLive()) {
     return Promise.resolve(ppLoadLocal().filter(function (b) {
-      return b.Event === ev.name && b.Paid === true;
+      return keys.indexOf(b.Event) !== -1 && b.Paid === true;
     }));
   }
 
   return ppGet({ action: 'public' }).then(function (res) {
     const all = (res && res.entries) || [];
-    return all.filter(function (e) { return e.Event === ev.name; });
+    return all.filter(function (e) { return keys.indexOf(e.Event) !== -1; });
   });
 }
 
@@ -231,15 +246,17 @@ function ppPaidCount(event) {
   const ev = typeof event === 'string' ? ppEvent(event) : event;
   if (!ev) return Promise.resolve(0);
 
+  const keys = ppEventKeys(ev);
+
   if (!ppIsLive()) {
     return Promise.resolve(ppLoadLocal().filter(function (b) {
-      return b.Event === ev.name && b.Paid === true;
+      return keys.indexOf(b.Event) !== -1 && b.Paid === true;
     }).length);
   }
 
   return ppGet({ action: 'public' }).then(function (res) {
     const counts = (res && res.counts) || {};
-    return counts[ev.name] || 0;
+    return keys.reduce(function (n, k) { return n + (counts[k] || 0); }, 0);
   });
 }
 
