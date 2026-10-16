@@ -15,7 +15,8 @@
 
 		<link rel="stylesheet" href="assets/css/main.css" />
 
-		<script src="assets/js/entries.js"></script>
+		<script src="assets/js/pp-config.js"></script>
+                <script src="assets/js/entries.js"></script>
 
 		<noscript>
 			<link rel="stylesheet" href="assets/css/noscript.css" />
@@ -122,6 +123,38 @@
 			.pp-bank .k { opacity: 0.7; }
 			.pp-bank .v { font-weight: 600; }
 
+			.pp-choice {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.75rem;
+			}
+
+			.pp-opt {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.65rem 1rem;
+				border: 1px solid rgba(0, 0, 0, 0.2);
+				border-radius: 8px;
+				cursor: pointer;
+				font-weight: 600;
+			}
+
+			.pp-opt input { margin: 0; }
+
+			.pp-opt:has(input:checked) {
+				border-color: #18bfef;
+				background: rgba(24, 191, 239, 0.1);
+			}
+
+			.pp-partner-head {
+				display: block;
+				font-weight: 600;
+				margin-bottom: 0.5rem;
+			}
+
+			#partnerBlock input { margin-bottom: 0.6rem; }
+
 
 	@media screen and (max-width: 736px) {
 
@@ -150,6 +183,35 @@
 			width: 100%;
 		}
 	}
+		/* The Massively theme sizes input[type="text"|"password"|"email"],
+		   select and textarea, but not number or tel. Those fall back to
+		   browser defaults, so they render ~20px wide with no border.
+		   Give them the same box as a text input. */
+		.booking-form input[type="number"],
+		.booking-form input[type="tel"] {
+			-moz-appearance: textfield;
+			-webkit-appearance: none;
+			appearance: none;
+			background: transparent;
+			border-radius: 0;
+			border: solid 2px #eeeeee;
+			color: inherit;
+			display: block;
+			outline: 0;
+			padding: 0 1rem;
+			text-decoration: none;
+			width: 100%;
+			height: 3rem;
+		}
+			.booking-form input[type="number"]:focus,
+			.booking-form input[type="tel"]:focus {
+				border-color: #18bfef;
+			}
+		.booking-form input[type="number"]::-webkit-outer-spin-button,
+		.booking-form input[type="number"]::-webkit-inner-spin-button {
+			-webkit-appearance: none;
+			margin: 0;
+		}
 		</style>
 	</head>
 
@@ -260,19 +322,98 @@
 									<option value="">
 										Select an event
 									</option>
-
-									<option value="Date with Matthew">
-										Date with Matthew
-									</option>
-
-									<option value="Padelton">
-										Padelton
-									</option>
-
-									<option value="Sunday Social">
-										Sunday Social — 18 Oct 2026
-									</option>
 								</select>
+								<div class="helper-text" id="eventInfo"></div>
+							</div>
+
+							<!-- Entry type -->
+							<div class="field">
+								<label>
+									Entry Type
+									<span class="required">*</span>
+								</label>
+
+								<div class="pp-choice">
+									<label class="pp-opt">
+										<input type="radio" name="entryType" value="single" checked required />
+										<span>Single entry</span>
+									</label>
+									<label class="pp-opt">
+										<input type="radio" name="entryType" value="team" />
+										<span>Team entry (2 players)</span>
+									</label>
+								</div>
+
+								<div class="helper-text" id="priceInfo"></div>
+							</div>
+
+							<!-- Team name -->
+							<div class="field" id="teamNameField" hidden>
+								<label for="teamName">
+									Team Name
+									<span class="required">*</span>
+								</label>
+
+								<input
+									type="text"
+									name="teamName"
+									id="teamName"
+									placeholder="e.g. Net Ninjas"
+								/>
+
+								<div class="helper-text">
+									Both players use this name as their payment reference.
+								</div>
+							</div>
+
+							<!-- Division -->
+							<div class="field" id="divisionField" hidden>
+								<label for="division">
+									Division
+									<span class="required">*</span>
+								</label>
+
+								<select name="division" id="division">
+									<option value="">Select a division</option>
+								</select>
+
+								<div class="helper-text">
+									Entering more than one division? Submit this form again for the next one.
+								</div>
+							</div>
+
+							<!-- Team partner -->
+							<div class="field" id="partnerBlock" hidden>
+								<label class="pp-partner-head">Partner</label>
+
+									<input
+										type="text"
+										name="partnerName"
+										id="partnerName"
+										placeholder="Partner first name"
+									/>
+
+									<input
+										type="text"
+										name="partnerSurname"
+										id="partnerSurname"
+										placeholder="Partner surname"
+									/>
+
+									<input
+										type="number"
+										name="partnerRank"
+										id="partnerRank"
+										placeholder="Partner Playtomic ranking (e.g. 4.5)"
+										min="0"
+										max="10"
+										step="0.1"
+										inputmode="decimal"
+									/>
+
+								<div class="helper-text">
+									Your partner is registered as a second player under the same team entry.
+								</div>
 							</div>
 
 							<!-- Name -->
@@ -312,7 +453,7 @@
 							<!-- Padel Rank -->
 							<div class="field">
 								<label for="padelRank">
-									Padel Rank
+									Playtomic Ranking
 								</label>
 
 								<input
@@ -327,7 +468,7 @@
 								/>
 
 								<div class="helper-text">
-									Enter your ranking
+									Your Playtomic ranking
 								</div>
 							</div>
 
@@ -496,10 +637,7 @@
 		<script src="assets/js/main.js"></script>
 
 		<script>
-			const GOOGLE_SCRIPT_URL =
-				"https://script.google.com/macros/s/AKfycbxNtsClPBK_G1QPzT5A2de7e-b6flk2qg2IL6c4RHtfW4riUOns1NMvnXREBjuC2LMJgw/exec";
-
-			const bookingForm =
+						const bookingForm =
 				document.getElementById("bookingForm");
 
 			const submitButton =
@@ -536,7 +674,7 @@
 
 				if (!rankPattern.test(value)) {
 					padelRankInput.setCustomValidity(
-						"Please enter a padel rank between 0 and 10 with no more than one decimal place."
+						"Please enter a Playtomic ranking between 0 and 10 with no more than one decimal place."
 					);
 
 					return false;
@@ -550,6 +688,89 @@
 				"input",
 				validatePadelRank
 			);
+
+			/* The form adapts to the chosen event: only the November
+			   tournament runs divisions, and only a team entry needs a team
+			   name and partner details. */
+			const eventSelect = document.getElementById("event");
+			const eventInfo = document.getElementById("eventInfo");
+			const priceInfo = document.getElementById("priceInfo");
+			const teamNameField = document.getElementById("teamNameField");
+			const teamNameInput = document.getElementById("teamName");
+			const divisionField = document.getElementById("divisionField");
+			const divisionSelect = document.getElementById("division");
+			const partnerBlock = document.getElementById("partnerBlock");
+			const partnerInputs = [
+				document.getElementById("partnerName"),
+				document.getElementById("partnerSurname"),
+				document.getElementById("partnerRank")
+			];
+
+			function ppIsTeam() {
+				const checked = bookingForm.querySelector(
+					'input[name="entryType"]:checked'
+				);
+				return !!checked && checked.value === "team";
+			}
+
+			/* Built from the shared data layer so the form and the
+			   tournaments page can never list different events. */
+			PP_EVENTS.forEach(function (ev) {
+				const opt = document.createElement("option");
+				opt.value = ev.id;
+				opt.textContent = ev.name + " \u2014 " + ev.date;
+				eventSelect.appendChild(opt);
+			});
+
+			PP_ENTRIES.divisions.forEach(function (d) {
+				const opt = document.createElement("option");
+				opt.value = d.id;
+				opt.textContent = d.name;
+				divisionSelect.appendChild(opt);
+			});
+
+			function syncForm() {
+				const ev = ppEvent(eventSelect.value);
+				const isTeam = ppIsTeam();
+
+				eventInfo.textContent = ev
+					? ev.format + " \u00b7 " + ev.venue
+					: "";
+
+				if (ev) {
+					priceInfo.textContent = isTeam
+						? ppMoney(ppTeamPrice(ev)) + " for the team (2 players, "
+						  + ppMoney(ev.price) + " each)"
+						: ppMoney(ev.price) + " per person";
+				} else {
+					priceInfo.textContent = "";
+				}
+
+				const showDivision = !!ev && !!ev.divisions;
+				divisionField.hidden = !showDivision;
+				divisionSelect.required = showDivision;
+				if (!showDivision) divisionSelect.value = "";
+
+				teamNameField.hidden = !isTeam;
+				teamNameInput.required = isTeam;
+				partnerBlock.hidden = !isTeam;
+				partnerInputs.forEach(function (input) {
+					input.required = isTeam;
+				});
+				if (!isTeam) {
+					teamNameInput.value = "";
+					partnerInputs.forEach(function (i) { i.value = ""; });
+				}
+			}
+
+			eventSelect.addEventListener("change", syncForm);
+			bookingForm
+				.querySelectorAll('input[name="entryType"]')
+				.forEach(function (r) {
+					r.addEventListener("change", syncForm);
+				});
+
+			syncForm();
 
 			bookingForm.addEventListener(
 				"submit",
@@ -608,78 +829,72 @@
 								.checked
 					};
 
-					// Issued before the POST so the reference is stored in the Sheet
-					// alongside the entry, and Lea can match the EFT to it.
 					var chosen = ppEvent(formData.event);
-					var reference = chosen ? ppNextRef(chosen) : '';
 
-					formData.ref = reference;
+					if (!chosen) {
+						showMessage("Please choose an event.", "error");
+						return;
+					}
+
+					var isTeam = ppIsTeam();
+
+					/* One request per entry, even for a team: both players share a single
+					   payment reference, so splitting them would hand Lea two references
+					   for one EFT. The server writes both rows under the one reference. */
+					const entry = {
+						Event: chosen.name,
+						EntryType: isTeam ? "team" : "single",
+						TeamName: isTeam ? teamNameInput.value.trim() : "",
+						// The human label ("Ladies"), not the id, so the published list
+						// needs no lookup.
+						Division: (chosen.divisions && divisionSelect.selectedIndex > 0)
+							? divisionSelect.selectedOptions[0].textContent
+							: "",
+						Players: isTeam ? 2 : 1,
+						Amount: ppEntryPrice(chosen, isTeam),
+						Mobile: formData.mobile,
+						Email: formData.email,
+						PlayerList: isTeam
+							? [
+								{ FirstName: formData.name, Surname: formData.surname, Rank: formData.padelRank },
+								{ FirstName: formData.partnerName, Surname: formData.partnerSurname, Rank: formData.partnerRank }
+							]
+							: [
+								{ FirstName: formData.name, Surname: formData.surname, Rank: formData.padelRank }
+							]
+					};
 
 					submitButton.disabled = true;
 					submitButton.textContent = "Submitting...";
 
 					try {
 
-						const response = await fetch(
-							GOOGLE_SCRIPT_URL,
-							{
-								method: "POST",
-								headers: {
-									"Content-Type":
-										"text/plain;charset=utf-8"
-								},
-								body: JSON.stringify(formData)
-							}
-						);
-
-						if (!response.ok) {
-							throw new Error(
-								"Submission failed."
-							);
-						}
-
-						const result =
-							await response.json();
-
-						if (!result.success) {
-							throw new Error(
-								result.message ||
-								"Submission failed."
-							);
-						}
+						/* The reference is minted by the server so two people submitting
+						   at the same moment cannot be handed the same one. It is what
+						   Lea matches on the bank statement, so it is shown verbatim. */
+						const result = await ppSubmitEntry(entry);
+						const reference = result.reference;
 
 						showMessage(
 							"Thanks " +
 							formData.name +
-							"! Your booking for " +
-							formData.event +
-							" has been received. We will get back to you ASAP.",
+							"! Your entry for " +
+							chosen.name +
+							" has been received. Pay by EFT using the reference below "
+							+ "and we will confirm your spot once it lands.",
 							"success"
 						);
 
-								if (chosen) {
-
-									var booking = ppAddBooking({
-										ref: reference,
-										eventId: chosen.id,
-										eventName: chosen.name,
-										name: formData.name + ' ' + formData.surname,
-										surname: formData.surname,
-										rank: formData.padelRank,
-										mobile: formData.mobile,
-										email: formData.email
-									});
-
-									document.getElementById('receiptRef').textContent = booking.ref;
-									document.getElementById('bkName').textContent = PP_ENTRIES.bank.accountName;
-									document.getElementById('bkBank').textContent = PP_ENTRIES.bank.bank;
-									document.getElementById('bkAcc').textContent = PP_ENTRIES.bank.accountNumber;
-									document.getElementById('bkBranch').textContent = PP_ENTRIES.bank.branch;
-									document.getElementById('bkAmount').textContent = ppMoney(chosen.price);
-									document.getElementById('receipt').style.display = 'block';
-								}
+						document.getElementById('receiptRef').textContent = reference;
+						document.getElementById('bkName').textContent = PP_ENTRIES.bank.accountName;
+						document.getElementById('bkBank').textContent = PP_ENTRIES.bank.bank;
+						document.getElementById('bkAcc').textContent = PP_ENTRIES.bank.accountNumber;
+						document.getElementById('bkBranch').textContent = PP_ENTRIES.bank.branch;
+						document.getElementById('bkAmount').textContent = ppMoney(entry.Amount);
+						document.getElementById('receipt').style.display = 'block';
 
 						bookingForm.reset();
+						syncForm();
 
 						formMessage.scrollIntoView({
 							behavior: "smooth",
@@ -691,15 +906,16 @@
 						console.error(error);
 
 						showMessage(
-            	"Sorry, something went wrong while submitting your booking. Please try again.",
-            	"error"
-            );
+							error && error.message
+								? error.message
+								: "Sorry, something went wrong while submitting your booking. Please try again.",
+							"error"
+						);
 
 					} finally {
 
 						submitButton.disabled = false;
-						submitButton.textContent =
-							"Submit Booking";
+						submitButton.textContent = "Submit Booking";
 					}
 				}
 			);
@@ -711,8 +927,10 @@
 					var matched = ppEvent(wanted);
 
 					if (matched) {
-						document.getElementById('event').value = matched.name;
+						eventSelect.value = matched.id;
 					}
+
+					syncForm();
 
 					// Bring the reference into view once it exists.
 					var receiptEl = document.getElementById('receipt');

@@ -1,0 +1,457 @@
+<!DOCTYPE HTML>
+<!--
+        Massively by HTML5 UP
+        html5up.net | @ajlkn
+        Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+        <head>
+                <title>Confirm Payments | Pringle Padel</title>
+                <meta charset="utf-8" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <link rel="stylesheet" href="assets/css/main.css" />
+                <meta name="robots" content="noindex, nofollow" />
+                <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+                <style>
+                        .org-wrap { max-width: 1000px; margin: 0 auto; }
+                        .org-intro { text-align: center; margin-bottom: 2rem; }
+                        .org-intro p { max-width: 46ch; margin: 0 auto; }
+
+                        .org-gate {
+                                max-width: 420px;
+                                margin: 3rem auto;
+                                text-align: center;
+                        }
+                        .org-gate input { text-align: center; }
+
+                        .org-bar {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 0.75rem;
+                                align-items: flex-end;
+                                justify-content: space-between;
+                                margin: 2rem 0 1.25rem 0;
+                        }
+                        .org-filters { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+                        .org-filters .field { margin: 0; min-width: 190px; }
+
+                        #orgMsg {
+                                display: none;
+                                padding: 1rem 1.25rem;
+                                margin: 1rem 0;
+                                border: 1px solid;
+                        }
+                        #orgMsg.error { display: block; border-color: #dc3545; }
+                        #orgMsg.ok { display: block; border-color: #28a745; }
+
+                        .org-totals {
+                                display: flex;
+                                flex-wrap: wrap;
+                                gap: 1.5rem;
+                                justify-content: center;
+                                padding: 1.25rem 0;
+                                border-top: 1px solid rgba(0,0,0,.1);
+                                border-bottom: 1px solid rgba(0,0,0,.1);
+                                margin-bottom: 1.5rem;
+                        }
+                        .org-totals b { display: block; font-size: 1.6rem; line-height: 1.2; }
+                        .org-totals span { font-size: 0.85rem; opacity: 0.7; }
+
+                        .org-name { font-weight: 600; }
+                        .org-sub { font-size: 0.85rem; opacity: 0.7; }
+                        .org-ref { font-family: "Courier New", monospace; font-weight: 700; }
+                        .org-paid { color: #1c7c4a; font-weight: 700; }
+                        .org-unpaid { color: #b5651d; font-weight: 700; }
+                        .org-row-btn { white-space: nowrap; margin: 0; }
+
+                        @media screen and (max-width: 736px) {
+                                .org-filters .field,
+                                .org-bar .button,
+                                .org-row-btn { width: 100%; }
+                                .org-totals { gap: 1rem; }
+                                .org-totals b { font-size: 1.3rem; }
+                        }
+                </style>
+        </head>
+        <body class="is-preload">
+
+                <div id="wrapper">
+
+                        <header id="header">
+                                <a href="index.html" class="logo">Pringle Padel</a>
+                        </header>
+
+                        <nav id="nav">
+                                <ul class="links">
+                                        <li><a href="Court-side.html">Coach Lea</a></li>
+                                        <li><a href="index.html">Coaching</a></li>
+                                        <li><a href="socials.html">Socials</a></li>
+                                        <li><a href="tournaments.html">Tournaments</a></li>
+                                        <li><a href="booking.html">Book</a></li>
+                                </ul>
+                        </nav>
+
+                        <div id="main">
+
+                                <section class="post">
+                                        <div class="org-wrap">
+
+                                                <!-- Passcode gate. Checked again inside Apps Script,
+                                                     which is where it can actually be kept secret. -->
+                                                <div id="gate" class="org-gate">
+                                                        <header class="major">
+                                                                <h1>Confirm Payments</h1>
+                                                                <p>Enter the passcode to see entries.</p>
+                                                        </header>
+
+                                                        <form id="gateForm">
+                                                                <div class="field">
+                                                                        <input
+                                                                                type="password"
+                                                                                id="passcode"
+                                                                                placeholder="Passcode"
+                                                                                autocomplete="current-password"
+                                                                                autofocus
+                                                                        />
+                                                                </div>
+                                                                <ul class="actions special">
+                                                                        <li>
+                                                                                <button type="submit" class="button primary large">
+                                                                                        Open
+                                                                                </button>
+                                                                        </li>
+                                                                </ul>
+                                                                <p class="org-sub" id="gateMsg"></p>
+                                                        </form>
+                                                </div>
+
+                                                <div id="panel" hidden>
+                                                        <header class="major org-intro">
+                                                                <h1>Confirm Payments</h1>
+                                                                <p>
+                                                                        Check your bank app for the payment reference.
+                                                                        Find that reference below and click <b>Mark paid</b>.
+                                                                        The player then appears on the event page straight away.
+                                                                </p>
+                                                        </header>
+
+                                                        <div id="orgMsg" role="alert" aria-live="polite"></div>
+
+                                                        <div class="org-totals" id="totals"></div>
+
+                                                        <div class="org-bar">
+                                                                <div class="org-filters">
+                                                                        <div class="field">
+                                                                                <label for="eventFilter">Event</label>
+                                                                                <select id="eventFilter">
+                                                                                        <option value="">All events</option>
+                                                                                </select>
+                                                                        </div>
+                                                                        <div class="field">
+                                                                                <label for="statusFilter">Show</label>
+                                                                                <select id="statusFilter">
+                                                                                        <option value="pending">Waiting for payment</option>
+                                                                                        <option value="paid">Confirmed</option>
+                                                                                        <option value="all">Everything</option>
+                                                                                </select>
+                                                                        </div>
+                                                                        <div class="field">
+                                                                                <label for="search">Search</label>
+                                                                                <input type="search" id="search" placeholder="Name or reference" />
+                                                                        </div>
+                                                                </div>
+                                                                <button type="button" class="button" id="refreshBtn">Refresh</button>
+                                                        </div>
+
+                                                        <div class="table-wrapper">
+                                                                <table>
+                                                                        <thead>
+                                                                                <tr>
+                                                                                        <th>Reference</th>
+                                                                                        <th>Entry</th>
+                                                                                        <th>Division</th>
+                                                                                        <th>Rank</th>
+                                                                                        <th>Contact</th>
+                                                                                        <th>Status</th>
+                                                                                        <th></th>
+                                                                                </tr>
+                                                                        </thead>
+                                                                        <tbody id="rows"></tbody>
+                                                                </table>
+                                                        </div>
+
+                                                        <p class="org-sub" id="emptyMsg" hidden></p>
+
+                                                        <p class="org-sub" style="margin-top:1.5rem">
+                                                                Tip: in your banking app, search the account for the
+                                                                reference shown in the first column. It is the player's
+                                                                name, or the team name for a team entry.
+                                                        </p>
+                                                </div>
+
+                                        </div>
+                                </section>
+
+                        </div>
+
+                        <footer id="footer">
+                                <section class="split contact">
+                                        <section class="alt">
+                                                <h3>Padel Address</h3>
+                                                <p>
+                                                        Indoor Padel Revolution<br />
+                                                        2 Picaroon Street<br />
+                                                        Johannesburg 1724
+                                                </p>
+                                        </section>
+                                        <section>
+                                                <h3>Email</h3>
+                                                <p><a href="mailto:Pringlepadel@gmail.com">Pringlepadel@gmail.com</a></p>
+                                        </section>
+                                </section>
+                        </footer>
+
+                        <div id="copyright">
+                                <ul>
+                                        <li>&copy; Pringle Padel</li>
+                                        <li>Design: <a href="https://html5up.net">HTML5 UP</a></li>
+                                </ul>
+                        </div>
+
+                </div>
+
+                <script src="assets/js/jquery.min.js"></script>
+                <script src="assets/js/jquery.scrollex.min.js"></script>
+                <script src="assets/js/jquery.scrolly.min.js"></script>
+                <script src="assets/js/browser.min.js"></script>
+                <script src="assets/js/breakpoints.min.js"></script>
+                <script src="assets/js/util.js"></script>
+                <script src="assets/js/main.js"></script>
+                <script src="assets/js/pp-config.js"></script>
+                <script src="assets/js/entries.js"></script>
+
+                <script>
+                        var passcode = '';
+                        var allEntries = [];
+
+                        var gate = document.getElementById('gate');
+                        var panel = document.getElementById('panel');
+                        var gateMsg = document.getElementById('gateMsg');
+                        var orgMsg = document.getElementById('orgMsg');
+
+                        function showMsg(el, text, kind) {
+                                el.textContent = text;
+                                el.className = kind || '';
+                                el.style.display = text ? 'block' : 'none';
+                        }
+
+                        /* The passcode is kept in sessionStorage so a refresh does
+                           not log Lea out, but it is gone when the tab closes. It
+                           is never written into the page source. */
+                        function openPanel() {
+                                gate.hidden = true;
+                                panel.hidden = false;
+                                load();
+                        }
+
+                        document.getElementById('gateForm').addEventListener('submit', function (e) {
+                                e.preventDefault();
+
+                                passcode = document.getElementById('passcode').value.trim();
+                                if (!passcode) return;
+
+                                gateMsg.textContent = 'Checking...';
+
+                                ppOrganiserList(passcode).then(function (entries) {
+                                        sessionStorage.setItem('pp_passcode', passcode);
+                                        allEntries = entries;
+                                        openPanel();
+                                }).catch(function (err) {
+                                        gateMsg.textContent = err.message || 'Could not open. Check the passcode.';
+                                });
+                        });
+
+                        function load() {
+                                showMsg(orgMsg, 'Loading...', '');
+
+                                ppOrganiserList(passcode).then(function (entries) {
+                                        allEntries = entries;
+                                        showMsg(orgMsg, '', '');
+                                        render();
+                                }).catch(function (err) {
+                                        showMsg(orgMsg, err.message || 'Could not load entries.', 'error');
+                                });
+                        }
+
+                        function render() {
+                                const status = document.getElementById('statusFilter').value;
+                                const eventName = document.getElementById('eventFilter').value;
+                                const q = document.getElementById('search').value.trim().toLowerCase();
+
+                                /* One entry is one reference. A team entry writes two rows
+                                   sharing that reference, so they are grouped back into a
+                                   single row here — Lea paid one EFT, so she sees one line. */
+                                const groups = {};
+                                const order = [];
+
+                                allEntries.forEach(function (e) {
+                                        const key = e.Reference;
+                                        if (!groups[key]) {
+                                                groups[key] = [];
+                                                order.push(key);
+                                        }
+                                        groups[key].push(e);
+                                });
+
+                                const rows = order.map(function (key) {
+                                        const members = groups[key];
+                                        const head = members[0];
+                                        const paid = String(head.Paid).toUpperCase() === 'YES';
+
+                                        const names = members.map(function (m) {
+                                                return [m.FirstName, m.Surname].filter(Boolean).join(' ');
+                                        });
+
+                                        return {
+                                                ref: key,
+                                                event: head.Event,
+                                                division: head.Division,
+                                                team: head.TeamName,
+                                                names: names,
+                                                ranks: members.map(function (m) { return m.Rank; }).filter(Boolean),
+                                                mobile: head.Mobile,
+                                                email: head.Email,
+                                                paid: paid,
+                                                players: members.length
+                                        };
+                                });
+
+                                const total = rows.length;
+                                const paidCount = rows.filter(function (r) { return r.paid; }).length;
+                                const players = rows.reduce(function (n, r) { return n + r.players; }, 0);
+
+                                document.getElementById('totals').innerHTML = [
+                                        ['Entries', total],
+                                        ['Confirmed', paidCount],
+                                        ['Waiting', total - paidCount],
+                                        ['Players', players]
+                                ].map(function (t) {
+                                        return '<div><b>' + t[1] + '</b><span>' + t[0] + '</span></div>';
+                                }).join('');
+
+                                /* Keep the event filter in step with what is actually there. */
+                                const sel = document.getElementById('eventFilter');
+                                const events = [];
+                                rows.forEach(function (r) {
+                                        if (r.event && events.indexOf(r.event) === -1) events.push(r.event);
+                                });
+                                const keep = sel.value;
+                                sel.innerHTML = '<option value="">All events</option>' +
+                                        events.map(function (n) {
+                                                return '<option value="' + ppEsc(n) + '">' + ppEsc(n) + '</option>';
+                                        }).join('');
+                                if (events.indexOf(keep) !== -1) sel.value = keep;
+
+                                const shown = rows.filter(function (r) {
+                                        if (status === 'pending' && r.paid) return false;
+                                        if (status === 'paid' && !r.paid) return false;
+                                        if (eventName && r.event !== eventName) return false;
+                                        if (q) {
+                                                const hay = (r.ref + ' ' + r.names.join(' ') + ' ' + r.team).toLowerCase();
+                                                if (hay.indexOf(q) === -1) return false;
+                                        }
+                                        return true;
+                                });
+
+                                const body = document.getElementById('rows');
+                                const empty = document.getElementById('emptyMsg');
+
+                                if (!shown.length) {
+                                        body.innerHTML = '';
+                                        empty.hidden = false;
+                                        empty.textContent = total
+                                                ? 'Nothing matches those filters.'
+                                                : 'No entries yet. They will appear here as players book.';
+                                        return;
+                                }
+
+                                empty.hidden = true;
+
+                                body.innerHTML = shown.map(function (r) {
+                                        const label = r.team
+                                                ? r.names.join(' & ') + '<div class="org-sub">Team: ' + ppEsc(r.team) + '</div>'
+                                                : ppEsc(r.names[0]);
+
+                                        const rank = r.ranks.length ? r.ranks.join(' / ') : '\u2014';
+                                        const contact = [r.mobile, r.email].filter(Boolean)
+                                                .map(ppEsc).join('<div class="org-sub">') || '\u2014';
+
+                                        const action = r.paid
+                                                ? '<button type="button" class="button org-row-btn" data-ref="' + ppEsc(r.ref) + '" data-paid="false">Undo</button>'
+                                                : '<button type="button" class="button primary org-row-btn" data-ref="' + ppEsc(r.ref) + '" data-paid="true">Mark paid</button>';
+
+                                        return '<tr>' +
+                                                '<td class="org-ref">' + ppEsc(r.ref) + '</td>' +
+                                                '<td><span class="org-name">' + label + '</span></td>' +
+                                                '<td>' + ppEsc(r.division || '\u2014') + '</td>' +
+                                                '<td>' + ppEsc(rank) + '</td>' +
+                                                '<td>' + contact + '</td>' +
+                                                '<td class="' + (r.paid ? 'org-paid' : 'org-unpaid') + '">' +
+                                                        (r.paid ? 'Paid' : 'Waiting') + '</td>' +
+                                                '<td>' + action + '</td>' +
+                                        '</tr>';
+                                }).join('');
+                        }
+
+                        document.getElementById('rows').addEventListener('click', function (e) {
+                                const btn = e.target.closest('button[data-ref]');
+                                if (!btn) return;
+
+                                const ref = btn.getAttribute('data-ref');
+                                const paid = btn.getAttribute('data-paid') === 'true';
+
+                                btn.disabled = true;
+                                btn.textContent = paid ? 'Saving...' : 'Undoing...';
+
+                                ppSetPaid(passcode, ref, paid).then(function () {
+                                        showMsg(
+                                                orgMsg,
+                                                paid
+                                                        ? 'Confirmed ' + ref + '. They are now on the event page.'
+                                                        : 'Moved ' + ref + ' back to waiting.',
+                                                'ok'
+                                        );
+                                        return ppOrganiserList(passcode);
+                                }).then(function (entries) {
+                                        allEntries = entries;
+                                        render();
+                                }).catch(function (err) {
+                                        showMsg(orgMsg, err.message || 'Could not update.', 'error');
+                                        btn.disabled = false;
+                                        btn.textContent = paid ? 'Mark paid' : 'Undo';
+                                });
+                        });
+
+                        document.getElementById('statusFilter').addEventListener('change', render);
+                        document.getElementById('eventFilter').addEventListener('change', render);
+                        document.getElementById('search').addEventListener('input', render);
+                        document.getElementById('refreshBtn').addEventListener('click', load);
+
+                        /* Resume a session without retyping the passcode. */
+                        (function () {
+                                const saved = sessionStorage.getItem('pp_passcode');
+                                if (!saved) return;
+
+                                passcode = saved;
+                                ppOrganiserList(passcode).then(function (entries) {
+                                        allEntries = entries;
+                                        openPanel();
+                                }).catch(function () {
+                                        sessionStorage.removeItem('pp_passcode');
+                                        passcode = '';
+                                });
+                        })();
+                </script>
+
+        </body>
+</html>
