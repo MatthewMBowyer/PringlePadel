@@ -22,8 +22,10 @@ import sys
 
 # Attributes that carry a local path.
 REF = re.compile(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', re.I)
+# srcset holds one or more "url [descriptor]" pairs.
+SRCSET = re.compile(r'srcset\s*=\s*["\']([^"\']+)["\']', re.I)
 # Paths built inside JS strings or template literals, e.g. url: '/x.html'
-JS_PATH = re.compile(r'["\'](/[A-Za-z0-9_\-./]+\.(?:html|jpg|jpeg|png|webp|css|js))["\']')
+JS_PATH = re.compile(r'["\'](/[A-Za-z0-9_\-./]+\.(?:html|jpg|jpeg|png|webp|avif|css|js))["\']')
 
 SKIP_PREFIXES = ('http://', 'https://', 'mailto:', 'tel:', '#', 'data:', 'javascript:')
 
@@ -34,9 +36,16 @@ RETIRED = re.compile(r'only4thefans|only4fans', re.I)
 def referenced_paths(markup):
     """Local paths the browser is asked to fetch for a page."""
     text = re.sub(r'<!--.*?-->', '', markup, flags=re.S)
+    raw_values = [m.group(1) for m in REF.finditer(text)]
+    raw_values += [m.group(1) for m in JS_PATH.finditer(text)]
+    for m in SRCSET.finditer(text):
+        for candidate in m.group(1).split(','):
+            token = candidate.strip().split()[0] if candidate.strip() else ''
+            if token:
+                raw_values.append(token)
+
     out = []
-    for m in list(REF.finditer(text)) + list(JS_PATH.finditer(text)):
-        raw = m.group(1)
+    for raw in raw_values:
         if raw.startswith(SKIP_PREFIXES):
             continue
         if '${' in raw or '$(' in raw:

@@ -108,7 +108,11 @@
 						<p>Ladies, Mixed and Mens divisions on Saturday 7 November 2026. Here we go again &mdash; channel your inner Dancing Queen and let&#39;s turn up the heat. Enter below and we will confirm your spot once payment lands.</p>
 					</header>
 
-					<span class="image main pp-hero"><img src="images/mamma-mia-its-hot.jpg" alt="Mamma Mia It&#39;s Getting Hot In Here - Saturday 7 November 2026" /></span>
+                                        <span class="image main pp-hero"><picture>
+                                            <source srcset="images/mamma-mia-its-hot.avif" type="image/avif" />
+                                            <source srcset="images/mamma-mia-its-hot.webp" type="image/webp" />
+                                            <img src="images/mamma-mia-its-hot.jpg" width="1000" height="1039" fetchpriority="high" decoding="async" alt="Mamma Mia It&#39;s Getting Hot In Here - Saturday 7 November 2026" />
+                                        </picture></span>
 
 					<ul class="actions special">
 						<li><a href="booking.html?event=mamma-mia-its-hot-tournament" class="button primary large">Enter this event</a></li>
@@ -201,7 +205,8 @@
 				['Venue', ev.venue],
 				['Divisions', 'Ladies 2-4pm | Mixed 4-6pm | Mens 6-8pm'],
 				['Entry fee', ppMoney(ev.price) + ' per person'],
-				['Team entry', ppMoney(ppTeamPrice(ev)) + ' (2 players)']
+				['Team entry', ppMoney(ppTeamPrice(ev)) + ' for the team (2 players, '
+				 + ppMoney(ev.price) + ' each)']
 			].map(function (r) {
 				return '<li><span class="k">' + ppEsc(r[0]) + '</span>' +
 					'<span class="v">' + ppEsc(r[1]) + '</span></li>';

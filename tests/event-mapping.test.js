@@ -96,7 +96,35 @@ check('team price still 600', ev && ctx.ppTeamPrice(ev) === 600, ev && String(ct
   check('page title shows the new name', page.includes("Mamma Mia - It&#39;s Getting Hot In Here!"));
   check('no trace of the old name in the page', !/only4thefans/i.test(page));
 
+  console.log('\nTeam pricing');
+  check('a team of two is 600, not 300 per pair',
+    ctx.ppTeamPrice(ev) === 2 * ev.price && ctx.ppTeamPrice(ev) === 600);
+  check('a single entry is still 300', ctx.ppEntryPrice(ev, false) === 300);
+  check('a team entry is charged the team total', ctx.ppEntryPrice(ev, true) === 600);
+  check('the page spells the split out so 300 is never read as the team price',
+    page.includes("+ ' for the team (2 players, '"));
+  check('the page still states the per-person price',
+    page.includes("['Entry fee', ppMoney(ev.price) + ' per person']"));
+  check('the booking form quotes the team total',
+    fs.readFileSync('booking.html', 'utf8')
+      .includes('ppMoney(ppTeamPrice(ev)) + " for the team (2 players, "'));
+
+  console.log('\nPage speed');
+  ['images/mamma-mia-its-hot.avif',
+   'images/mamma-mia-its-hot.webp',
+   'images/mamma-mia-its-hot.jpg'].forEach(function (f) {
+    check('hero format on disk: ' + f, fs.existsSync(f));
+  });
+  check('the hero ships modern formats first, with a JPEG fallback',
+    page.includes('type="image/avif"') && page.includes('type="image/webp"')
+      && page.includes('images/mamma-mia-its-hot.jpg" width='));
+  check('the hero reserves its space so the page does not jump',
+    page.includes('width="1000" height="1039"'));
+  check('the hero is marked as the priority image',
+    page.includes('fetchpriority="high"'));
+
   const t = fs.readFileSync('tournaments.html', 'utf8');
+  check('card thumbnails are lazy-loaded', t.includes('loading="lazy"'));
   check('tournaments card uses the new banner', t.includes('images/mamma-mia-its-hot-banner.jpg'));
   check('tournaments card links the new page', t.includes('/mamma-mia-its-hot-tournament.html'));
   check('tournaments Enter button uses the new id',

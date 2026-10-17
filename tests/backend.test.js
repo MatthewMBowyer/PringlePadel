@@ -208,6 +208,12 @@ check('both team rows share one reference', teamRows.length === 2);
 check('team row 1 carries the partner', cell(teamRows[0], 'PartnerName') === 'Henk' && cell(teamRows[0], 'PartnerSurname') === 'Slabert');
 check('team row 2 does not repeat partner columns', cell(teamRows[1], 'PartnerName') === '');
 check('team row 2 is the partner themselves', cell(teamRows[1], 'FirstName') === 'Henk');
+/* A team pays one R600 deposit against one reference, so both player rows
+   must carry the team total. If a row carried the R300 per-person split,
+   Lea reconciling the bank statement would see two half payments. */
+check('both team rows carry the R600 team total',
+  teamRows.every((row) => Number(cell(row, 'Amount')) === 600),
+  teamRows.map((row) => cell(row, 'Amount')).join('/'));
 
 r = post({ Event: 'E', EntryType: 'single', Division: 'Ladies', Amount: 300, Mobile: '0811',
   PlayerList: [{ FirstName: 'Thabo', Surname: 'Mokoena', Rank: '3.5' }] });
