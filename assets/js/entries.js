@@ -55,7 +55,7 @@ const PP_EVENTS = [
     format: 'Ladies, Mixed and Mens divisions',
     price: 300,
     divisions: true,
-    image: 'images/mamma-mia-its-hot-banner.jpg',
+    image: 'images/mamma-mia-its-hot-logo.jpg',
     url: 'mamma-mia-its-hot-tournament.html',
     /* This event ran as "Only4thefans Tournament" before it was renamed.
        Entries booked under the old name are still this event, and the name

@@ -123,28 +123,14 @@
 			.pp-bank .k { opacity: 0.7; }
 			.pp-bank .v { font-weight: 600; }
 
-			.pp-choice {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.75rem;
-			}
-
-			.pp-opt {
-				display: flex;
-				align-items: center;
-				gap: 0.5rem;
+			.pp-fixed {
+				display: inline-block;
 				padding: 0.65rem 1rem;
 				border: 1px solid rgba(0, 0, 0, 0.2);
 				border-radius: 8px;
-				cursor: pointer;
-				font-weight: 600;
-			}
-
-			.pp-opt input { margin: 0; }
-
-			.pp-opt:has(input:checked) {
-				border-color: #18bfef;
 				background: rgba(24, 191, 239, 0.1);
+				border-color: #18bfef;
+				font-weight: 600;
 			}
 
 			.pp-partner-head {
@@ -328,21 +314,9 @@
 
 							<!-- Entry type -->
 							<div class="field">
-								<label>
-									Entry Type
-									<span class="required">*</span>
-								</label>
+								<label>Entry Type</label>
 
-								<div class="pp-choice">
-									<label class="pp-opt">
-										<input type="radio" name="entryType" value="single" checked required />
-										<span>Single entry</span>
-									</label>
-									<label class="pp-opt">
-										<input type="radio" name="entryType" value="team" />
-										<span>Team entry (2 players)</span>
-									</label>
-								</div>
+								<div class="pp-fixed">Team entry &mdash; 2 players</div>
 
 								<div class="helper-text" id="priceInfo"></div>
 							</div>
@@ -401,14 +375,12 @@
 									/>
 
 									<input
-										type="number"
+										type="text"
 										name="partnerRank"
 										id="partnerRank"
-										placeholder="Partner Playtomic ranking (e.g. 4.5)"
-										min="0"
-										max="10"
-										step="0.1"
+										placeholder="Partner ranking (e.g. 4.5 or 4,5)"
 										inputmode="decimal"
+										autocomplete="off"
 									/>
 
 								<div class="helper-text">
@@ -457,14 +429,12 @@
 								</label>
 
 								<input
-									type="number"
+									type="text"
 									name="padelRank"
 									id="padelRank"
-									placeholder="e.g. 4.5"
-									min="0"
-									max="10"
-									step="0.1"
+									placeholder="e.g. 4.5 or 4,5"
 									inputmode="decimal"
+									autocomplete="off"
 								/>
 
 								<div class="helper-text">
@@ -648,6 +618,8 @@
 
 			const padelRankInput =
 				document.getElementById("padelRank");
+			const partnerRankInput =
+				document.getElementById("partnerRank");
 
 			function showMessage(message, type) {
 				formMessage.textContent = message;
@@ -661,33 +633,57 @@
 				formMessage.style.display = "none";
 			}
 
-			function validatePadelRank() {
-				const value = padelRankInput.value.trim();
+			/* People type a ranking as "4,5" as often as "4.5". Accept
+			   either, store a dot, so the Sheet sorts and averages correctly
+			   whoever filled it in.
 
-				if (value === "") {
-					padelRankInput.setCustomValidity("");
-					return true;
-				}
+			   The fields used to be type="number", which is the real reason a
+			   comma failed: the browser reports an empty value for "4,5", so
+			   the field looked blank and no amount of validation here could
+			   recover it. */
+			function normaliseRank(value) {
+				return String(value == null ? "" : value)
+					.trim()
+					.replace(/\s+/g, "")
+					.replace(/,/g, ".");
+			}
 
-				const rankPattern =
-					/^(10(?:\.0)?|[0-9](?:\.\d)?)$/;
+			/* 0-10 with at most one decimal place. Blank is allowed. */
+			function checkRank(input) {
+				const value = normaliseRank(input.value);
 
-				if (!rankPattern.test(value)) {
-					padelRankInput.setCustomValidity(
-						"Please enter a Playtomic ranking between 0 and 10 with no more than one decimal place."
+				if (value !== "" && !/^(10(?:\.0)?|[0-9](?:\.\d)?)$/.test(value)) {
+					input.setCustomValidity(
+						"Please enter a ranking between 0 and 10, like 4.5 or 4,5."
 					);
-
 					return false;
 				}
 
-				padelRankInput.setCustomValidity("");
+				input.setCustomValidity("");
 				return true;
 			}
 
-			padelRankInput.addEventListener(
-				"input",
-				validatePadelRank
-			);
+			function validatePadelRank() {
+				return checkRank(padelRankInput) &&
+					(!partnerRankInput || checkRank(partnerRankInput));
+			}
+
+			[padelRankInput, partnerRankInput].forEach(function (input) {
+				if (!input) return;
+
+				input.addEventListener("input", function () {
+					checkRank(input);
+				});
+
+				/* Rewrite "4,5" as "4.5" on the way out, so what is on screen
+				   matches what gets stored. */
+				input.addEventListener("blur", function () {
+					const tidy = normaliseRank(input.value);
+					if (tidy !== "" && checkRank(input)) {
+						input.value = tidy;
+					}
+				});
+			});
 
 			/* The form adapts to the chosen event: only the November
 			   tournament runs divisions, and only a team entry needs a team
@@ -705,13 +701,6 @@
 				document.getElementById("partnerSurname"),
 				document.getElementById("partnerRank")
 			];
-
-			function ppIsTeam() {
-				const checked = bookingForm.querySelector(
-					'input[name="entryType"]:checked'
-				);
-				return !!checked && checked.value === "team";
-			}
 
 			/* Built from the shared data layer so the form and the
 			   tournaments page can never list different events. */
@@ -731,17 +720,15 @@
 
 			function syncForm() {
 				const ev = ppEvent(eventSelect.value);
-				const isTeam = ppIsTeam();
 
 				eventInfo.textContent = ev
 					? ev.format + " \u00b7 " + ev.venue
 					: "";
 
 				if (ev) {
-					priceInfo.textContent = isTeam
-						? ppMoney(ppTeamPrice(ev)) + " for the team (2 players, "
-						  + ppMoney(ev.price) + " each)"
-						: ppMoney(ev.price) + " per person";
+					priceInfo.textContent = ppMoney(ppTeamPrice(ev))
+						+ " for the team (2 players, "
+						+ ppMoney(ev.price) + " each)";
 				} else {
 					priceInfo.textContent = "";
 				}
@@ -751,24 +738,15 @@
 				divisionSelect.required = showDivision;
 				if (!showDivision) divisionSelect.value = "";
 
-				teamNameField.hidden = !isTeam;
-				teamNameInput.required = isTeam;
-				partnerBlock.hidden = !isTeam;
+				teamNameField.hidden = false;
+				teamNameInput.required = true;
+				partnerBlock.hidden = false;
 				partnerInputs.forEach(function (input) {
-					input.required = isTeam;
+					input.required = true;
 				});
-				if (!isTeam) {
-					teamNameInput.value = "";
-					partnerInputs.forEach(function (i) { i.value = ""; });
-				}
 			}
 
 			eventSelect.addEventListener("change", syncForm);
-			bookingForm
-				.querySelectorAll('input[name="entryType"]')
-				.forEach(function (r) {
-					r.addEventListener("change", syncForm);
-				});
 
 			syncForm();
 
@@ -806,10 +784,11 @@
 								.trim(),
 
 						padelRank:
-							document
-								.getElementById("padelRank")
-								.value
-								.trim(),
+							normaliseRank(
+								document
+									.getElementById("padelRank")
+									.value
+							),
 
 						mobile:
 							document
@@ -840,10 +819,11 @@
 								.trim(),
 
 						partnerRank:
-							document
-								.getElementById("partnerRank")
-								.value
-								.trim(),
+							normaliseRank(
+								document
+									.getElementById("partnerRank")
+									.value
+							),
 
 						consent:
 							document
@@ -858,32 +838,26 @@
 						return;
 					}
 
-					var isTeam = ppIsTeam();
-
-					/* One request per entry, even for a team: both players share a single
-					   payment reference, so splitting them would hand Lea two references
-					   for one EFT. The server writes both rows under the one reference. */
+					/* One request per team: both players share a single payment
+					   reference, so splitting them would hand Lea two references for
+					   one EFT. The server writes both rows under the one reference. */
 					const entry = {
 						Event: chosen.name,
-						EntryType: isTeam ? "team" : "single",
-						TeamName: isTeam ? teamNameInput.value.trim() : "",
+						EntryType: "team",
+						TeamName: teamNameInput.value.trim(),
 						// The human label ("Ladies"), not the id, so the published list
 						// needs no lookup.
 						Division: (chosen.divisions && divisionSelect.selectedIndex > 0)
 							? divisionSelect.selectedOptions[0].textContent
 							: "",
-						Players: isTeam ? 2 : 1,
-						Amount: ppEntryPrice(chosen, isTeam),
+						Players: 2,
+						Amount: ppEntryPrice(chosen, true),
 						Mobile: formData.mobile,
 						Email: formData.email,
-						PlayerList: isTeam
-							? [
-								{ FirstName: formData.name, Surname: formData.surname, Rank: formData.padelRank },
-								{ FirstName: formData.partnerName, Surname: formData.partnerSurname, Rank: formData.partnerRank }
-							]
-							: [
-								{ FirstName: formData.name, Surname: formData.surname, Rank: formData.padelRank }
-							]
+						PlayerList: [
+							{ FirstName: formData.name, Surname: formData.surname, Rank: formData.padelRank },
+							{ FirstName: formData.partnerName, Surname: formData.partnerSurname, Rank: formData.partnerRank }
+						]
 					};
 
 					submitButton.disabled = true;
@@ -912,7 +886,9 @@
 						document.getElementById('bkBank').textContent = PP_ENTRIES.bank.bank;
 						document.getElementById('bkAcc').textContent = PP_ENTRIES.bank.accountNumber;
 						document.getElementById('bkBranch').textContent = PP_ENTRIES.bank.branch;
-						document.getElementById('bkAmount').textContent = ppMoney(entry.Amount);
+						document.getElementById('bkAmount').textContent =
+                                                        ppMoney(entry.Amount) + " for the team ("
+                                                        + ppMoney(chosen.price) + " per player)";
 						document.getElementById('receipt').style.display = 'block';
 
 						bookingForm.reset();

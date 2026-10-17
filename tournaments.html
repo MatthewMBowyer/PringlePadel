@@ -69,7 +69,11 @@
   const openEvents = [
     {
       name: 'Mamma Mia - 7 Nov 2026',
-      image: 'images/mamma-mia-its-hot-banner.jpg',
+      image: 'images/mamma-mia-its-hot-logo.jpg',
+      /* The logo is roughly square. In a 16:9 box, cover crops the top and
+         bottom off it, which cuts the lettering; contain letterboxes it
+         instead, so the card shows the whole logo at its true proportions. */
+      fit: 'contain',
       url: '/mamma-mia-its-hot-tournament.html',
       enter: '/booking.html?event=mamma-mia-its-hot-tournament',
       open: true
@@ -103,7 +107,7 @@
   function card(t) {
     return `
     <article class="tournament-card">
-      <div class="thumb">
+      <div class="thumb${t.fit === 'contain' ? ' thumb-contain' : ''}">
         <img src="${t.image}" alt="${t.name}" loading="lazy" decoding="async">
       </div>
       <h3>${t.name}</h3>
@@ -216,6 +220,17 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* A contained thumb keeps the artwork's own proportions instead of being
+   cropped to 16:9, which on a square logo slices the lettering off. The
+   black backdrop matches the logo's background so the bars are invisible. */
+.tournament-card .thumb.thumb-contain {
+  background: #000;
+}
+
+.tournament-card .thumb.thumb-contain img {
+  object-fit: contain;
 }
 
 @media (prefers-color-scheme: dark) {

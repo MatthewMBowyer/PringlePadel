@@ -30,7 +30,7 @@ const feed = {
     { Event: 'Some Other Event', TeamName: '', FirstName: 'Someone', Surname: 'Else', Division: 'Ladies', Rank: '2' }
   ],
   counts: { [OLD]: 1, [NEW]: 2, 'Some Other Event': 1 },
-  build: 'confirm-by-readback'
+  build: 'team-booking'
 };
 
 let fail = 0;
@@ -79,11 +79,10 @@ check('team price still 600', ev && ctx.ppTeamPrice(ev) === 600, ev && String(ct
   check('count spans old and new names', n === 3, String(n));
 
   console.log('\nImage and link targets used by the site');
-  check('image path is the new banner',
-    ev.image === 'images/mamma-mia-its-hot-banner.jpg', ev.image);
+  check('card image path is the logo', ev.image === 'images/mamma-mia-its-hot-logo.jpg', ev.image);
   check('page url is the new file',
     ev.url === 'mamma-mia-its-hot-tournament.html', ev.url);
-  check('banner file exists on disk', fs.existsSync(ev.image));
+  check('card image file exists on disk', fs.existsSync(ev.image));
   check('page file exists on disk', fs.existsSync(ev.url));
 
   console.log('\nPage markup agrees with the event table');
@@ -91,8 +90,8 @@ check('team price still 600', ev && ctx.ppTeamPrice(ev) === 600, ev && String(ct
   check('page looks up the same id', page.includes("ppEvent('mamma-mia-its-hot-tournament')"));
   check('Enter button uses the same id',
     page.includes('booking.html?event=mamma-mia-its-hot-tournament'));
-  check('hero image exists', page.includes('images/mamma-mia-its-hot.jpg'));
-  check('hero image file is on disk', fs.existsSync('images/mamma-mia-its-hot.jpg'));
+  check('hero image exists', page.includes('images/mamma-mia-its-hot-flyer.jpg'));
+  check('hero image file is on disk', fs.existsSync('images/mamma-mia-its-hot-flyer.jpg'));
   check('page title shows the new name', page.includes("Mamma Mia - It&#39;s Getting Hot In Here!"));
   check('no trace of the old name in the page', !/only4thefans/i.test(page));
 
@@ -105,27 +104,52 @@ check('team price still 600', ev && ctx.ppTeamPrice(ev) === 600, ev && String(ct
     page.includes("+ ' for the team (2 players, '"));
   check('the page still states the per-person price',
     page.includes("['Entry fee', ppMoney(ev.price) + ' per person']"));
+  const booking = fs.readFileSync('booking.html', 'utf8');
   check('the booking form quotes the team total',
-    fs.readFileSync('booking.html', 'utf8')
-      .includes('ppMoney(ppTeamPrice(ev)) + " for the team (2 players, "'));
+    booking.includes('ppMoney(ppTeamPrice(ev))')
+      && booking.includes('+ " for the team (2 players, "'));
+  check('the booking form never offers a single entry',
+    !/value="single"/.test(booking) && !/Single entry/.test(booking),
+    (/Single entry/.exec(booking) || [''])[0]);
+  check('the booking form always sends a team',
+    booking.includes('EntryType: "team"') && booking.includes('Players: 2,'));
 
   console.log('\nPage speed');
-  ['images/mamma-mia-its-hot.avif',
-   'images/mamma-mia-its-hot.webp',
-   'images/mamma-mia-its-hot.jpg'].forEach(function (f) {
+  ['images/mamma-mia-its-hot-flyer.avif',
+   'images/mamma-mia-its-hot-flyer.webp',
+   'images/mamma-mia-its-hot-flyer.jpg'].forEach(function (f) {
     check('hero format on disk: ' + f, fs.existsSync(f));
   });
   check('the hero ships modern formats first, with a JPEG fallback',
     page.includes('type="image/avif"') && page.includes('type="image/webp"')
-      && page.includes('images/mamma-mia-its-hot.jpg" width='));
-  check('the hero reserves its space so the page does not jump',
-    page.includes('width="1000" height="1039"'));
+      && page.includes('images/mamma-mia-its-hot-flyer.jpg" width='));
   check('the hero is marked as the priority image',
     page.includes('fetchpriority="high"'));
 
+  console.log('\nThe two images are on the right surface');
   const t = fs.readFileSync('tournaments.html', 'utf8');
-  check('card thumbnails are lazy-loaded', t.includes('loading="lazy"'));
-  check('tournaments card uses the new banner', t.includes('images/mamma-mia-its-hot-banner.jpg'));
+  /* Swap guard. The detailed flyer belongs at full size on the event page,
+     where its small print can actually be read; the plain logo belongs on
+     the card, where a dense flyer is an illegible smear. Getting these the
+     wrong way round is easy and invisible to a passing test, so pin it. */
+  check('the event page hero is the detailed flyer',
+    page.includes('images/mamma-mia-its-hot-flyer.jpg')
+      && !page.includes('images/mamma-mia-its-hot-logo.jpg'));
+  check('the tournaments card is the plain logo',
+    t.includes('images/mamma-mia-its-hot-logo.jpg')
+      && !t.includes('images/mamma-mia-its-hot-flyer.jpg'));
+  check('the retired banner file is gone',
+    !fs.existsSync('images/mamma-mia-its-hot-banner.jpg'));
+  check('no page still asks for the retired banner',
+    !page.includes('mamma-mia-its-hot-banner') && !t.includes('mamma-mia-its-hot-banner'));
+
+  console.log('\nNothing is squashed');
+  check('the card logo is contained rather than cropped to 16:9',
+    t.includes("fit: 'contain'") && t.includes('object-fit: contain'));
+  check('only the logo card gets the contain treatment',
+    t.includes("t.fit === 'contain' ? ' thumb-contain' : ''"));
+  check('the hero declares its true dimensions so it cannot be stretched',
+    page.includes('width="1100" height="1100"'));
   check('tournaments card links the new page', t.includes('/mamma-mia-its-hot-tournament.html'));
   check('tournaments Enter button uses the new id',
     t.includes('/booking.html?event=mamma-mia-its-hot-tournament'));

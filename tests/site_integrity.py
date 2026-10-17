@@ -20,6 +20,11 @@ import re
 import subprocess
 import sys
 
+try:
+    from PIL import Image
+except ImportError:  # dimension checks are skipped rather than failing the run
+    Image = None
+
 # Attributes that carry a local path.
 REF = re.compile(r'(?:href|src)\s*=\s*["\']([^"\']+)["\']', re.I)
 # srcset holds one or more "url [descriptor]" pairs.
@@ -84,11 +89,59 @@ def git(*args):
     return subprocess.run(['git'] + list(args), capture_output=True, text=True)
 
 
+# An <img> that declares width/height the file does not actually have renders
+# squashed. Nothing catches that by eye until someone looks at the page, so
+# compare every declaration against the real image header.
+IMG_TAG = re.compile(r'<img\b[^>]*>', re.I)
+DIM_ATTR = re.compile(r'\b(width|height)\s*=\s*["\'](\d+)["\']', re.I)
+SRC_ATTR = re.compile(r'\bsrc\s*=\s*["\']([^"\']+)["\']', re.I)
+
+
+def image_size(path):
+    if Image is None:
+        return None
+    try:
+        with Image.open(path) as im:
+            return im.size
+    except Exception:
+        return None
+
+
+def check_dimensions(pages, read, exists):
+    problems = []
+    for page in pages:
+        markup = read(page)
+        if markup is None:
+            continue
+        for tag in IMG_TAG.findall(markup):
+            src = SRC_ATTR.search(tag)
+            dims = dict((k.lower(), int(v)) for k, v in DIM_ATTR.findall(tag))
+            if not src or 'width' not in dims or 'height' not in dims:
+                continue
+            raw = src.group(1)
+            if raw.startswith(SKIP_PREFIXES) or '${' in raw:
+                continue
+            path = raw.split('?')[0].split('#')[0]
+            local = path.lstrip('/') if path.startswith('/') else os.path.join(os.path.dirname(page), path)
+            local = os.path.normpath(local)
+            if not exists(local):
+                continue
+            actual = image_size(local)
+            if actual and actual != (dims['width'], dims['height']):
+                problems.append(
+                    f'{page}: {local} declares {dims["width"]}x{dims["height"]} '
+                    f'but the file is {actual[0]}x{actual[1]} (it will be squashed)'
+                )
+    return problems
+
+
 problems = []
 pages = sorted(f for f in os.listdir('.') if f.endswith('.html') and os.path.isfile(f))
 
 problems += check_pages(pages, lambda p: open(p, encoding='utf-8').read(),
                         os.path.exists, 'working tree')
+problems += check_dimensions(pages, lambda p: open(p, encoding='utf-8').read(),
+                            os.path.exists)
 
 if git('rev-parse', '--git-dir').returncode == 0:
     tracked = set(git('ls-tree', '-r', '--name-only', 'HEAD').stdout.split())

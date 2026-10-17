@@ -9,6 +9,9 @@
      - accepts new bookings by POST from the website
      - lets the organiser page list entries and flip someone to paid
 
+   Two tabs only: "Entries" (every booking, with contact details) and
+   "Confirmed" (paid entries, the publishable fields only).
+
    Two things never leave this file:
      - the organiser passcode (Script Properties, not the website)
      - mobile numbers and email addresses (the public feed never returns them)
@@ -27,15 +30,15 @@ var PROP_PASSCODE = 'ORGANISER_PASSCODE';
    "did my deploy take?" impossible to answer from the editor alone.
    Bump this whenever the backend changes, then curl action=public to see
    which build is actually live. */
-var BUILD = 'confirm-by-readback';
+var BUILD = 'team-booking';
 
 /* Column order matters: the public feed and the organiser page index into
    this list, so append new columns at the end rather than inserting them. */
 var HEADERS = [
   'Reference',      // A
   'Event',          // B
-  'EntryType',      // C  single | team
-  'TeamName',       // D  blank for a single entry
+  'EntryType',      // C  always 'team' — see sanitise_
+  'TeamName',       // D  every entry is a pair and has one
   'Division',       // E
   'FirstName',      // F
   'Surname',        // G
@@ -69,7 +72,7 @@ function setupAll() {
     );
   }
 
-  var sh = ensureEntriesSheet_(ss);
+  ensureEntriesSheet_(ss);
   ensureConfirmedSheet_(ss);
 
   var pass = PropertiesService.getScriptProperties().getProperty(PROP_PASSCODE);
@@ -78,7 +81,13 @@ function setupAll() {
     PropertiesService.getScriptProperties().setProperty(PROP_PASSCODE, pass);
   }
 
-  announce_('Setup complete. Organiser passcode: ' + pass);
+  announce_(
+    'Setup complete.\n\n' +
+    'Organiser passcode: ' + pass + '\n\n' +
+    'When a payment lands, open organiser.html, enter the passcode, ' +
+    'and click Mark paid next to that team. They appear on the event ' +
+    'page straight away.'
+  );
 }
 
 /* Use this if the passcode is ever forgotten or shared too widely. */
@@ -193,13 +202,14 @@ function doPost(e) {
       if (!p.Surname) return json({ success: false, message: 'Missing surname in ' + who + '.' });
     }
 
-    if (entry.EntryType === 'team') {
-      if (!entry.TeamName) {
-        return json({ success: false, message: 'Missing team name.' });
-      }
-      if (entry.PlayerList.length < 2) {
-        return json({ success: false, message: "A team entry needs both players' details." });
-      }
+    /* Every entry is a pair, so a one-player request is refused here rather
+       than padded into a half-empty team. This is the same rule the form
+       enforces by not offering a single option. */
+    if (entry.PlayerList.length < 2) {
+      return json({ success: false, message: 'An entry needs both players\' details.' });
+    }
+    if (!entry.TeamName) {
+      return json({ success: false, message: 'Missing team name.' });
     }
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -219,12 +229,17 @@ function doPost(e) {
           case 'PaidAt': return '';
           case 'FirstName': return p.FirstName;
           case 'Surname': return p.Surname;
-          case 'Rank': return p.Rank;
+          case 'Rank': return normaliseRank_(p.Rank);
+          /* One row is one person, so the Amount column holds what that
+             person pays, not what the entry pays. A pair paying R600 is two
+             rows of R300: that column then sums to the money actually
+             received. The entry total is Players x Amount if ever needed. */
+          case 'Amount': return perPersonAmount_(entry);
           /* Only the first row of a team carries the partner columns; the
              second row is that partner, so repeating them would double up. */
           case 'PartnerName': return idx === 0 ? (entry.PlayerList[1] ? entry.PlayerList[1].FirstName : '') : '';
           case 'PartnerSurname': return idx === 0 ? (entry.PlayerList[1] ? entry.PlayerList[1].Surname : '') : '';
-          case 'PartnerRank': return idx === 0 ? (entry.PlayerList[1] ? entry.PlayerList[1].Rank : '') : '';
+          case 'PartnerRank': return idx === 0 ? normaliseRank_(entry.PlayerList[1] ? entry.PlayerList[1].Rank : '') : '';
           /* Written separately below, as text. */
           case 'Mobile': return '';
           default: return entry[h] === undefined ? '' : entry[h];
@@ -389,6 +404,22 @@ function fmtDate_(v) {
   return String(v);
 }
 
+/* What one person owes out of an entry: the team fee split across the two
+   players. Rounded to cents so a division can never leave a floating-point
+   tail in the Sheet. */
+function perPersonAmount_(entry) {
+  var total = Number(entry.Amount || 0);
+  var players = (entry.PlayerList && entry.PlayerList.length) || 1;
+  return Math.round((total / players) * 100) / 100;
+}
+
+/* Playtomic rankings get typed as "4,5" as often as "4.5". Store one form so
+   the column sorts and averages correctly no matter who filled it in. */
+function normaliseRank_(v) {
+  var s = String(v === undefined || v === null ? '' : v).trim().replace(/\s+/g, '');
+  return s.replace(/,/g, '.');
+}
+
 function setPaid_(reference, paid) {
   if (!reference) return { success: false, message: 'Missing reference.' };
 
@@ -421,16 +452,17 @@ function findRows_(sh, reference) {
 }
 
 
-/* The reference is what Lea reads off the bank statement, so it is built
-   from the name: "Thabo Mokoena", or the team name for a team entry. */
+/* The reference is what Lea reads off the bank statement, so it is built from
+   the team name. The player-name fallback only fires if a team name is somehow
+   absent, since every entry is a pair. */
 function refBase_(entry) {
   if (String(entry.EntryType).toLowerCase() === 'team' && entry.TeamName) {
     return entry.TeamName;
   }
-  /* sanitise_ strips FirstName and Surname off the entry itself — for a
-     single entry they only exist inside PlayerList. Reading them off the
-     entry produced "undefined undefined" for every single booking, which
-     is the exact string Lea matches against the bank statement. */
+  /* sanitise_ strips FirstName and Surname off the entry itself — they only
+     exist inside PlayerList. Reading them off the entry produced
+     "undefined undefined" as the reference, which is the exact string Lea
+     matches against the bank statement. */
   var first = (entry.PlayerList && entry.PlayerList[0]) || {};
   return ((first.FirstName || '') + ' ' + (first.Surname || '')).trim();
 }
@@ -481,8 +513,8 @@ function sanitise_(body) {
     out[h] = clean_(body[h]);
   });
 
-  /* A single entry is just a one-player list, so every downstream branch
-     deals with the same shape. */
+  /* Cap at two: every entry is a pair, so a longer list is a malformed
+     request rather than something to write out. */
   var raw = Array.isArray(body.PlayerList) ? body.PlayerList : [];
   out.PlayerList = raw.slice(0, 2).map(function (p) {
     p = p || {};
@@ -493,8 +525,11 @@ function sanitise_(body) {
     };
   });
 
-  out.EntryType = out.EntryType.toLowerCase() === 'team' ? 'team' : 'single';
-  if (out.EntryType === 'single') out.PlayerList = out.PlayerList.slice(0, 1);
+  /* Every entry is a pair, so the type is not something a caller gets to
+     choose. A request that says "single" is either stale cached markup or
+     hand-built, and writing it would put a one-player row in a doubles
+     draw — refuse it rather than guess at the missing partner. */
+  out.EntryType = 'team';
 
   out.Players = out.PlayerList.length;
 
