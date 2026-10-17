@@ -12,7 +12,24 @@
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 		<style>
-			.image.main.pp-hero { max-width: 34rem; margin: 2.5rem auto; }
+			.image.main.pp-hero {
+				max-width: 30rem;
+				max-height: 38rem;
+				margin: 1.75rem auto 2.5rem;
+				border-radius: 10px;
+				overflow: hidden;
+				box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+				background: #f4f4f4;
+				line-height: 0;
+			}
+			.image.main.pp-hero img {
+				width: 100%;
+				height: auto;
+				max-height: 38rem;
+				display: block;
+				aspect-ratio: 1 / 1;
+				object-fit: contain;
+			}
 			.pp-note {
 				font-size: 0.95rem;
 				opacity: 0.8;
