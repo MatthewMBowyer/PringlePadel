@@ -1,263 +1,739 @@
+
 <!DOCTYPE HTML>
 <!--
-	Massively by HTML5 UP
-	html5up.net | @ajlkn
-	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+    Massively by HTML5 UP
+    html5up.net | @ajlkn
+    Free for personal and commercial use under the CCA 3.0 license
 -->
 <html>
-	<head>
-		<title>Mamma Mia - It&#39;s Getting Hot In Here! | Pringle Padel</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
-		<style>
-			.image.main.pp-hero {
-				max-width: 30rem;
-				max-height: 38rem;
-				margin: 1.75rem auto 2.5rem;
-				border-radius: 10px;
-				overflow: hidden;
-				box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
-				background: #f4f4f4;
-				line-height: 0;
-			}
-			.image.main.pp-hero img {
-				width: 100%;
-				height: auto;
-				max-height: 38rem;
-				display: block;
-				aspect-ratio: 1 / 1;
-				object-fit: contain;
-			}
-			.pp-note {
-				font-size: 0.95rem;
-				opacity: 0.8;
-			}
-			.pp-cards {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-				gap: 1.25rem;
-				margin-top: 1rem;
-			}
-			.pp-card {
-				border: 1px solid rgba(0,0,0,.1);
-				border-radius: 12px;
-				overflow: hidden;
-				background: #fff;
-				display: flex;
-				flex-direction: column;
-			}
-			.pp-card .thumb { aspect-ratio: 16/9; overflow: hidden; margin-top: 10px; }
-			.pp-card .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; transform: translateY(10%); }
-			.pp-card h3 {
-				font-size: 1.05rem; margin: 0.5rem auto; padding: 0.5rem 1rem;
-				background: rgba(255,255,255,0.9); color: #000; text-align: center;
-				width: fit-content; border-radius: 6px;
-			}
-			.pp-card .actions {
-				display: flex; flex-wrap: wrap; justify-content: center;
-				gap: 0.5rem; margin: 0.75rem 1rem 1rem;
-			}
-			.pp-card .actions .button { margin: 0; }
-			.pp-facts { margin: 0 0 2rem 0; }
-			.pp-facts li {
-				display: flex; justify-content: space-between; gap: 1rem;
-				padding: 0.6rem 0; border-bottom: 1px solid rgba(0,0,0,.1);
-			}
-			.pp-facts li:last-child { border-bottom: 0; }
-			.pp-facts .k { opacity: 0.7; }
-			.pp-facts .v { font-weight: 600; }
-			.pp-ref {
-				font-family: "Courier New", monospace; font-weight: 700;
-				font-size: 1.4rem; letter-spacing: 0.08em;
-			}
-			.pp-bank {
-				border: 1px solid rgba(0,0,0,.15); padding: 1.25rem 1.5rem;
-				margin: 0 0 2rem 0; background: rgba(0,0,0,.02);
-			}
-			.pp-bank div {
-				display: flex; justify-content: space-between; gap: 1rem;
-				padding: 0.4rem 0; border-bottom: 1px dashed rgba(0,0,0,.12);
-			}
-			.pp-bank div:last-child { border-bottom: 0; }
-			.pp-bank .k { opacity: 0.7; }
-			.pp-bank .v { font-weight: 600; }
-			.pp-status { font-size: 0.9rem; font-weight: 600; }
-			.pp-status.paid { color: #1c7c4a; }
-			.pp-status.pending { color: #b5651d; }
-			@media screen and (max-width: 736px) {
-				.pp-card .actions .button { width: 100%; }
-			}
-		</style>
-	</head>
-	<body class="is-preload">
+<head>
+    <title>Mamma Mia - It's Getting Hot In Here! | Pringle Padel</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
 
-		<div id="wrapper">
+    <style>
+        .image.main.pp-hero {
+            max-width: 30rem;
+            max-height: 38rem;
+            margin: 1.75rem auto 2.5rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            background: #f4f4f4;
+            line-height: 0;
+        }
 
-			<!-- Header -->
-			<header id="header">
-				<a href="#footer" class="logo scrolly">Game, Set, Chat!</a>
-			</header>
+        .image.main.pp-hero img {
+            width: 100%;
+            height: auto;
+            max-height: 38rem;
+            display: block;
+            aspect-ratio: 1 / 1;
+            object-fit: contain;
+        }
 
-				<!-- Nav -->
-				<nav id="nav">
-					<ul class="links">
-							<li><a href="Court-side.html">Coach Lea</a></li>
-							<li><a href="index.html">Coaching</a></li>
-							<li><a href="socials.html">Socials</a></li>
-							<li class="active"><a href="tournaments.html">Tournaments</a></li>
-					</ul>
-					<ul class="icons">
-						<li><a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" target="_blank" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
-						<li><a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" target="_blank" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
-						<li><a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" target="_blank" class="icon brands alt fa-tiktok"><span class="label">TikTok</span></a></li>
-					</ul>
-				</nav>
+        .pp-note {
+            font-size: 0.95rem;
+            opacity: 0.8;
+        }
 
-			<!-- Main -->
-			<div id="main">
+        .pp-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
 
-				<!-- Post -->
-				<section class="post">
-					<header class="major">
-						<h1>Mamma Mia &mdash; It&#39;s Getting Hot In Here!</h1>
-						<p>Ladies, Mixed and Mens divisions on Saturday 7 November 2026. Here we go again &mdash; channel your inner Dancing Queen and let&#39;s turn up the heat. Enter below and we will confirm your spot once payment lands.</p>
-					</header>
+        .pp-card {
+            border: 1px solid rgba(0,0,0,.1);
+            border-radius: 12px;
+            overflow: hidden;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+        }
 
-                                                                               <span class="image main pp-hero">
-    <img
-        src="images/Mamma Mia image.jpeg"
-        width="1100"
-        height="1100"
-        fetchpriority="high"
-        decoding="async"
-        alt="Mamma Mia Tournament - 7 November 2026"
-    />
-</span>
+        .pp-card .thumb {
+            aspect-ratio: 16/9;
+            overflow: hidden;
+            margin-top: 10px;
+        }
 
-					<ul class="actions special">
-						<li><a href="booking.html?event=mamma-mia-its-hot-tournament" class="button primary large">Enter this event</a></li>
-						<li><a href="tournaments.html" class="button large">Back to tournaments</a></li>
-					</ul>
-				</section>
+        .pp-card .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transform: translateY(10%);
+        }
 
-				<!-- Details -->
-				<section class="post">
-					<h2>Details</h2>
-					<ul class="pp-facts" id="facts"></ul>
-				</section>
+        .pp-card h3 {
+            font-size: 1.05rem;
+            margin: 0.5rem auto;
+            padding: 0.5rem 1rem;
+            background: rgba(255,255,255,0.9);
+            color: #000;
+            text-align: center;
+            width: fit-content;
+            border-radius: 6px;
+        }
 
-				<!-- Confirmed entries -->
-				<section class="post">
-					<h2>Confirmed entries</h2>
-					<p class="pp-note" id="note"></p>
-					<div class="table-wrapper">
-						<table id="entries">
-							<thead>
-								<tr><th>Player</th><th>Division</th><th>Playtomic Ranking</th></tr>
-							</thead>
-							<tbody></tbody>
-						</table>
-					</div>
-				</section>
+        .pp-card .actions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            margin: 0.75rem 1rem 1rem;
+        }
 
-			</div>
+        .pp-card .actions .button {
+            margin: 0;
+        }
 
-				<!-- Footer -->
-				<footer id="footer">
-					<section>
-						<h3>Want to book or ask a question?</h3>
-						<p>Click below to chat with us directly on WhatsApp 👇</p>
-						<a href="https://wa.me/27832630908?text=Hi%20there!%20I%27m%20interested%20in%20padel%20coaching." target="_blank" class="button primary fit">📱 WhatsApp Us</a>
-					</section>
-					<section class="split contact">
-						<section class="alt">
-							<h3>Padel address:</h3>
-							<p>Indoor Padel Revolution<br />
-							2 Picaroon Street Johannesburg 1724</p>
-						</section>
-						<section>
-							<h3>Phone</h3>
-							<p><a href="https://wa.me/27832630908" target="_blank">+27 83 263 0908</a></p>
-						</section>
-						<section>
-							<h3>Email</h3>
-							<p><a href="mailto:Pringlepadel@gmail.com">Pringlepadel@gmail.com</a></p>
-						</section>
-						<section>
-							<ul class="icons alt">
-								<li><a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA==" target="_blank" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
-								<li><a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr" target="_blank" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
-								<li><a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1" target="_blank" class="icon brands alt fa-tiktok"><span class="label">TikTok</span></a></li>
-							</ul>
-						</section>
-					</section>
-				</footer>
+        .pp-facts {
+            margin: 0 0 2rem 0;
+        }
 
-				<!-- Copyright -->
-				<div id="copyright">
-					<ul><li>&copy; Pringle Padel</li><li>Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
-				</div>
+        .pp-facts li {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid rgba(0,0,0,.1);
+        }
 
-		</div>
+        .pp-facts li:last-child {
+            border-bottom: 0;
+        }
 
-		<!-- Scripts -->
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/jquery.scrollex.min.js"></script>
-		<script src="assets/js/jquery.scrolly.min.js"></script>
-		<script src="assets/js/browser.min.js"></script>
-		<script src="assets/js/breakpoints.min.js"></script>
-		<script src="assets/js/util.js"></script>
-		<script src="assets/js/main.js"></script>
-		<script src="assets/js/pp-config.js"></script>
-		<script src="assets/js/entries.js"></script>
+        .pp-facts .k {
+            opacity: 0.7;
+        }
 
-		<script>
-			const ev = ppEvent('mamma-mia-its-hot-tournament');
+        .pp-facts .v {
+            font-weight: 600;
+        }
 
-			/* Only paid players are published, and only their name and ranking.
-			   Payment status and contact details stay private to the organiser,
-			   so nothing here needs hiding in the browser. */
-			document.getElementById('note').textContent =
-			'Players appear here once their payment has cleared. Rank is their Playtomic ranking.';
+        .pp-ref {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 0.08em;
+        }
 
-			document.getElementById('facts').innerHTML = [
-				['Date', ev.date],
-				['Venue', ev.venue],
-				['Divisions', 'Ladies 2-4pm | Mixed 4-6pm | Mens 6-8pm'],
-				['Entry fee', ppMoney(ev.price) + ' per person'],
-				['Team entry', ppMoney(ppTeamPrice(ev)) + ' for the team (2 players, '
-				 + ppMoney(ev.price) + ' each)']
-			].map(function (r) {
-				return '<li><span class="k">' + ppEsc(r[0]) + '</span>' +
-					'<span class="v">' + ppEsc(r[1]) + '</span></li>';
-			}).join('');
+        .pp-bank {
+            border: 1px solid rgba(0,0,0,.15);
+            padding: 1.25rem 1.5rem;
+            margin: 0 0 2rem 0;
+            background: rgba(0,0,0,.02);
+        }
 
-			ppPaidEntries(ev).then(function (paid) {
-				if (!paid.length) {
-					document.getElementById('entries').style.display = 'none';
-					return;
-				}
+        .pp-bank div {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px dashed rgba(0,0,0,.12);
+        }
 
-				document.querySelector('#entries tbody').innerHTML = paid.map(function (b) {
-					const name = [b.FirstName, b.Surname].filter(Boolean).join(' ') || b.TeamName;
-					const label = b.TeamName && b.TeamName !== name
-						? name + ' (' + b.TeamName + ')'
-						: name;
+        .pp-bank div:last-child {
+            border-bottom: 0;
+        }
 
-					return '<tr><td>' +
-						ppEsc(label) + '</td>' +
-						'<td>' + ppEsc(b.Division || '\u2014') + '</td>' +
-						'<td>' + ppEsc(b.Rank || '\u2014') + '</td></tr>';
-				}).join('');
-			}).catch(function (err) {
-				console.error(err);
-				document.getElementById('note').textContent =
-					'The entry list is unavailable right now. Please try again shortly.';
-				document.getElementById('entries').style.display = 'none';
-			});
-		</script>
+        .pp-bank .k {
+            opacity: 0.7;
+        }
 
-	</body>
+        .pp-bank .v {
+            font-weight: 600;
+            overflow-wrap: anywhere;
+        }
+
+        .pp-status {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .pp-status.paid {
+            color: #1c7c4a;
+        }
+
+        .pp-status.pending {
+            color: #b5651d;
+        }
+
+        /* Fundraising options */
+
+        .pp-fundraising-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.25rem;
+            margin: 1.5rem 0 2.5rem;
+        }
+
+        .pp-fundraising-option {
+            border: 1px solid rgba(0,0,0,.12);
+            border-radius: 10px;
+            padding: 1.75rem;
+            background: rgba(0,0,0,.02);
+        }
+
+        .pp-fundraising-option h3 {
+            margin-top: 0;
+            font-size: 1.15rem;
+            line-height: 1.5;
+        }
+
+        .pp-fundraising-option p:last-child {
+            margin-bottom: 0;
+        }
+
+        .pp-fundraising-option .pp-price {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #18bfef;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Payment instructions */
+
+        .pp-payment-instructions {
+            margin-bottom: 2rem;
+        }
+
+        .pp-payment-instructions li {
+            margin-bottom: 1rem;
+        }
+
+        .pp-payment-ref {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+            color: #18bfef;
+            font-size: 1.05rem;
+            overflow-wrap: anywhere;
+        }
+
+        @media screen and (max-width: 736px) {
+            .pp-card .actions .button {
+                width: 100%;
+            }
+
+            .pp-bank div {
+                flex-wrap: wrap;
+            }
+
+            .pp-fundraising-option {
+                padding: 1.25rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="is-preload">
+
+<div id="wrapper">
+
+    <!-- Header -->
+    <header id="header">
+        <a href="#footer" class="logo scrolly">Game, Set, Chat!</a>
+    </header>
+
+    <!-- Navigation -->
+    <nav id="nav">
+
+        <ul class="links">
+            <li><a href="Court-side.html">Coach Lea</a></li>
+            <li><a href="index.html">Coaching</a></li>
+            <li><a href="socials.html">Socials</a></li>
+            <li class="active"><a href="tournaments.html">Tournaments</a></li>
+        </ul>
+
+        <ul class="icons">
+            <li>
+                <a href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA=="
+                   target="_blank"
+                   class="icon brands alt fa-instagram">
+                    <span class="label">Instagram</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr"
+                   target="_blank"
+                   class="icon brands alt fa-facebook-f">
+                    <span class="label">Facebook</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1"
+                   target="_blank"
+                   class="icon brands alt fa-tiktok">
+                    <span class="label">TikTok</span>
+                </a>
+            </li>
+        </ul>
+
+    </nav>
+
+    <!-- Main -->
+    <div id="main">
+
+        <!-- Tournament introduction -->
+        <section class="post">
+
+            <header class="major">
+                <h1>Mamma Mia &mdash; It's Getting Hot In Here!</h1>
+
+                <p>
+                    Ladies, Mixed and Mens divisions on
+                    Saturday 7 November 2026.
+                    Here we go again &mdash; channel your inner
+                    Dancing Queen and let's turn up the heat.
+                    Enter below and we will confirm your spot
+                    once payment lands.
+                </p>
+            </header>
+
+            <span class="image main pp-hero">
+                <img
+                    src="images/Mamma Mia image.jpeg"
+                    width="1100"
+                    height="1100"
+                    fetchpriority="high"
+                    decoding="async"
+                    alt="Mamma Mia Tournament - 7 November 2026"
+                />
+            </span>
+
+            <ul class="actions special">
+                <li>
+                    <a href="booking.html?event=mamma-mia-its-hot-tournament"
+                       class="button primary large">
+                        Enter this event
+                    </a>
+                </li>
+
+                <li>
+                    <a href="tournaments.html"
+                       class="button large">
+                        Back to tournaments
+                    </a>
+                </li>
+            </ul>
+
+        </section>
+
+        <!-- Tournament details -->
+        <section class="post">
+            <h2>Details</h2>
+            <ul class="pp-facts" id="facts"></ul>
+        </section>
+
+        <!-- Fundraising information for options 2 and 3 -->
+        <section class="post">
+
+            <header class="major">
+                <h2>Help Us Bring the Breeze to IPR!</h2>
+
+                <p>
+                    We're raising funds to purchase and install
+                    cooling fans at Indoor Padel Revolution.
+                    Want to help without entering the tournament?
+                    Here are two more ways to contribute!
+                </p>
+            </header>
+
+            <div class="pp-fundraising-options">
+
+                <!-- Option 2 -->
+                <div class="pp-fundraising-option">
+
+                    <h3>💰 2. MONEY, MONEY, MONEY!</h3>
+
+                    <span class="pp-price">Donate or Win!</span>
+
+                    <p>
+                        <strong>Just donate or join our lucky draw!</strong>
+                    </p>
+
+                    <p>
+                        Donate any amount towards our cooling fans,
+                        or enter our lucky draw for a chance to win
+                        a <strong>R3,000 IPR Playtomic Wallet!</strong>
+                    </p>
+
+                    <p>
+                        Every <strong>R100</strong> paid towards the
+                        lucky draw gives you one entry.
+                        The more R100 entries you purchase,
+                        the more chances you have to win!
+                    </p>
+
+                </div>
+
+                <!-- Option 3 -->
+                <div class="pp-fundraising-option">
+
+                    <h3>🌬️ 3. TAKE A CHANCE ON A FAN!</h3>
+
+                    <span class="pp-price">R3,500 per Fan</span>
+
+                    <p>
+                        <strong>Sponsor a cooling fan!</strong>
+                    </p>
+
+                    <p>
+                        Sponsor a cooling fan for
+                        <strong>R3,500</strong> and help make IPR
+                        a cooler, more comfortable place to play.
+                    </p>
+
+                    <p>
+                        As a thank you, we'll proudly display
+                        your <strong>family or company name</strong>
+                        on a plaque underneath your sponsored fan.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <!-- Banking details -->
+            <h2>Banking Details</h2>
+
+            <p>
+                Make your donation, lucky draw payment,
+                or fan sponsorship via EFT using the
+                banking details below.
+            </p>
+
+            <div class="pp-bank" id="fundraiserBank">
+
+                <div>
+                    <span class="k">Account name</span>
+                    <span class="v" id="fundBankName"></span>
+                </div>
+
+                <div>
+                    <span class="k">Bank</span>
+                    <span class="v" id="fundBank"></span>
+                </div>
+
+                <div>
+                    <span class="k">Account number</span>
+                    <span class="v" id="fundAccount"></span>
+                </div>
+
+                <div>
+                    <span class="k">Branch code</span>
+                    <span class="v" id="fundBranch"></span>
+                </div>
+
+            </div>
+
+            <!-- Payment instructions -->
+            <h3>Payment Reference Instructions</h3>
+
+            <p>
+                <strong>IMPORTANT:</strong>
+                When making your EFT payment, please use the
+                correct payment reference below.
+                Include your mobile number so we can
+                identify your contribution.
+            </p>
+
+            <ul class="pp-payment-instructions">
+
+                <li>
+                    <strong>Just Donating:</strong><br>
+                    Use DON followed by your mobile number.<br>
+                    Example:
+                    <span class="pp-payment-ref">DON-0821234567</span>
+                </li>
+
+                <li>
+                    <strong>Entering the Lucky Draw:</strong><br>
+                    Use DRAW followed by your mobile number.<br>
+                    Example:
+                    <span class="pp-payment-ref">DRAW-0821234567</span><br>
+                    Every R100 paid earns one entry into the draw
+                    for the R3,000 IPR Playtomic Wallet.
+                </li>
+
+                <li>
+                    <strong>Sponsoring a Fan:</strong><br>
+                    Use FAN followed by your mobile number.<br>
+                    Example:
+                    <span class="pp-payment-ref">FAN-0821234567</span>
+                </li>
+
+            </ul>
+
+            <p class="pp-note">
+                <strong>Note:</strong>
+                General donations do not automatically qualify
+                for the lucky draw. Please use the DRAW
+                reference if you wish to enter.
+            </p>
+
+            <h3>After Making Payment</h3>
+
+            <p>
+                Please WhatsApp Coach Lea your proof of payment
+                and confirm whether you are donating,
+                entering the lucky draw, or sponsoring a fan.
+            </p>
+
+            <p>
+                <strong>Fan sponsors:</strong>
+                Please also provide the exact family or company
+                name you would like displayed on your plaque.
+            </p>
+
+            <ul class="actions special">
+                <li>
+                    <a
+                        href="https://wa.me/27832630908?text=Hi%20Coach%20Lea%2C%20I%20have%20made%20a%20payment%20towards%20the%20Mamma%20Mia%20cooling%20fan%20fundraiser.%20I%20would%20like%20to%20send%20my%20proof%20of%20payment."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="button primary large">
+                        Send Proof of Payment
+                    </a>
+                </li>
+            </ul>
+
+        </section>
+
+        <!-- Confirmed entries -->
+        <section class="post">
+
+            <h2>Confirmed entries</h2>
+
+            <p class="pp-note" id="note"></p>
+
+            <div class="table-wrapper">
+                <table id="entries">
+                    <thead>
+                        <tr>
+                            <th>Player</th>
+                            <th>Division</th>
+                            <th>Playtomic Ranking</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer id="footer">
+
+        <section>
+            <h3>Want to book or ask a question?</h3>
+
+            <p>
+                Click below to chat with us directly on WhatsApp 👇
+            </p>
+
+            <a
+                href="https://wa.me/27832630908?text=Hi%20there!%20I%27m%20interested%20in%20padel%20coaching."
+                target="_blank"
+                class="button primary fit">
+                📱 WhatsApp Us
+            </a>
+        </section>
+
+        <section class="split contact">
+
+            <section class="alt">
+                <h3>Padel address:</h3>
+                <p>
+                    Indoor Padel Revolution<br />
+                    2 Picaroon Street Johannesburg 1724
+                </p>
+            </section>
+
+            <section>
+                <h3>Phone</h3>
+                <p>
+                    <a href="https://wa.me/27832630908" target="_blank">
+                        +27 83 263 0908
+                    </a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Email</h3>
+                <p>
+                    <a href="mailto:Pringlepadel@gmail.com">
+                        Pringlepadel@gmail.com
+                    </a>
+                </p>
+            </section>
+
+            <section>
+                <ul class="icons alt">
+
+                    <li>
+                        <a
+                            href="https://www.instagram.com/pringlepadel?igsh=MWJpMDZ2aG9qNnA5OA=="
+                            target="_blank"
+                            class="icon brands alt fa-instagram">
+                            <span class="label">Instagram</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="https://www.facebook.com/share/1Av36y9ABx/?mibextid=wwXIfr"
+                            target="_blank"
+                            class="icon brands alt fa-facebook-f">
+                            <span class="label">Facebook</span>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a
+                            href="https://www.tiktok.com/@coach.lea?_t=ZS-8yaioc5QpSj&_r=1"
+                            target="_blank"
+                            class="icon brands alt fa-tiktok">
+                            <span class="label">TikTok</span>
+                        </a>
+                    </li>
+
+                </ul>
+            </section>
+
+        </section>
+
+    </footer>
+
+    <!-- Copyright -->
+    <div id="copyright">
+        <ul>
+            <li>&copy; Pringle Padel</li>
+            <li>
+                Design:
+                <a href="https://html5up.net">HTML5 UP</a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+
+<!-- Existing scripts -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="assets/js/jquery.scrollex.min.js"></script>
+<script src="assets/js/jquery.scrolly.min.js"></script>
+<script src="assets/js/browser.min.js"></script>
+<script src="assets/js/breakpoints.min.js"></script>
+<script src="assets/js/util.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/pp-config.js"></script>
+<script src="assets/js/entries.js"></script>
+
+<script>
+    const ev = ppEvent('mamma-mia-its-hot-tournament');
+
+    /*
+     * Banking details are retrieved from entries.js.
+     * No duplicate banking information is required.
+     */
+    document.getElementById('fundBankName').textContent =
+        PP_ENTRIES.bank.accountName;
+
+    document.getElementById('fundBank').textContent =
+        PP_ENTRIES.bank.bank;
+
+    document.getElementById('fundAccount').textContent =
+        PP_ENTRIES.bank.accountNumber;
+
+    document.getElementById('fundBranch').textContent =
+        PP_ENTRIES.bank.branch;
+
+
+    /*
+     * Only paid tournament players are published.
+     * Payment status and contact details remain private.
+     */
+    document.getElementById('note').textContent =
+        'Players appear here once their payment has cleared. Rank is their Playtomic ranking.';
+
+
+    /*
+     * Existing tournament information
+     */
+    document.getElementById('facts').innerHTML = [
+        ['Date', ev.date],
+        ['Venue', ev.venue],
+        ['Divisions', 'Ladies 2-4pm | Mixed 4-6pm | Mens 6-8pm'],
+        ['Entry fee', ppMoney(ev.price) + ' per person'],
+        [
+            'Team entry',
+            ppMoney(ppTeamPrice(ev)) +
+            ' for the team (2 players, ' +
+            ppMoney(ev.price) + ' each)'
+        ]
+    ].map(function (r) {
+        return '<li><span class="k">' +
+            ppEsc(r[0]) +
+            '</span><span class="v">' +
+            ppEsc(r[1]) +
+            '</span></li>';
+    }).join('');
+
+
+    /*
+     * Existing confirmed entries functionality
+     */
+    ppPaidEntries(ev).then(function (paid) {
+
+        if (!paid.length) {
+            document.getElementById('entries').style.display = 'none';
+            return;
+        }
+
+        document.querySelector('#entries tbody').innerHTML =
+            paid.map(function (b) {
+
+                const name = [
+                    b.FirstName,
+                    b.Surname
+                ].filter(Boolean).join(' ') || b.TeamName;
+
+                const label =
+                    b.TeamName && b.TeamName !== name
+                        ? name + ' (' + b.TeamName + ')'
+                        : name;
+
+                return '<tr><td>' +
+                    ppEsc(label) +
+                    '</td><td>' +
+                    ppEsc(b.Division || '\u2014') +
+                    '</td><td>' +
+                    ppEsc(b.Rank || '\u2014') +
+                    '</td></tr>';
+
+            }).join('');
+
+    }).catch(function (err) {
+
+        console.error(err);
+
+        document.getElementById('note').textContent =
+            'The entry list is unavailable right now. Please try again shortly.';
+
+        document.getElementById('entries').style.display = 'none';
+
+    });
+</script>
+
+</body>
 </html>
